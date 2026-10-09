@@ -1,0 +1,3 @@
+const {chromium}=require('C:/Users/Admin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const path=require('path'),{pathToFileURL}=require('url');
+(async()=>{const b=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});const p=await b.newPage({viewport:{width:1920,height:1080},deviceScaleFactor:2/3});for(let i=1;i<=11;i++){const stem=path.resolve('tmp/editable-en/preview-'+String(i).padStart(2,'0'));await p.goto(pathToFileURL(stem+'.html').href);await p.screenshot({path:stem+'.png'});}await b.close();console.log('Captured 11 native-object previews.');})();

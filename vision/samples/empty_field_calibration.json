@@ -1,0 +1,9 @@
+{
+  "image": "empty_field.jpg",
+  "image_size_px": [961, 1280],
+  "corners_px_tl_tr_br_bl": [[147, 560], [520, 393], [823, 609], [365, 927]],
+  "corner_method": "Manually selected visible floor corners, approximate; not automatic detection",
+  "field_size_mm_assumed": [1200, 1200],
+  "orientation": "blue at top, yellow at bottom; team assignment not inferred",
+  "limitations": "Empty field only. No block-color calibration or accuracy validation. Recalibrate for another camera position. No lens distortion correction."
+}

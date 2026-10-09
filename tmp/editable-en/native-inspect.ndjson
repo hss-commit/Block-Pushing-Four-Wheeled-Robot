@@ -1,0 +1,450 @@
+{"kind":"slide","id":"sl/v1mi5p","slide":1,"title":"Block-Pushing Robot Competition","textShapes":14}
+{"kind":"shape","id":"sh/s3u903ep","slide":1,"name":"Section rule","bbox":[90,321.59,1740,1]}
+{"kind":"shape","id":"sh/72l8ryx4","slide":1,"name":"Section rule","bbox":[90,841.09,645,1]}
+{"kind":"textbox","id":"sh/61crytwz","slide":1,"name":"Slide title","text":"Block-Pushing Robot Competition\nDesign Progress & Strategy","textPreview":"Block-Pushing Robot Competition | Design Progress & Strategy","textChars":58,"textLines":2,"bbox":[90,86,1748,214.5]}
+{"kind":"textbox","id":"sh/503qpofe","slide":1,"name":"Current progress, pushing strategy and team plan","text":"Current progress, pushing strategy and team plan","textPreview":"Current progress, pushing strategy and team plan","textChars":48,"textLines":1,"bbox":[90,356.59,1748,42]}
+{"kind":"textbox","id":"sh/kzu9w3et","slide":1,"name":"The architecture and strategy are outlined.Next: hardware selecti","text":"The architecture and strategy are\noutlined.\nNext: hardware selection and prototype\ntests.","textPreview":"The architecture and strategy are | outlined. | Next: hardware selection and prototype | tests.","textChars":89,"textLines":4,"bbox":[90,563.09,653,227.5]}
+{"kind":"textbox","id":"sh/jyl8nyx8","slide":1,"name":"Task & system","text":"Task & system","textPreview":"Task & system","textChars":13,"textLines":1,"bbox":[90,877.09,182.05,37.8]}
+{"kind":"textbox","id":"sh/yxcrutwn","slide":1,"name":"Match strategy","text":"Match strategy","textPreview":"Match strategy","textChars":14,"textLines":1,"bbox":[293.05,877.09,185.08,37.8]}
+{"kind":"textbox","id":"sh/xwjqlof2","slide":1,"name":"Plan & teamwork","text":"Plan & teamwork","textPreview":"Plan & teamwork","textChars":15,"textLines":1,"bbox":[499.13,877.09,212.09,37.8]}
+{"kind":"shape","id":"sh/wbapsjeh","slide":1,"name":"Diagram rect","bbox":[942.19,448.4,428.65,214.32]}
+{"kind":"shape","id":"sh/ahw3i5cz","slide":1,"name":"Diagram rect","bbox":[942.19,662.73,428.65,214.32]}
+{"kind":"shape","id":"sh/bi5kbatk","slide":1,"name":"Diagram rect","bbox":[942.19,448.4,428.65,428.65]}
+{"kind":"shape","id":"sh/wjelkfu5","slide":1,"name":"Field grid","bbox":[968.57,448.4,1,428.65]}
+{"kind":"shape","id":"sh/xkn2d0bq","slide":1,"name":"Field grid","bbox":[1011.43,448.4,1,428.65]}
+{"kind":"shape","id":"sh/mdcjelc3","slide":1,"name":"Field grid","bbox":[1054.3,448.4,1,428.65]}
+{"kind":"shape","id":"sh/ne5k7qto","slide":1,"name":"Field grid","bbox":[1097.16,448.4,1,428.65]}
+{"kind":"shape","id":"sh/ofe1gvu9","slide":1,"name":"Field grid","bbox":[1140.03,448.4,1,428.65]}
+{"kind":"shape","id":"sh/9gn290bu","slide":1,"name":"Field grid","bbox":[1182.89,448.4,1,428.65]}
+{"kind":"shape","id":"sh/epcjalc7","slide":1,"name":"Field grid","bbox":[1225.76,448.4,1,428.65]}
+{"kind":"shape","id":"sh/zalk3qtc","slide":1,"name":"Field grid","bbox":[1268.62,448.4,1,428.65]}
+{"kind":"shape","id":"sh/3uh0bm94","slide":1,"name":"Field grid","bbox":[1311.49,448.4,1,428.65]}
+{"kind":"shape","id":"sh/2t8z2hsz","slide":1,"name":"Field grid","bbox":[1354.35,448.4,1,428.65]}
+{"kind":"shape","id":"sh/pgjidwra","slide":1,"name":"Field grid","bbox":[942.19,455.82,428.65,1]}
+{"kind":"shape","id":"sh/4vah4rap","slide":1,"name":"Field grid","bbox":[942.19,498.69,428.65,1]}
+{"kind":"shape","id":"sh/ri10fm9g","slide":1,"name":"Field grid","bbox":[942.19,541.55,428.65,1]}
+{"kind":"shape","id":"sh/qhsz6hsv","slide":1,"name":"Field grid","bbox":[942.19,584.42,428.65,1]}
+{"kind":"shape","id":"sh/dkjihwrm","slide":1,"name":"Field grid","bbox":[942.19,627.28,428.65,1]}
+{"kind":"shape","id":"sh/cjah8ra1","slide":1,"name":"Field grid","bbox":[942.19,670.15,428.65,1]}
+{"kind":"shape","id":"sh/7mxg329c","slide":1,"name":"Field grid","bbox":[942.19,713.01,428.65,1]}
+{"kind":"shape","id":"sh/6lozaxsr","slide":1,"name":"Field grid","bbox":[942.19,755.88,428.65,1]}
+{"kind":"shape","id":"sh/wf25ozmd","slide":1,"name":"Field grid","bbox":[942.19,798.74,428.65,1]}
+{"kind":"shape","id":"sh/xgb6h43i","slide":1,"name":"Field grid","bbox":[942.19,841.61,428.65,1]}
+{"kind":"shape","id":"sh/atknmp47","slide":1,"name":"Diagram path","bbox":[942.19,662.73,428.65,1]}
+{"kind":"textbox","id":"sh/butofuls","slide":1,"name":"Opponent half","text":"Opponent half","textPreview":"Opponent half","textChars":13,"textLines":1,"bbox":[942.19,404.67,142.7,28.85]}
+{"kind":"textbox","id":"sh/or25kzm1","slide":1,"name":"Our half","text":"Our half","textPreview":"Our half","textChars":8,"textLines":1,"bbox":[942.19,894.32,86.55,28.85]}
+{"kind":"shape","id":"sh/psbmt43m","slide":1,"name":"Diagram rect","bbox":[1031.22,617.39,189.59,190.42]}
+{"kind":"shape","id":"sh/2p0nip4v","slide":1,"name":"Diagram path","bbox":[1031.22,617.39,1,190.42]}
+{"kind":"shape","id":"sh/nq94rulg","slide":1,"name":"Diagram path","bbox":[1220.81,617.39,1,190.42]}
+{"kind":"shape","id":"sh/8nm5wjml","slide":1,"name":"Diagram rect","bbox":[994.12,642.95,11.54,11.54]}
+{"kind":"shape","id":"sh/tov6po3q","slide":1,"name":"Diagram rect","bbox":[1056.77,642.95,11.54,11.54]}
+{"kind":"shape","id":"sh/5s72hgji","slide":1,"name":"Diagram rect","bbox":[1119.42,642.95,11.54,11.54]}
+{"kind":"shape","id":"sh/4relob2x","slide":1,"name":"Diagram rect","bbox":[1182.07,642.95,11.54,11.54]}
+{"kind":"shape","id":"sh/3q5kf6lc","slide":1,"name":"Diagram rect","bbox":[1244.72,642.95,11.54,11.54]}
+{"kind":"shape","id":"sh/i5wjm1kr","slide":1,"name":"Diagram rect","bbox":[1307.36,642.95,11.54,11.54]}
+{"kind":"shape","id":"sh/dw72l0je","slide":1,"name":"Diagram circle","bbox":[1107.05,553.09,36.27,36.27]}
+{"kind":"shape","id":"sh/svylsv2t","slide":1,"name":"Diagram path","bbox":[1118.38,564.63,14.22,18.18]}
+{"kind":"shape","id":"sh/rupkjq18","slide":1,"name":"Diagram circle","bbox":[1098.81,544.85,52.76,52.76]}
+{"kind":"shape","id":"sh/qtg3qlkn","slide":1,"name":"Diagram path","bbox":[1125.19,686.63,1,89.03]}
+{"kind":"shape","id":"sh/10r2p0ja","slide":1,"name":"Route arrowhead","bbox":[1116.78,758.85,16.82,16.82]}
+{"kind":"shape","id":"sh/0zilwv25","slide":1,"name":"Diagram path","bbox":[1141.68,542.38,291.81,28.85]}
+{"kind":"shape","id":"sh/y5szqx0n","slide":1,"name":"Diagram circle","bbox":[1138.38,567.93,6.59,6.59]}
+{"kind":"textbox","id":"sh/j610j21s","slide":1,"name":"Starting pose","text":"Starting pose","textPreview":"Starting pose","textChars":13,"textLines":1,"bbox":[1429.36,501.07,180.5,36.93]}
+{"kind":"textbox","id":"sh/k7ahs7id","slide":1,"name":"Start in the opponent half","text":"Start in the opponent half","textPreview":"Start in the opponent half","textChars":26,"textLines":1,"bbox":[1429.36,556.17,262.46,31.16]}
+{"kind":"textbox","id":"sh/l8jilcjy","slide":1,"name":"Face our own half","text":"Face our own half","textPreview":"Face our own half","textChars":17,"textLines":1,"bbox":[1429.36,589.97,190.68,31.16]}
+{"kind":"shape","id":"sh/69czuh0j","slide":1,"name":"Diagram path","bbox":[1220.81,731.15,212.68,33.8]}
+{"kind":"shape","id":"sh/7al0n2h4","slide":1,"name":"Diagram circle","bbox":[1217.51,761.65,6.59,6.59]}
+{"kind":"textbox","id":"sh/8buhw7ip","slide":1,"name":"Pushing objective","text":"Pushing objective","textPreview":"Pushing objective","textChars":17,"textLines":1,"bbox":[1429.36,689.84,237.66,36.93]}
+{"kind":"textbox","id":"sh/tw3ipcza","slide":1,"name":"Move blocks to our half","text":"Move blocks to our half","textPreview":"Move blocks to our half","textChars":23,"textLines":1,"bbox":[1429.36,744.95,242.61,31.16]}
+{"kind":"textbox","id":"sh/uxczyh0f","slide":1,"name":"Keep them until the finish","text":"Keep them until the finish","textPreview":"Keep them until the finish","textChars":26,"textLines":1,"bbox":[1429.36,778.74,261.86,31.16]}
+{"kind":"slide","id":"sl/j9y7dp","slide":2,"title":"Match objective: more blocks in our half","textShapes":16}
+{"kind":"shape","id":"sh/lc329472","slide":2,"name":"Section rule","bbox":[90,197.19,1740,1]}
+{"kind":"shape","id":"sh/y9s3e98r","slide":2,"name":"Section rule","bbox":[90,406.47,595,1]}
+{"kind":"shape","id":"sh/za1k7epc","slide":2,"name":"Section rule","bbox":[90,592.75,595,1]}
+{"kind":"shape","id":"sh/8fulkjqt","slide":2,"name":"Section rule","bbox":[90,779.03,595,1]}
+{"kind":"textbox","id":"sh/9g32do7e","slide":2,"name":"Slide title","text":"Match objective: more blocks in our half","textPreview":"Match objective: more blocks in our half","textChars":40,"textLines":1,"bbox":[90,86,1748,81.2]}
+{"kind":"textbox","id":"sh/mdc3i98n","slide":2,"name":"The final block count matters.We must also prevent losses.","text":"The final block count matters.\nWe must also prevent losses.","textPreview":"The final block count matters. | We must also prevent losses.","textChars":59,"textLines":2,"bbox":[90,273.19,603,105.45]}
+{"kind":"textbox","id":"sh/7elkbep8","slide":2,"name":"Starting conditions","text":"Starting conditions","textPreview":"Starting conditions","textChars":19,"textLines":1,"bbox":[90,433.47,603,43.4]}
+{"kind":"textbox","id":"sh/w3ulo3qp","slide":2,"name":"Blocks lie near the centerline. Our robot faces our half.","text":"Blocks lie near the centerline. Our robot faces\nour half.","textPreview":"Blocks lie near the centerline. Our robot faces | our half.","textChars":57,"textLines":2,"bbox":[90,490.97,603,82.6]}
+{"kind":"textbox","id":"sh/h4n2ho7a","slide":2,"name":"Crossing the line","text":"Crossing the line","textPreview":"Crossing the line","textChars":17,"textLines":1,"bbox":[90,619.75,603,43.4]}
+{"kind":"textbox","id":"sh/h83u1kvq","slide":2,"name":"The robot may cross into the opponent half to reposition.","text":"The robot may cross into the opponent half to\nreposition.","textPreview":"The robot may cross into the opponent half to | reposition.","textChars":57,"textLines":2,"bbox":[90,677.25,603,82.6]}
+{"kind":"textbox","id":"sh/wnutsfu5","slide":2,"name":"Autonomous operation","text":"Autonomous operation","textPreview":"Autonomous operation","textChars":20,"textLines":1,"bbox":[90,806.03,603,43.4]}
+{"kind":"textbox","id":"sh/vm1czad0","slide":2,"name":"Each match is under 90 s. External vision and wireless control ar","text":"Each match is under 90 s. External vision and\nwireless control are allowed.","textPreview":"Each match is under 90 s. External vision and | wireless control are allowed.","textChars":75,"textLines":2,"bbox":[90,863.53,603,82.6]}
+{"kind":"shape","id":"sh/ulsbq5cf","slide":2,"name":"Diagram rect","bbox":[863.16,324.93,518.59,259.3]}
+{"kind":"shape","id":"sh/5c3u5kv2","slide":2,"name":"Diagram rect","bbox":[863.16,584.23,518.59,259.3]}
+{"kind":"shape","id":"sh/4butwzuh","slide":2,"name":"Diagram rect","bbox":[863.16,324.93,518.59,518.59]}
+{"kind":"shape","id":"sh/jalc3udw","slide":2,"name":"Field grid","bbox":[895.07,324.93,1,518.59]}
+{"kind":"shape","id":"sh/i9cbupcb","slide":2,"name":"Field grid","bbox":[946.93,324.93,1,518.59]}
+{"kind":"shape","id":"sh/lgjat0vi","slide":2,"name":"Field grid","bbox":[998.79,324.93,1,518.59]}
+{"kind":"shape","id":"sh/kfatkvex","slide":2,"name":"Field grid","bbox":[1050.65,324.93,1,518.59]}
+{"kind":"shape","id":"sh/czutgvmt","slide":2,"name":"Field grid","bbox":[1102.51,324.93,1,518.59]}
+{"kind":"shape","id":"sh/d0nu903e","slide":2,"name":"Field grid","bbox":[1154.37,324.93,1,518.59]}
+{"kind":"shape","id":"sh/qxcbel43","slide":2,"name":"Field grid","bbox":[1206.23,324.93,1,518.59]}
+{"kind":"shape","id":"sh/bylc7qlo","slide":2,"name":"Field grid","bbox":[1258.09,324.93,1,518.59]}
+{"kind":"shape","id":"sh/0netkfm5","slide":2,"name":"Field grid","bbox":[1309.95,324.93,1,518.59]}
+{"kind":"shape","id":"sh/lonudk3q","slide":2,"name":"Field grid","bbox":[1361.81,324.93,1,518.59]}
+{"kind":"shape","id":"sh/y1wbi54z","slide":2,"name":"Field grid","bbox":[863.16,333.91,518.59,1]}
+{"kind":"shape","id":"sh/z25cbalk","slide":2,"name":"Field grid","bbox":[863.16,385.77,518.59,1]}
+{"kind":"shape","id":"sh/8retofm1","slide":2,"name":"Field grid","bbox":[863.16,437.63,518.59,1]}
+{"kind":"shape","id":"sh/9s7uhk3m","slide":2,"name":"Field grid","bbox":[863.16,489.48,518.59,1]}
+{"kind":"shape","id":"sh/jm9w7e5o","slide":2,"name":"Field grid","bbox":[863.16,541.34,518.59,1]}
+{"kind":"shape","id":"sh/il0fe9oj","slide":2,"name":"Field grid","bbox":[863.16,593.2,518.59,1]}
+{"kind":"shape","id":"sh/5ore9onu","slide":2,"name":"Field grid","bbox":[863.16,645.06,518.59,1]}
+{"kind":"shape","id":"sh/knixgj69","slide":2,"name":"Field grid","bbox":[863.16,696.92,518.59,1]}
+{"kind":"shape","id":"sh/vipw3e5s","slide":2,"name":"Field grid","bbox":[863.16,748.78,518.59,1]}
+{"kind":"shape","id":"sh/ahgva9o7","slide":2,"name":"Field grid","bbox":[863.16,800.64,518.59,1]}
+{"kind":"shape","id":"sh/xkre54ny","slide":2,"name":"Diagram path","bbox":[863.16,584.23,518.59,1]}
+{"kind":"textbox","id":"sh/wjydcj6d","slide":2,"name":"Opponent half","text":"Opponent half","textPreview":"Opponent half","textChars":13,"textLines":1,"bbox":[863.16,272.01,170.7,34.91]}
+{"kind":"textbox","id":"sh/fetwfy5w","slide":2,"name":"Our half","text":"Our half","textPreview":"Our half","textChars":8,"textLines":1,"bbox":[863.16,864.41,102.75,34.91]}
+{"kind":"shape","id":"sh/udkfmt4b","slide":2,"name":"Diagram rect","bbox":[970.86,529.38,229.38,230.38]}
+{"kind":"shape","id":"sh/210zaxkv","slide":2,"name":"Diagram path","bbox":[970.86,529.38,1,230.38]}
+{"kind":"shape","id":"sh/n290321g","slide":2,"name":"Diagram path","bbox":[1200.24,529.38,1,230.38]}
+{"kind":"shape","id":"sh/o3i1c72l","slide":2,"name":"Diagram rect","bbox":[925.99,560.29,13.96,13.96]}
+{"kind":"shape","id":"sh/p4ri5cj6","slide":2,"name":"Diagram rect","bbox":[1001.78,560.29,13.96,13.96]}
+{"kind":"shape","id":"sh/exgz6dkj","slide":2,"name":"Diagram rect","bbox":[1077.58,560.29,13.96,13.96]}
+{"kind":"shape","id":"sh/fy90zi14","slide":2,"name":"Diagram rect","bbox":[1153.37,560.29,13.96,13.96]}
+{"kind":"shape","id":"sh/0zih8n2p","slide":2,"name":"Diagram rect","bbox":[1229.16,560.29,13.96,13.96]}
+{"kind":"shape","id":"sh/10ri1sja","slide":2,"name":"Diagram rect","bbox":[1304.96,560.29,13.96,13.96]}
+{"kind":"shape","id":"sh/ytkjihk3","slide":2,"name":"Diagram circle","bbox":[1062.62,451.59,43.88,43.88]}
+{"kind":"shape","id":"sh/zut0bm1o","slide":2,"name":"Diagram path","bbox":[1076.32,465.55,17.21,21.99]}
+{"kind":"shape","id":"sh/t0fuxk72","slide":2,"name":"Diagram circle","bbox":[1052.64,441.61,63.83,63.83]}
+{"kind":"shape","id":"sh/8z6tofqh","slide":2,"name":"Diagram path","bbox":[1084.56,613.15,1,107.71]}
+{"kind":"shape","id":"sh/7yxcvapw","slide":2,"name":"Route arrowhead","bbox":[1074.38,700.51,20.34,20.34]}
+{"kind":"shape","id":"sh/6xobm58b","slide":2,"name":"Diagram path","bbox":[1104.5,438.62,353.04,34.91]}
+{"kind":"shape","id":"sh/lwfut07q","slide":2,"name":"Diagram circle","bbox":[1100.51,469.54,7.98,7.98]}
+{"kind":"textbox","id":"sh/kv6tkvq5","slide":2,"name":"Starting pose","text":"Starting pose","textPreview":"Starting pose","textChars":13,"textLines":1,"bbox":[1452.56,388.68,215.91,44.68]}
+{"kind":"textbox","id":"sh/jadcrqpk","slide":2,"name":"Start in the opponent half","text":"Start in the opponent half","textPreview":"Start in the opponent half","textChars":26,"textLines":1,"bbox":[1452.56,455.51,314.35,37.7]}
+{"kind":"textbox","id":"sh/y94bil8f","slide":2,"name":"Face our own half","text":"Face our own half","textPreview":"Face our own half","textChars":17,"textLines":1,"bbox":[1452.56,496.4,227.5,37.7]}
+{"kind":"shape","id":"sh/5szu547u","slide":2,"name":"Diagram path","bbox":[1200.24,667,257.3,40.89]}
+{"kind":"shape","id":"sh/4rqdwzqp","slide":2,"name":"Diagram circle","bbox":[1196.25,703.9,7.98,7.98]}
+{"kind":"textbox","id":"sh/obyxs3el","slide":2,"name":"Pushing objective","text":"Pushing objective","textPreview":"Pushing objective","textChars":17,"textLines":1,"bbox":[1452.56,617.06,285.06,44.68]}
+{"kind":"textbox","id":"sh/pc7e18f6","slide":2,"name":"Move blocks to our half","text":"Move blocks to our half","textPreview":"Move blocks to our half","textChars":23,"textLines":1,"bbox":[1452.56,683.89,290.33,37.7]}
+{"kind":"textbox","id":"sh/29gvqtwv","slide":2,"name":"Keep them until the finish","text":"Keep them until the finish","textPreview":"Keep them until the finish","textChars":26,"textLines":1,"bbox":[1452.56,724.78,314.3,37.7]}
+{"kind":"slide","id":"sl/ecolup","slide":3,"title":"System architecture: PC planning, onboard control","textShapes":19}
+{"kind":"shape","id":"sh/w3y5k7uh","slide":3,"name":"Section rule","bbox":[90,197.19,1740,1]}
+{"kind":"shape","id":"sh/v2pob2tw","slide":3,"name":"Section rule","bbox":[90,460.11,595,1]}
+{"kind":"shape","id":"sh/u1wnihcb","slide":3,"name":"Section rule","bbox":[90,646.39,595,1]}
+{"kind":"shape","id":"sh/9gn69cbq","slide":3,"name":"Section rule","bbox":[90,832.67,595,1]}
+{"kind":"textbox","id":"sh/8fe5g7ul","slide":3,"name":"Slide title","text":"System architecture: PC planning, onboard control","textPreview":"System architecture: PC planning, onboard control","textChars":49,"textLines":1,"bbox":[90,86,1748,81.2]}
+{"kind":"textbox","id":"sh/ne5o72t0","slide":3,"name":"The PC handles vision and strategy.The onboard controller handles","text":"The PC handles vision and strategy.\nThe onboard controller handles\nmotion.","textPreview":"The PC handles vision and strategy. | The onboard controller handles | motion.","textChars":74,"textLines":3,"bbox":[90,273.19,603,159.1]}
+{"kind":"textbox","id":"sh/mdwnexcf","slide":3,"name":"Vision","text":"Vision","textPreview":"Vision","textChars":6,"textLines":1,"bbox":[90,487.11,603,43.4]}
+{"kind":"textbox","id":"sh/lcn6lsbu","slide":3,"name":"Estimate robot pose and block positions in each half.","text":"Estimate robot pose and block positions in each\nhalf.","textPreview":"Estimate robot pose and block positions in each | half.","textChars":53,"textLines":2,"bbox":[90,544.61,603,82.6]}
+{"kind":"textbox","id":"sh/0be5cnu9","slide":3,"name":"Planning","text":"Planning","textPreview":"Planning","textChars":8,"textLines":1,"bbox":[90,673.39,603,43.4]}
+{"kind":"textbox","id":"sh/mt0jm5w3","slide":3,"name":"Select targets and plan approach, push and return actions.","text":"Select targets and plan approach, push and\nreturn actions.","textPreview":"Select targets and plan approach, push and | return actions.","textChars":58,"textLines":2,"bbox":[90,730.89,603,82.6]}
+{"kind":"textbox","id":"sh/7u90vado","slide":3,"name":"Motion control","text":"Motion control","textPreview":"Motion control","textChars":14,"textLines":1,"bbox":[90,859.67,603,43.4]}
+{"kind":"textbox","id":"sh/8vi1ofe9","slide":3,"name":"Track speed commands and stop safely on faults.","text":"Track speed commands and stop safely on\nfaults.","textPreview":"Track speed commands and stop safely on | faults.","textChars":47,"textLines":2,"bbox":[90,917.17,603,82.6]}
+{"kind":"shape","id":"sh/9wrixkvu","slide":3,"name":"Diagram rect","bbox":[913.02,263.1,654.23,89.76]}
+{"kind":"textbox","id":"sh/ypgji5w7","slide":3,"name":"Overhead camera","text":"Overhead camera","textPreview":"Overhead camera","textChars":15,"textLines":1,"bbox":[1104.46,287.95,283.34,47.47]}
+{"kind":"shape","id":"sh/zqp0raxc","slide":3,"name":"Diagram path","bbox":[1240.14,353.85,1,57.84]}
+{"kind":"shape","id":"sh/0ry1kfex","slide":3,"name":"Route arrowhead","bbox":[1234.15,399.73,11.97,11.97]}
+{"kind":"textbox","id":"sh/lsrit0vi","slide":3,"name":"Full-field image","text":"Full-field image","textPreview":"Full-field image","textChars":16,"textLines":1,"bbox":[1274.04,369.75,187.75,36.3]}
+{"kind":"shape","id":"sh/qlgzelwv","slide":3,"name":"Diagram rect","bbox":[863.16,424.66,753.96,149.59]}
+{"kind":"textbox","id":"sh/bmp0nqxg","slide":3,"name":"External PC","text":"External PC","textPreview":"External PC","textChars":11,"textLines":1,"bbox":[1144.36,453.5,203.55,50.26]}
+{"kind":"textbox","id":"sh/f6lgfmd8","slide":3,"name":"Localization, target selection and action planning","text":"Localization, target selection and action planning","textPreview":"Localization, target selection and action planning","textChars":50,"textLines":1,"bbox":[949.79,511.36,592.69,37.7]}
+{"kind":"shape","id":"sh/e5cfmhcn","slide":3,"name":"Diagram path","bbox":[1110.49,575.25,1,79.78]}
+{"kind":"shape","id":"sh/1s3yhwbe","slide":3,"name":"Route arrowhead","bbox":[1104.5,643.07,11.97,11.97]}
+{"kind":"textbox","id":"sh/gruxorut","slide":3,"name":"Wireless speed","text":"Wireless speed","textPreview":"Wireless speed","textChars":14,"textLines":1,"bbox":[891.08,580.17,196.03,37.7]}
+{"kind":"textbox","id":"sh/3u5gj6t4","slide":3,"name":"commands","text":"commands","textPreview":"commands","textChars":8,"textLines":1,"bbox":[891.08,617.07,143.66,37.7]}
+{"kind":"shape","id":"sh/2twfq1cz","slide":3,"name":"Diagram path","bbox":[1434.61,576.25,1,78.79]}
+{"kind":"shape","id":"sh/pwnylwba","slide":3,"name":"Route arrowhead","bbox":[1428.62,576.25,11.97,11.97]}
+{"kind":"textbox","id":"sh/ovexsbup","slide":3,"name":"Status","text":"Status","textPreview":"Status","textChars":6,"textLines":1,"bbox":[1474.5,603.11,88.33,37.7]}
+{"kind":"shape","id":"sh/jy1w72d0","slide":3,"name":"Diagram rect","bbox":[913.02,669,654.23,93.75]}
+{"kind":"textbox","id":"sh/ixsfexcf","slide":3,"name":"Onboard control board","text":"Onboard control board","textPreview":"Onboard control board","textChars":21,"textLines":1,"bbox":[1070.53,695.84,351.22,47.47]}
+{"kind":"shape","id":"sh/83qdo3ad","slide":3,"name":"Diagram path","bbox":[1240.14,763.74,1,57.84]}
+{"kind":"shape","id":"sh/94zuh8by","slide":3,"name":"Route arrowhead","bbox":[1234.15,809.62,11.97,11.97]}
+{"kind":"shape","id":"sh/mhovmts7","slide":3,"name":"Diagram rect","bbox":[913.02,835.55,654.23,89.76]}
+{"kind":"textbox","id":"sh/72hcfyts","slide":3,"name":"Motor drivers, encoders and pusher","text":"Motor drivers, encoders and pusher","textPreview":"Motor drivers, encoders and pusher","textChars":34,"textLines":1,"bbox":[988.27,862.4,517.09,44.68]}
+{"kind":"shape","id":"sh/kf6dk3ah","slide":3,"name":"Diagram path","bbox":[1568.25,716.87,111.7,163.56]}
+{"kind":"shape","id":"sh/lgfud8bm","slide":3,"name":"Route arrowhead","bbox":[1571.24,710.88,11.97,11.97]}
+{"kind":"textbox","id":"sh/ydovitsb","slide":3,"name":"Wheel","text":"Wheel","textPreview":"Wheel","textChars":5,"textLines":1,"bbox":[1592.18,771.66,79.84,33.51]}
+{"kind":"textbox","id":"sh/zexcbytw","slide":3,"name":"speed","text":"speed","textPreview":"speed","textChars":5,"textLines":1,"bbox":[1592.18,803.57,77.2,33.51]}
+{"kind":"slide","id":"sl/dvtb1j","slide":4,"title":"Current progress: design outlined, hardware pending","textShapes":2}
+{"kind":"shape","id":"sh/3mp8ru5c","slide":4,"name":"Section rule","bbox":[90,197.19,1740,1]}
+{"kind":"textbox","id":"sh/4ny90f6x","slide":4,"name":"Slide title","text":"Current progress: design outlined, hardware pending","textPreview":"Current progress: design outlined, hardware pending","textChars":51,"textLines":1,"bbox":[90,86,1748,81.2]}
+{"kind":"textbox","id":"sh/po7qtkn2","slide":4,"name":"Work so far covers requirements, system roles and pushing strateg","text":"Work so far covers requirements, system roles and pushing strategy.","textPreview":"Work so far covers requirements, system roles and pushing strategy.","textChars":67,"textLines":1,"bbox":[90,251.19,1748,44.8]}
+{"kind":"shape","id":"sh/rq98vu58","slide":4,"name":"Table row divider","bbox":[90,412.23,1740,1]}
+{"kind":"shape","id":"sh/cri94z6t","slide":4,"name":"Table row divider","bbox":[90,545.23,1740,1]}
+{"kind":"shape","id":"sh/dsrqx4ne","slide":4,"name":"Table row divider","bbox":[90,695.92,1740,1]}
+{"kind":"shape","id":"sh/6tw7q5oj","slide":4,"name":"Table row divider","bbox":[90,846.61,1740,1]}
+{"kind":"shape","id":"sh/7u58jqp4","slide":4,"name":"Table row divider","bbox":[90,979.61,1740,1]}
+{"kind":"table","id":"tb/3ut8jq5o","slide":4,"name":"","rows":5,"cols":3,"preview":"Work area | Current progress | Next step","bbox":[90,329.19,1740,650.92]}
+{"kind":"slide","id":"sl/k1b7s0","slide":5,"title":"Strategy framework: retained blocks per cycle","textShapes":5}
+{"kind":"shape","id":"sh/6twv2t0z","slide":5,"name":"Section rule","bbox":[90,197.19,1740,1]}
+{"kind":"shape","id":"sh/twnex8ja","slide":5,"name":"Section rule","bbox":[1075,351.19,725,1]}
+{"kind":"textbox","id":"sh/sved43ip","slide":5,"name":"Slide title","text":"Strategy framework: retained blocks per cycle","textPreview":"Strategy framework: retained blocks per cycle","textChars":45,"textLines":1,"bbox":[90,86,1748,81.2]}
+{"kind":"textbox","id":"sh/fy5wzi1g","slide":5,"name":"Identify groups within the pusher width.Then compare expected ret","text":"Identify groups within the pusher width.\nThen compare expected retention and full cycle time.","textPreview":"Identify groups within the pusher width. | Then compare expected retention and full cycle time.","textChars":93,"textLines":2,"bbox":[90,280.44,873,105]}
+{"kind":"textbox","id":"sh/exwv6d0v","slide":5,"name":"Target comparison","text":"Target comparison","textPreview":"Target comparison","textChars":17,"textLines":1,"bbox":[1334.67,246.19,553.33,35]}
+{"kind":"textbox","id":"sh/10ne18jm","slide":5,"name":"Expected blocks retained","text":"Expected blocks retained","textPreview":"Expected blocks retained","textChars":24,"textLines":1,"bbox":[1225.2,290.19,662.8,53.2]}
+{"kind":"textbox","id":"sh/gzed8ni1","slide":5,"name":"Approach + align + push + release + return","text":"Approach + align + push + release + return","textPreview":"Approach + align + push + release + return","textChars":42,"textLines":1,"bbox":[1190.33,372.19,697.67,36.4]}
+{"kind":"shape","id":"sh/21gvad0r","slide":5,"name":"Table row divider","bbox":[90,537.73,1740,1]}
+{"kind":"shape","id":"sh/onat87ql","slide":5,"name":"Table row divider","bbox":[90,671.73,1740,1]}
+{"kind":"shape","id":"sh/pojahcr6","slide":5,"name":"Table row divider","bbox":[90,805.73,1740,1]}
+{"kind":"shape","id":"sh/218b6x8f","slide":5,"name":"Table row divider","bbox":[90,939.73,1740,1]}
+{"kind":"table","id":"tb/ytorehg7","slide":5,"name":"","rows":4,"cols":3,"preview":"Phase | Main action | Decision focus","bbox":[90,454.69,1740,485.55]}
+{"kind":"slide","id":"sl/t8duss","slide":6,"title":"Opening: first transfer from the starting pose","textShapes":18}
+{"kind":"shape","id":"sh/90by1k3u","slide":6,"name":"Section rule","bbox":[90,197.19,1740,1]}
+{"kind":"shape","id":"sh/mdkf65k3","slide":6,"name":"Section rule","bbox":[90,406.47,595,1]}
+{"kind":"shape","id":"sh/7etgzalo","slide":6,"name":"Section rule","bbox":[90,592.75,595,1]}
+{"kind":"shape","id":"sh/w3mxcz25","slide":6,"name":"Section rule","bbox":[90,779.03,595,1]}
+{"kind":"textbox","id":"sh/h4vy5kjq","slide":6,"name":"Slide title","text":"Opening: first transfer from the starting pose","textPreview":"Opening: first transfer from the starting pose","textChars":46,"textLines":1,"bbox":[90,86,1748,81.2]}
+{"kind":"textbox","id":"sh/u1kfapkf","slide":6,"name":"We already face the right direction.Complete a reliable first tra","text":"We already face the right direction.\nComplete a reliable first transfer.","textPreview":"We already face the right direction. | Complete a reliable first transfer.","textChars":72,"textLines":2,"bbox":[90,273.19,603,105.45]}
+{"kind":"textbox","id":"sh/v2dg3ulk","slide":6,"name":"Align and push","text":"Align and push","textPreview":"Align and push","textChars":14,"textLines":1,"bbox":[90,433.47,603,43.4]}
+{"kind":"textbox","id":"sh/47mhgz2h","slide":6,"name":"Push the reachable group ahead. Adjust only when useful.","text":"Push the reachable group ahead. Adjust only\nwhen useful.","textPreview":"Push the reachable group ahead. Adjust only | when useful.","textChars":56,"textLines":2,"bbox":[90,490.97,603,82.6]}
+{"kind":"textbox","id":"sh/58vy94j2","slide":6,"name":"Back off to release","text":"Back off to release","textPreview":"Back off to release","textChars":19,"textLines":1,"bbox":[90,619.75,603,43.4]}
+{"kind":"textbox","id":"sh/1cn618ju","slide":6,"name":"Separate blocks from the pusher before returning.","text":"Separate blocks from the pusher before\nreturning.","textPreview":"Separate blocks from the pusher before | returning.","textChars":49,"textLines":2,"bbox":[90,677.25,603,82.6]}
+{"kind":"textbox","id":"sh/0be5s3i9","slide":6,"name":"Reposition","text":"Reposition","textPreview":"Reposition","textChars":10,"textLines":1,"bbox":[90,806.03,603,43.4]}
+{"kind":"textbox","id":"sh/zalozy1o","slide":6,"name":"Move behind the next target and avoid stored blocks.","text":"Move behind the next target and avoid stored\nblocks.","textPreview":"Move behind the next target and avoid stored | blocks.","textChars":52,"textLines":2,"bbox":[90,863.53,603,82.6]}
+{"kind":"shape","id":"sh/e9cnqt03","slide":6,"name":"Diagram rect","bbox":[863.16,324.93,518.59,259.3]}
+{"kind":"shape","id":"sh/90n658jq","slide":6,"name":"Diagram rect","bbox":[863.16,584.23,518.59,259.3]}
+{"kind":"shape","id":"sh/ozepw3i5","slide":6,"name":"Diagram rect","bbox":[863.16,324.93,518.59,518.59]}
+{"kind":"shape","id":"sh/ne5o3i10","slide":6,"name":"Field grid","bbox":[895.07,324.93,1,518.59]}
+{"kind":"shape","id":"sh/mdwnud0f","slide":6,"name":"Field grid","bbox":[946.93,324.93,1,518.59]}
+{"kind":"shape","id":"sh/p436tojm","slide":6,"name":"Field grid","bbox":[998.79,324.93,1,518.59]}
+{"kind":"shape","id":"sh/43a5kji1","slide":6,"name":"Field grid","bbox":[1050.65,324.93,1,518.59]}
+{"kind":"shape","id":"sh/gne50jqx","slide":6,"name":"Field grid","bbox":[1102.51,324.93,1,518.59]}
+{"kind":"shape","id":"sh/hon69ori","slide":6,"name":"Field grid","bbox":[1154.37,324.93,1,518.59]}
+{"kind":"shape","id":"sh/ulwny9sr","slide":6,"name":"Field grid","bbox":[1206.23,324.93,1,518.59]}
+{"kind":"shape","id":"sh/vm5o7e9c","slide":6,"name":"Field grid","bbox":[1258.09,324.93,1,518.59]}
+{"kind":"shape","id":"sh/4ryp43qt","slide":6,"name":"Field grid","bbox":[1309.95,324.93,1,518.59]}
+{"kind":"shape","id":"sh/5s76dore","slide":6,"name":"Field grid","bbox":[1361.81,324.93,1,518.59]}
+{"kind":"shape","id":"sh/ipg72t83","slide":6,"name":"Field grid","bbox":[863.16,333.91,518.59,1]}
+{"kind":"shape","id":"sh/3qpoby9o","slide":6,"name":"Field grid","bbox":[863.16,385.77,518.59,1]}
+{"kind":"shape","id":"sh/sfyp83q5","slide":6,"name":"Field grid","bbox":[863.16,437.63,518.59,1]}
+{"kind":"shape","id":"sh/dgr6h8rq","slide":6,"name":"Field grid","bbox":[863.16,489.48,518.59,1]}
+{"kind":"shape","id":"sh/nmd0n6x4","slide":6,"name":"Field grid","bbox":[863.16,541.34,518.59,1]}
+{"kind":"shape","id":"sh/ml4zu1wj","slide":6,"name":"Field grid","bbox":[863.16,593.2,518.59,1]}
+{"kind":"shape","id":"sh/9ovipwfa","slide":6,"name":"Field grid","bbox":[863.16,645.06,518.59,1]}
+{"kind":"shape","id":"sh/onmhwbep","slide":6,"name":"Field grid","bbox":[863.16,696.92,518.59,1]}
+{"kind":"shape","id":"sh/zyt0jmxs","slide":6,"name":"Field grid","bbox":[863.16,748.78,518.59,1]}
+{"kind":"shape","id":"sh/exkzqhgn","slide":6,"name":"Field grid","bbox":[863.16,800.64,518.59,1]}
+{"kind":"shape","id":"sh/1kbilwfy","slide":6,"name":"Diagram path","bbox":[863.16,584.23,518.59,1]}
+{"kind":"textbox","id":"sh/0j2hsred","slide":6,"name":"Opponent half","text":"Opponent half","textPreview":"Opponent half","textChars":13,"textLines":1,"bbox":[863.16,272.01,170.7,34.91]}
+{"kind":"textbox","id":"sh/jux0vqxc","slide":6,"name":"Our half","text":"Our half","textPreview":"Our half","textChars":8,"textLines":1,"bbox":[863.16,864.41,102.75,34.91]}
+{"kind":"shape","id":"sh/ytoj2lwr","slide":6,"name":"Diagram rect","bbox":[970.86,531.37,229.38,221.4]}
+{"kind":"shape","id":"sh/6143q5cv","slide":6,"name":"Diagram rect","bbox":[925.99,560.29,13.96,13.96]}
+{"kind":"shape","id":"sh/72d4jatg","slide":6,"name":"Diagram rect","bbox":[1229.16,560.29,13.96,13.96]}
+{"kind":"shape","id":"sh/s3mlsfu1","slide":6,"name":"Diagram rect","bbox":[1304.96,560.29,13.96,13.96]}
+{"kind":"shape","id":"sh/t4vmlkbm","slide":6,"name":"Diagram rect","bbox":[1001.78,713.88,13.96,13.96]}
+{"kind":"shape","id":"sh/ixk3m5cz","slide":6,"name":"Diagram rect","bbox":[1077.58,721.86,13.96,13.96]}
+{"kind":"shape","id":"sh/jyt4fatk","slide":6,"name":"Diagram rect","bbox":[1153.37,713.88,13.96,13.96]}
+{"kind":"shape","id":"sh/kz2lofup","slide":6,"name":"Diagram rect","bbox":[1001.78,560.29,13.96,13.96]}
+{"kind":"shape","id":"sh/50vmh0ba","slide":6,"name":"Diagram rect","bbox":[1077.58,560.29,13.96,13.96]}
+{"kind":"shape","id":"sh/2tonyps3","slide":6,"name":"Diagram rect","bbox":[1153.37,560.29,13.96,13.96]}
+{"kind":"shape","id":"sh/3ux4ruto","slide":6,"name":"Diagram circle","bbox":[1062.62,435.63,43.88,43.88]}
+{"kind":"shape","id":"sh/doz6xovq","slide":6,"name":"Diagram path","bbox":[1076.32,449.59,17.21,21.99]}
+{"kind":"shape","id":"sh/cnqpo3e5","slide":6,"name":"Diagram circle","bbox":[1052.64,425.66,63.83,63.83]}
+{"kind":"shape","id":"sh/bmhovyd0","slide":6,"name":"Diagram circle","bbox":[1062.62,633.1,43.88,43.88]}
+{"kind":"shape","id":"sh/q187mtwf","slide":6,"name":"Diagram path","bbox":[1076.32,647.06,17.21,21.99]}
+{"kind":"shape","id":"sh/p0z6tovu","slide":6,"name":"Diagram circle","bbox":[1052.64,623.12,63.83,63.83]}
+{"kind":"shape","id":"sh/ozqpkje9","slide":6,"name":"Diagram circle","bbox":[1252.1,440.62,43.88,43.88]}
+{"kind":"shape","id":"sh/3yxoredo","slide":6,"name":"Diagram path","bbox":[1265.81,454.58,17.21,21.99]}
+{"kind":"shape","id":"sh/2xo7i9w3","slide":6,"name":"Diagram circle","bbox":[1242.13,430.64,63.83,63.83]}
+{"kind":"shape","id":"sh/9wjq58vy","slide":6,"name":"Diagram path","bbox":[1084.56,490.48,1,125.66]}
+{"kind":"shape","id":"sh/8vapwnud","slide":6,"name":"Route arrowhead","bbox":[1074.38,595.8,20.34,20.34]}
+{"kind":"shape","id":"sh/8zi9sr2p","slide":6,"name":"Diagram path","bbox":[1134.42,407.71,139.62,265.28]}
+{"kind":"shape","id":"sh/t0rq1w3a","slide":6,"name":"Route arrowhead","bbox":[1263.69,414.2,20.34,20.43]}
+{"kind":"textbox","id":"sh/6x0rqhkj","slide":6,"name":"Starting pose","text":"Starting pose","textPreview":"Starting pose","textChars":13,"textLines":1,"bbox":[956.9,382.71,170.66,37.7]}
+{"kind":"textbox","id":"sh/7y98zml4","slide":6,"name":"First transfer to our half","text":"First transfer to our half","textPreview":"First transfer to our half","textChars":26,"textLines":1,"bbox":[933.96,772.65,291.79,37.7]}
+{"kind":"shape","id":"sh/kvi9o72d","slide":6,"name":"Diagram path","bbox":[1189.27,470.54,268.27,86.76]}
+{"kind":"shape","id":"sh/lwrqxc3y","slide":6,"name":"Diagram circle","bbox":[1185.28,553.31,7.98,7.98]}
+{"kind":"textbox","id":"sh/ytgrmhkn","slide":6,"name":"Align and push","text":"Align and push","textPreview":"Align and push","textChars":14,"textLines":1,"bbox":[1451.56,420.59,243.45,44.68]}
+{"kind":"textbox","id":"sh/ju98v2l8","slide":6,"name":"Use the group ahead","text":"Use the group ahead","textPreview":"Use the group ahead","textChars":19,"textLines":1,"bbox":[1452.56,487.43,263.45,37.7]}
+{"kind":"textbox","id":"sh/w7y9k72h","slide":6,"name":"Balance depth and time","text":"Balance depth and time","textPreview":"Balance depth and time","textChars":22,"textLines":1,"bbox":[1452.56,528.31,294.89,37.7]}
+{"kind":"shape","id":"sh/xs7qtc32","slide":6,"name":"Diagram path","bbox":[1134.42,672.99,323.12,54.85]}
+{"kind":"shape","id":"sh/z25s325o","slide":6,"name":"Diagram circle","bbox":[1130.43,669,7.98,7.98]}
+{"kind":"textbox","id":"sh/e1wruxoj","slide":6,"name":"Release and return","text":"Release and return","textPreview":"Release and return","textChars":18,"textLines":1,"bbox":[1452.56,677.9,299.31,44.68]}
+{"kind":"textbox","id":"sh/147a5cnu","slide":6,"name":"Back off and check release","text":"Back off and check release","textPreview":"Back off and check release","textChars":26,"textLines":1,"bbox":[1452.56,744.73,328.16,36.93]}
+{"kind":"textbox","id":"sh/03y9w769","slide":6,"name":"Move behind the next group","text":"Move behind the next group","textPreview":"Move behind the next group","textChars":26,"textLines":1,"bbox":[1452.56,786.62,328.14,35.71]}
+{"kind":"slide","id":"sl/jgycr1","slide":7,"title":"Midgame: choosing the more valuable target","textShapes":18}
+{"kind":"shape","id":"sh/0fe9wfa1","slide":7,"name":"Section rule","bbox":[90,197.19,1740,1]}
+{"kind":"shape","id":"sh/fe58na9g","slide":7,"name":"Section rule","bbox":[90,406.47,595,1]}
+{"kind":"shape","id":"sh/edwru5sb","slide":7,"name":"Section rule","bbox":[90,592.75,595,1]}
+{"kind":"shape","id":"sh/dcnql0rq","slide":7,"name":"Section rule","bbox":[90,779.03,595,1]}
+{"kind":"textbox","id":"sh/sbe9sfa5","slide":7,"name":"Slide title","text":"Midgame: choosing the more valuable target","textPreview":"Midgame: choosing the more valuable target","textChars":42,"textLines":1,"bbox":[90,86,1748,81.2]}
+{"kind":"textbox","id":"sh/ra58za9k","slide":7,"name":"When both robots contest a group,compare the likely gain first.","text":"When both robots contest a group,\ncompare the likely gain first.","textPreview":"When both robots contest a group, | compare the likely gain first.","textChars":64,"textLines":2,"bbox":[90,273.19,603,105.45]}
+{"kind":"textbox","id":"sh/q9wrq5sz","slide":7,"name":"Check feasibility","text":"Check feasibility","textPreview":"Check feasibility","textChars":17,"textLines":1,"bbox":[90,433.47,603,43.4]}
+{"kind":"textbox","id":"sh/x8rax4ru","slide":7,"name":"The pusher must cover the group, with room to approach.","text":"The pusher must cover the group, with room to\napproach.","textPreview":"The pusher must cover the group, with room to | approach.","textChars":55,"textLines":2,"bbox":[90,490.97,603,82.6]}
+{"kind":"textbox","id":"sh/c7y94za9","slide":7,"name":"Compare full cycles","text":"Compare full cycles","textPreview":"Compare full cycles","textChars":19,"textLines":1,"bbox":[90,619.75,603,43.4]}
+{"kind":"textbox","id":"sh/q14v6psv","slide":7,"name":"Include approach, push, release and return time.","text":"Include approach, push, release and return\ntime.","textPreview":"Include approach, push, release and return | time.","textChars":48,"textLines":2,"bbox":[90,677.25,603,82.6]}
+{"kind":"textbox","id":"sh/r2dcfutg","slide":7,"name":"Switch if arrival times are close","text":"Switch if arrival times are close","textPreview":"Switch if arrival times are close","textChars":33,"textLines":1,"bbox":[90,806.03,603,43.4]}
+{"kind":"textbox","id":"sh/s3md8zal","slide":7,"name":"Avoid wasting time in a head-on pushing contest.","text":"Avoid wasting time in a head-on pushing\ncontest.","textPreview":"Avoid wasting time in a head-on pushing | contest.","textChars":48,"textLines":2,"bbox":[90,863.53,603,82.6]}
+{"kind":"shape","id":"sh/d4fuh4b6","slide":7,"name":"Diagram rect","bbox":[863.16,324.93,518.59,259.3]}
+{"kind":"shape","id":"sh/ix4b2psj","slide":7,"name":"Diagram rect","bbox":[863.16,584.23,518.59,259.3]}
+{"kind":"shape","id":"sh/3ydcbut4","slide":7,"name":"Diagram rect","bbox":[863.16,324.93,518.59,518.59]}
+{"kind":"shape","id":"sh/4zmt4fap","slide":7,"name":"Field grid","bbox":[895.07,324.93,1,518.59]}
+{"kind":"shape","id":"sh/50vudkba","slide":7,"name":"Field grid","bbox":[946.93,324.93,1,518.59]}
+{"kind":"shape","id":"sh/2tove9s3","slide":7,"name":"Field grid","bbox":[998.79,324.93,1,518.59]}
+{"kind":"shape","id":"sh/nuxcneto","slide":7,"name":"Field grid","bbox":[1050.65,324.93,1,518.59]}
+{"kind":"shape","id":"sh/z2p0jm5o","slide":7,"name":"Field grid","bbox":[1102.51,324.93,1,518.59]}
+{"kind":"shape","id":"sh/y1gjqh43","slide":7,"name":"Field grid","bbox":[1154.37,324.93,1,518.59]}
+{"kind":"shape","id":"sh/l47ilcnu","slide":7,"name":"Field grid","bbox":[1206.23,324.93,1,518.59]}
+{"kind":"shape","id":"sh/03y1s7m9","slide":7,"name":"Field grid","bbox":[1258.09,324.93,1,518.59]}
+{"kind":"shape","id":"sh/nqp0nm5k","slide":7,"name":"Field grid","bbox":[1309.95,324.93,1,518.59]}
+{"kind":"shape","id":"sh/mpgjuh4f","slide":7,"name":"Field grid","bbox":[1361.81,324.93,1,518.59]}
+{"kind":"shape","id":"sh/9sripwnq","slide":7,"name":"Field grid","bbox":[863.16,333.91,518.59,1]}
+{"kind":"shape","id":"sh/8ri1wrm5","slide":7,"name":"Field grid","bbox":[863.16,385.77,518.59,1]}
+{"kind":"shape","id":"sh/vu90r65w","slide":7,"name":"Field grid","bbox":[863.16,437.63,518.59,1]}
+{"kind":"shape","id":"sh/ut0jy14b","slide":7,"name":"Field grid","bbox":[863.16,489.48,518.59,1]}
+{"kind":"shape","id":"sh/sz2hob29","slide":7,"name":"Field grid","bbox":[863.16,541.34,518.59,1]}
+{"kind":"shape","id":"sh/t0bihgju","slide":7,"name":"Field grid","bbox":[863.16,593.2,518.59,1]}
+{"kind":"shape","id":"sh/6x0zm1kj","slide":7,"name":"Field grid","bbox":[863.16,645.06,518.59,1]}
+{"kind":"shape","id":"sh/ry90f614","slide":7,"name":"Field grid","bbox":[863.16,696.92,518.59,1]}
+{"kind":"shape","id":"sh/4vihkr2d","slide":7,"name":"Field grid","bbox":[863.16,748.78,518.59,1]}
+{"kind":"shape","id":"sh/5wridw3y","slide":7,"name":"Field grid","bbox":[863.16,800.64,518.59,1]}
+{"kind":"shape","id":"sh/it0zihk7","slide":7,"name":"Diagram path","bbox":[863.16,584.23,518.59,1]}
+{"kind":"textbox","id":"sh/ju90bmls","slide":7,"name":"Opponent half","text":"Opponent half","textPreview":"Opponent half","textChars":13,"textLines":1,"bbox":[863.16,272.01,170.7,34.91]}
+{"kind":"textbox","id":"sh/wrihgr2h","slide":7,"name":"Our half","text":"Our half","textPreview":"Our half","textChars":8,"textLines":1,"bbox":[863.16,864.41,102.75,34.91]}
+{"kind":"shape","id":"sh/hsry9c3m","slide":7,"name":"Diagram rect","bbox":[964.88,497.46,98.73,213.42]}
+{"kind":"shape","id":"sh/lcnehsje","slide":7,"name":"Diagram path","bbox":[964.88,497.46,1,213.42]}
+{"kind":"shape","id":"sh/0bex8ni9","slide":7,"name":"Diagram path","bbox":[1063.61,497.46,1,213.42]}
+{"kind":"shape","id":"sh/za5wfi1o","slide":7,"name":"Diagram rect","bbox":[983.83,555.31,13.96,13.96]}
+{"kind":"shape","id":"sh/y9wf6d03","slide":7,"name":"Diagram rect","bbox":[1005.77,562.29,13.96,13.96]}
+{"kind":"shape","id":"sh/907elszq","slide":7,"name":"Diagram rect","bbox":[1028.71,555.31,13.96,13.96]}
+{"kind":"shape","id":"sh/8zyxcni5","slide":7,"name":"Diagram rect","bbox":[1163.34,555.31,13.96,13.96]}
+{"kind":"shape","id":"sh/ny5wji1k","slide":7,"name":"Diagram rect","bbox":[1185.28,562.29,13.96,13.96]}
+{"kind":"shape","id":"sh/mxwfad0z","slide":7,"name":"Diagram rect","bbox":[1208.22,555.31,13.96,13.96]}
+{"kind":"shape","id":"sh/p43e98jm","slide":7,"name":"Diagram ellipse","bbox":[1128.44,510.43,131.64,103.72]}
+{"kind":"shape","id":"sh/o3ud03i1","slide":7,"name":"Diagram path","bbox":[1120.46,615.14,71.91,89.76]}
+{"kind":"shape","id":"sh/e9sba9gj","slide":7,"name":"Diagram path","bbox":[1204.23,459.57,75.79,46.87]}
+{"kind":"shape","id":"sh/fa1cjuh4","slide":7,"name":"Diagram path","bbox":[934.96,460.56,154.58,256.31]}
+{"kind":"shape","id":"sh/gbatczyp","slide":7,"name":"Route arrowhead","bbox":[1002.38,507.64,22.74,22.74]}
+{"kind":"shape","id":"sh/1cjul4za","slide":7,"name":"Diagram path","bbox":[1014.75,594.2,1,76.79]}
+{"kind":"shape","id":"sh/2dsbe9gv","slide":7,"name":"Route arrowhead","bbox":[1003.38,648.25,22.74,22.74]}
+{"kind":"shape","id":"sh/3e1cnehg","slide":7,"name":"Diagram circle","bbox":[1087.55,694.93,43.88,43.88]}
+{"kind":"shape","id":"sh/ofatgjy1","slide":7,"name":"Diagram path","bbox":[1100.51,702.86,17.21,21.99]}
+{"kind":"shape","id":"sh/pg3upoz6","slide":7,"name":"Diagram circle","bbox":[1076.58,683.96,65.82,65.82]}
+{"kind":"shape","id":"sh/ih8b25gr","slide":7,"name":"Diagram circle","bbox":[1266.06,435.63,39.89,39.89]}
+{"kind":"shape","id":"sh/jihsbahw","slide":7,"name":"Diagram path","bbox":[1277.04,443.94,20.82,19.56]}
+{"kind":"textbox","id":"sh/7md8j6xo","slide":7,"name":"Our robot","text":"Our robot","textPreview":"Our robot","textChars":9,"textLines":1,"bbox":[1140.41,713.81,126.23,37.7]}
+{"kind":"textbox","id":"sh/ml4ralwj","slide":7,"name":"Opponent","text":"Opponent","textPreview":"Opponent","textChars":8,"textLines":1,"bbox":[1248.11,384.7,130.77,37.7]}
+{"kind":"shape","id":"sh/9ovqlgfu","slide":7,"name":"Diagram path","bbox":[1220.19,493.47,254.31,31.91]}
+{"kind":"shape","id":"sh/8nm9cbe9","slide":7,"name":"Diagram circle","bbox":[1216.2,521.4,7.98,7.98]}
+{"kind":"textbox","id":"sh/zid8f6xs","slide":7,"name":"Target A","text":"Target A","textPreview":"Target A","textChars":8,"textLines":1,"bbox":[1454.55,428.57,138.83,44.68]}
+{"kind":"textbox","id":"sh/yxkr61w7","slide":7,"name":"Both robots approaching","text":"Both robots approaching","textPreview":"Both robots approaching","textChars":23,"textLines":1,"bbox":[1454.55,509.37,305.34,37.7]}
+{"kind":"textbox","id":"sh/lkvqhgfy","slide":7,"name":"Higher conflict risk","text":"Higher conflict risk","textPreview":"Higher conflict risk","textChars":20,"textLines":1,"bbox":[1454.55,550.26,232.45,37.7]}
+{"kind":"shape","id":"sh/kjm98bed","slide":7,"name":"Diagram path","bbox":[1057.63,676.98,416.87,24.93]}
+{"kind":"shape","id":"sh/jexsraxw","slide":7,"name":"Diagram circle","bbox":[1053.64,672.99,7.98,7.98]}
+{"kind":"textbox","id":"sh/itori5wb","slide":7,"name":"Target B","text":"Target B","textPreview":"Target B","textChars":8,"textLines":1,"bbox":[1454.55,635.01,139.08,44.68]}
+{"kind":"textbox","id":"sh/gnyxw3qx","slide":7,"name":"Possible uncontested push","text":"Possible uncontested push","textPreview":"Possible uncontested push","textChars":25,"textLines":1,"bbox":[1454.55,717.8,326.13,36.81]}
+{"kind":"textbox","id":"sh/ho7ep8r2","slide":7,"name":"Reassess as an alternative","text":"Reassess as an alternative","textPreview":"Reassess as an alternative","textChars":26,"textLines":1,"bbox":[1454.55,758.69,326.22,36.64]}
+{"kind":"slide","id":"sl/dd67aa","slide":8,"title":"Endgame: target choice within the time remaining","textShapes":16}
+{"kind":"shape","id":"sh/xwnqt8vm","slide":8,"name":"Section rule","bbox":[90,197.19,1740,1]}
+{"kind":"shape","id":"sh/atw7ytcv","slide":8,"name":"Section rule","bbox":[90,406.47,595,1]}
+{"kind":"shape","id":"sh/bu58rydg","slide":8,"name":"Section rule","bbox":[90,592.75,595,1]}
+{"kind":"shape","id":"sh/orupwjup","slide":8,"name":"Section rule","bbox":[90,779.03,595,1]}
+{"kind":"textbox","id":"sh/9snqpova","slide":8,"name":"Slide title","text":"Endgame: target choice within the time remaining","textPreview":"Endgame: target choice within the time remaining","textChars":48,"textLines":1,"bbox":[90,86,1748,81.2]}
+{"kind":"textbox","id":"sh/mpc7u9cj","slide":8,"name":"Choose pushes we can finish.Include release and stopping time.","text":"Choose pushes we can finish.\nInclude release and stopping time.","textPreview":"Choose pushes we can finish. | Include release and stopping time.","textChars":63,"textLines":2,"bbox":[90,273.19,603,105.45]}
+{"kind":"textbox","id":"sh/nqloned4","slide":8,"name":"Estimate the full action","text":"Estimate the full action","textPreview":"Estimate the full action","textChars":24,"textLines":1,"bbox":[90,433.47,603,43.4]}
+{"kind":"textbox","id":"sh/0nupsjut","slide":8,"name":"Include approach, alignment, push and release.Leave a braking mar","text":"Include approach, alignment, push and release.\nLeave a braking margin.","textPreview":"Include approach, alignment, push and release. | Leave a braking margin.","textChars":70,"textLines":2,"bbox":[90,490.97,603,82.6]}
+{"kind":"textbox","id":"sh/1o36love","slide":8,"name":"Favor nearby targets","text":"Favor nearby targets","textPreview":"Favor nearby targets","textChars":20,"textLines":1,"bbox":[90,619.75,603,43.4]}
+{"kind":"textbox","id":"sh/hk3qtgna","slide":8,"name":"Use reachable groups near the line. Limit detours and deep pushes","text":"Use reachable groups near the line. Limit\ndetours and deep pushes.","textPreview":"Use reachable groups near the line. Limit | detours and deep pushes.","textChars":66,"textLines":2,"bbox":[90,677.25,603,82.6]}
+{"kind":"textbox","id":"sh/gjupkb6p","slide":8,"name":"Confirm release","text":"Confirm release","textPreview":"Confirm release","textChars":15,"textLines":1,"bbox":[90,806.03,603,43.4]}
+{"kind":"textbox","id":"sh/vi18r654","slide":8,"name":"Check that blocks have left the pusher.Set the phase switch using","text":"Check that blocks have left the pusher.\nSet the phase switch using measured times.","textPreview":"Check that blocks have left the pusher. | Set the phase switch using measured times.","textChars":82,"textLines":2,"bbox":[90,863.53,603,82.6]}
+{"kind":"shape","id":"sh/uhs7i1oj","slide":8,"name":"Diagram rect","bbox":[863.16,324.93,518.59,259.3]}
+{"kind":"shape","id":"sh/tgj6pwny","slide":8,"name":"Diagram rect","bbox":[863.16,584.23,518.59,259.3]}
+{"kind":"shape","id":"sh/8fapgb6d","slide":8,"name":"Diagram rect","bbox":[863.16,324.93,518.59,518.59]}
+{"kind":"shape","id":"sh/7e1on658","slide":8,"name":"Field grid","bbox":[895.07,324.93,1,518.59]}
+{"kind":"shape","id":"sh/6ds7e1on","slide":8,"name":"Field grid","bbox":[946.93,324.93,1,518.59]}
+{"kind":"shape","id":"sh/lcj6lwn2","slide":8,"name":"Field grid","bbox":[998.79,324.93,1,518.59]}
+{"kind":"shape","id":"sh/kbqpcr6h","slide":8,"name":"Field grid","bbox":[1050.65,324.93,1,518.59]}
+{"kind":"shape","id":"sh/cvupsred","slide":8,"name":"Field grid","bbox":[1102.51,324.93,1,518.59]}
+{"kind":"shape","id":"sh/xw3q1wvy","slide":8,"name":"Field grid","bbox":[1154.37,324.93,1,518.59]}
+{"kind":"shape","id":"sh/atc7qhw7","slide":8,"name":"Field grid","bbox":[1206.23,324.93,1,518.59]}
+{"kind":"shape","id":"sh/bul8zmds","slide":8,"name":"Field grid","bbox":[1258.09,324.93,1,518.59]}
+{"kind":"shape","id":"sh/orupore1","slide":8,"name":"Field grid","bbox":[1309.95,324.93,1,518.59]}
+{"kind":"shape","id":"sh/ps3qxwvm","slide":8,"name":"Field grid","bbox":[1361.81,324.93,1,518.59]}
+{"kind":"shape","id":"sh/25c7mhwb","slide":8,"name":"Field grid","bbox":[863.16,333.91,518.59,1]}
+{"kind":"shape","id":"sh/36lovmdg","slide":8,"name":"Field grid","bbox":[863.16,385.77,518.59,1]}
+{"kind":"shape","id":"sh/8nep0bel","slide":8,"name":"Field grid","bbox":[863.16,437.63,518.59,1]}
+{"kind":"shape","id":"sh/9o7q9gv6","slide":8,"name":"Field grid","bbox":[863.16,489.48,518.59,1]}
+{"kind":"shape","id":"sh/3utkfe1k","slide":8,"name":"Field grid","bbox":[863.16,541.34,518.59,1]}
+{"kind":"shape","id":"sh/itkjm9kz","slide":8,"name":"Field grid","bbox":[863.16,593.2,518.59,1]}
+{"kind":"shape","id":"sh/5wb2hoja","slide":8,"name":"Field grid","bbox":[863.16,645.06,518.59,1]}
+{"kind":"shape","id":"sh/4v21oj2p","slide":8,"name":"Field grid","bbox":[863.16,696.92,518.59,1]}
+{"kind":"shape","id":"sh/rytkje1g","slide":8,"name":"Field grid","bbox":[863.16,748.78,518.59,1]}
+{"kind":"shape","id":"sh/qxkjq9kv","slide":8,"name":"Field grid","bbox":[863.16,800.64,518.59,1]}
+{"kind":"shape","id":"sh/d0b2lojm","slide":8,"name":"Diagram path","bbox":[863.16,584.23,518.59,1]}
+{"kind":"textbox","id":"sh/sz21sj21","slide":8,"name":"Opponent half","text":"Opponent half","textPreview":"Opponent half","textChars":13,"textLines":1,"bbox":[863.16,272.01,170.7,34.91]}
+{"kind":"textbox","id":"sh/72907u1c","slide":8,"name":"Our half","text":"Our half","textPreview":"Our half","textChars":8,"textLines":1,"bbox":[863.16,864.41,102.75,34.91]}
+{"kind":"shape","id":"sh/61gjepkr","slide":8,"name":"Diagram rect","bbox":[957.9,406.71,13.96,13.96]}
+{"kind":"shape","id":"sh/ylkjupsn","slide":8,"name":"Diagram rect","bbox":[983.83,418.68,13.96,13.96]}
+{"kind":"shape","id":"sh/zmtk3u98","slide":8,"name":"Diagram rect","bbox":[1169.33,555.31,13.96,13.96]}
+{"kind":"shape","id":"sh/k7m1wzad","slide":8,"name":"Diagram rect","bbox":[1195.26,560.29,13.96,13.96]}
+{"kind":"shape","id":"sh/l8v254ry","slide":8,"name":"Diagram rect","bbox":[1221.19,555.31,13.96,13.96]}
+{"kind":"shape","id":"sh/m94jy9sj","slide":8,"name":"Diagram circle","bbox":[1104.5,698.92,43.88,43.88]}
+{"kind":"shape","id":"sh/7adk7e94","slide":8,"name":"Diagram path","bbox":[1117.47,706.85,17.21,21.99]}
+{"kind":"shape","id":"sh/8bm10zap","slide":8,"name":"Diagram circle","bbox":[1094.53,688.94,63.83,63.83]}
+{"kind":"shape","id":"sh/9cv294ra","slide":8,"name":"Diagram path","bbox":[922,372.8,184.5,334.09]}
+{"kind":"shape","id":"sh/ud4j29sv","slide":8,"name":"Route arrowhead","bbox":[967.67,378.39,20.34,20.34]}
+{"kind":"shape","id":"sh/vexkbe90","slide":8,"name":"Diagram path","bbox":[1147.39,469.54,148.6,251.32]}
+{"kind":"shape","id":"sh/58zm18bi","slide":8,"name":"Route arrowhead","bbox":[1192.07,510.03,20.34,20.34]}
+{"kind":"shape","id":"sh/47q5s3ux","slide":8,"name":"Diagram path","bbox":[1202.24,599.19,1,70.81]}
+{"kind":"shape","id":"sh/j6h4zytc","slide":8,"name":"Route arrowhead","bbox":[1192.07,649.65,20.34,20.34]}
+{"kind":"shape","id":"sh/i5onqdcr","slide":8,"name":"Diagram path","bbox":[992.81,425.66,464.74,29.92]}
+{"kind":"shape","id":"sh/tczm5sbe","slide":8,"name":"Diagram circle","bbox":[988.82,421.67,7.98,7.98]}
+{"kind":"textbox","id":"sh/sbq5wnut","slide":8,"name":"Distant target","text":"Distant target","textPreview":"Distant target","textChars":14,"textLines":1,"bbox":[1452.56,405.63,218.04,44.68]}
+{"kind":"textbox","id":"sh/rah43it8","slide":8,"name":"Longer detour and alignment","text":"Longer detour and alignment","textPreview":"Longer detour and alignment","textChars":27,"textLines":1,"bbox":[1452.56,474.47,329.23,34.62]}
+{"kind":"textbox","id":"sh/698nudc3","slide":8,"name":"Lower endgame priority","text":"Lower endgame priority","textPreview":"Lower endgame priority","textChars":22,"textLines":1,"bbox":[1452.56,513.36,293.85,37.7]}
+{"kind":"shape","id":"sh/10jm9sbq","slide":8,"name":"Diagram path","bbox":[1243.13,637.08,214.42,77.79]}
+{"kind":"shape","id":"sh/gza50nu5","slide":8,"name":"Diagram circle","bbox":[1239.14,633.1,7.98,7.98]}
+{"kind":"textbox","id":"sh/kf2xsv6d","slide":8,"name":"Near-line target","text":"Near-line target","textPreview":"Near-line target","textChars":16,"textLines":1,"bbox":[1452.56,664.93,246.45,44.68]}
+{"kind":"textbox","id":"sh/lgbyl0ny","slide":8,"name":"Cross the line and release","text":"Cross the line and release","textPreview":"Cross the line and release","textChars":26,"textLines":1,"bbox":[1452.56,731.76,324.78,37.7]}
+{"kind":"textbox","id":"sh/yt0fqlon","slide":8,"name":"Leave time to brake","text":"Leave time to brake","textPreview":"Leave time to brake","textChars":19,"textLines":1,"bbox":[1452.56,772.65,248.46,37.7]}
+{"kind":"slide","id":"sl/vt93ag","slide":9,"title":"Implementation plan: one reliable push cycle first","textShapes":16}
+{"kind":"shape","id":"sh/snm9032t","slide":9,"name":"Section rule","bbox":[90,197.19,1740,1]}
+{"kind":"shape","id":"sh/7md8rylo","slide":9,"name":"Section rule","bbox":[90,807.19,1740,1]}
+{"kind":"textbox","id":"sh/6l4rytk3","slide":9,"name":"Slide title","text":"Implementation plan: one reliable push cycle first","textPreview":"Implementation plan: one reliable push cycle first","textChars":50,"textLines":1,"bbox":[90,86,1748,81.2]}
+{"kind":"textbox","id":"sh/hsfqx83q","slide":9,"name":"After agreeing on parameters and interfaces, develop control and ","text":"After agreeing on parameters and interfaces, develop control and vision in parallel.","textPreview":"After agreeing on parameters and interfaces, develop control and vision in parallel.","textChars":84,"textLines":1,"bbox":[90,251.19,1748,44.8]}
+{"kind":"textbox","id":"sh/grm94325","slide":9,"name":"Module tests","text":"Module tests","textPreview":"Module tests","textChars":12,"textLines":1,"bbox":[90,845.19,828,44.8]}
+{"kind":"textbox","id":"sh/fqd8vylk","slide":9,"name":"Test speed control, detection and fault handling separately.","text":"Test speed control, detection and fault handling separately.","textPreview":"Test speed control, detection and fault handling separately.","textChars":60,"textLines":1,"bbox":[90,912.19,828,40.6]}
+{"kind":"textbox","id":"sh/up4r2tkz","slide":9,"name":"System tests","text":"System tests","textPreview":"System tests","textChars":12,"textLines":1,"bbox":[1010,845.19,828,44.8]}
+{"kind":"textbox","id":"sh/pgfa1sjm","slide":9,"name":"Stabilize one full cycle, then add midgame and endgame decisions.","text":"Stabilize one full cycle, then add midgame and endgame\ndecisions.","textPreview":"Stabilize one full cycle, then add midgame and endgame | decisions.","textChars":65,"textLines":2,"bbox":[1010,912.19,828,91.35]}
+{"kind":"shape","id":"sh/4f698n21","slide":9,"name":"Diagram path","bbox":[340,439.19,139,95]}
+{"kind":"shape","id":"sh/i9sbu1sv","slide":9,"name":"Route arrowhead","bbox":[467,433.19,12,12]}
+{"kind":"shape","id":"sh/3a1c3m9g","slide":9,"name":"Diagram path","bbox":[416,534.19,63,100]}
+{"kind":"shape","id":"sh/4batwra1","slide":9,"name":"Route arrowhead","bbox":[467,628.19,12,12]}
+{"kind":"shape","id":"sh/5cju5wr6","slide":9,"name":"Diagram path","bbox":[847,439.19,70,195]}
+{"kind":"shape","id":"sh/qdsby1sr","slide":9,"name":"Diagram path","bbox":[917,534.19,80,1]}
+{"kind":"shape","id":"sh/relc769c","slide":9,"name":"Route arrowhead","bbox":[985,528.19,12,12]}
+{"kind":"shape","id":"sh/sfut0bax","slide":9,"name":"Diagram path","bbox":[1344,534.19,80,1]}
+{"kind":"shape","id":"sh/d03u9gri","slide":9,"name":"Route arrowhead","bbox":[1412,528.19,12,12]}
+{"kind":"shape","id":"sh/mh8bmxsn","slide":9,"name":"Diagram rect","bbox":[92,462.19,248,146]}
+{"kind":"shape","id":"sh/7ihsv2t8","slide":9,"name":"Diagram rect","bbox":[490,369.19,357,140]}
+{"kind":"shape","id":"sh/bmd8ny90","slide":9,"name":"Diagram rect","bbox":[490,564.19,357,140]}
+{"kind":"shape","id":"sh/al4rud8f","slide":9,"name":"Diagram rect","bbox":[1010,462.19,334,146]}
+{"kind":"shape","id":"sh/xofqp876","slide":9,"name":"Diagram rect","bbox":[1437,462.19,386,146]}
+{"kind":"textbox","id":"sh/cn69w3ql","slide":9,"name":"Confirm inputs","text":"Confirm inputs","textPreview":"Confirm inputs","textChars":14,"textLines":1,"bbox":[108.02,493.19,227.97,46.9]}
+{"kind":"textbox","id":"sh/nid8jy9o","slide":9,"name":"Motion control","text":"Motion control","textPreview":"Motion control","textChars":14,"textLines":1,"bbox":[561.23,397.19,225.55,47.6]}
+{"kind":"textbox","id":"sh/2h47qt8j","slide":9,"name":"Vision prototype","text":"Vision prototype","textPreview":"Vision prototype","textChars":16,"textLines":1,"bbox":[545.4,592.19,256.2,47.6]}
+{"kind":"textbox","id":"sh/pkvql8ru","slide":9,"name":"Push-cycle integration","text":"Push-cycle integration","textPreview":"Push-cycle integration","textChars":22,"textLines":1,"bbox":[1023.52,495.19,318.97,43.68]}
+{"kind":"textbox","id":"sh/ojm9s3q9","slide":9,"name":"Practice matches","text":"Practice matches","textPreview":"Practice matches","textChars":16,"textLines":1,"bbox":[1499.62,492.19,272.77,47.6]}
+{"kind":"textbox","id":"sh/7ex8vip8","slide":9,"name":"Rules and interfaces","text":"Rules and interfaces","textPreview":"Rules and interfaces","textChars":20,"textLines":1,"bbox":[108.02,551.19,228.12,33.17]}
+{"kind":"textbox","id":"sh/mdor2x8n","slide":9,"name":"Speed loop and wireless control","text":"Speed loop and wireless control","textPreview":"Speed loop and wireless control","textChars":31,"textLines":1,"bbox":[505.05,454.19,337.89,32.2]}
+{"kind":"textbox","id":"sh/4zi5wf65","slide":9,"name":"Calibration and detection","text":"Calibration and detection","textPreview":"Calibration and detection","textChars":25,"textLines":1,"bbox":[524.18,646.19,299.64,36.4]}
+{"kind":"textbox","id":"sh/50r6pk7q","slide":9,"name":"Push, release, return","text":"Push, release, return","textPreview":"Push, release, return","textChars":21,"textLines":1,"bbox":[1056.32,548.19,253.36,36.4]}
+{"kind":"textbox","id":"sh/ix0nupoz","slide":9,"name":"Repeated cycles and strategy","text":"Repeated cycles and strategy","textPreview":"Repeated cycles and strategy","textChars":28,"textLines":1,"bbox":[1458.73,548.19,355.53,36.4]}
+{"kind":"slide","id":"sl/e4nw1c","slide":10,"title":"Team roles: parallel work, shared system testing","textShapes":3}
+{"kind":"shape","id":"sh/c761c3yd","slide":10,"name":"Section rule","bbox":[90,197.19,1740,1]}
+{"kind":"textbox","id":"sh/r6xk3yxs","slide":10,"name":"Slide title","text":"Team roles: parallel work, shared system testing","textPreview":"Team roles: parallel work, shared system testing","textChars":48,"textLines":1,"bbox":[90,86,1748,81.2]}
+{"kind":"textbox","id":"sh/q5ojatg7","slide":10,"name":"Shared work","text":"Shared work","textPreview":"Shared work","textChars":11,"textLines":1,"bbox":[90,931.78,188.06,42]}
+{"kind":"textbox","id":"sh/5kf21ozm","slide":10,"name":"Strategy, interfaces, integration, practice matches and reporting","text":"Strategy, interfaces, integration, practice matches and reporting.","textPreview":"Strategy, interfaces, integration, practice matches and reporting.","textChars":66,"textLines":1,"bbox":[315.06,932.78,801.23,39.2]}
+{"kind":"shape","id":"sh/3ixkzehw","slide":10,"name":"Table row divider","bbox":[90,341.53,1740,1]}
+{"kind":"shape","id":"sh/ihoj6tgb","slide":10,"name":"Table row divider","bbox":[90,462.53,1740,1]}
+{"kind":"shape","id":"sh/90j2dsf6","slide":10,"name":"Table row divider","bbox":[90,609.91,1740,1]}
+{"kind":"shape","id":"sh/ofq1knyl","slide":10,"name":"Table row divider","bbox":[90,730.91,1740,1]}
+{"kind":"shape","id":"sh/a1gfyl4v","slide":10,"name":"Table row divider","bbox":[90,878.28,1740,1]}
+{"kind":"table","id":"tb/9g7m503a","slide":10,"name":"","rows":5,"cols":3,"preview":"Work area | Member A: mechanics & control | Member B: vision & strategy","bbox":[90,247.19,1740,631.59]}
+{"kind":"slide","id":"sl/ppbfl2","slide":11,"title":"Next milestone: a working, testable prototype","textShapes":9}
+{"kind":"shape","id":"sh/g76donel","slide":11,"name":"Section rule","bbox":[90,197.19,1740,1]}
+{"kind":"shape","id":"sh/f6xcvix0","slide":11,"name":"Section rule","bbox":[860,276.19,970,1]}
+{"kind":"shape","id":"sh/e5ovmdwf","slide":11,"name":"Section rule","bbox":[860,475.19,970,1]}
+{"kind":"shape","id":"sh/t4vutsfu","slide":11,"name":"Section rule","bbox":[860,674.19,970,1]}
+{"kind":"textbox","id":"sh/s3mdkne9","slide":11,"name":"Slide title","text":"Next milestone: a working, testable prototype","textPreview":"Next milestone: a working, testable prototype","textChars":45,"textLines":1,"bbox":[90,86,1748,81.2]}
+{"kind":"textbox","id":"sh/r2dcrix4","slide":11,"name":"At the next review, we aim to showrepeatable robot operationand r","text":"At the next review, we aim to show\nrepeatable robot operation\nand recorded test results.","textPreview":"At the next review, we aim to show | repeatable robot operation | and recorded test results.","textChars":88,"textLines":3,"bbox":[90,286.19,663,193.2]}
+{"kind":"textbox","id":"sh/614bidwj","slide":11,"name":"Evaluation criteriaPosition error, action time, missed blocks and","text":"Evaluation criteria\nPosition error, action time, missed blocks and\nretention","textPreview":"Evaluation criteria | Position error, action time, missed blocks and | retention","textChars":76,"textLines":3,"bbox":[90,570.75,663,147.9]}
+{"kind":"textbox","id":"sh/50vup8fy","slide":11,"name":"Motion control","text":"Motion control","textPreview":"Motion control","textChars":14,"textLines":1,"bbox":[860,315.19,978,53.2]}
+{"kind":"textbox","id":"sh/4fmtg3ed","slide":11,"name":"Wireless speed commands, encoder feedback and fault stops","text":"Wireless speed commands, encoder feedback and fault stops","textPreview":"Wireless speed commands, encoder feedback and fault stops","textChars":57,"textLines":1,"bbox":[860,390.19,978,42]}
+{"kind":"textbox","id":"sh/epgfa5gv","slide":11,"name":"Vision output","text":"Vision output","textPreview":"Vision output","textChars":13,"textLines":1,"bbox":[860,514.19,978,53.2]}
+{"kind":"textbox","id":"sh/zapg3qhg","slide":11,"name":"Robot pose, block positions and half-field assignment","text":"Robot pose, block positions and half-field assignment","textPreview":"Robot pose, block positions and half-field assignment","textChars":53,"textLines":1,"bbox":[860,589.19,978,42]}
+{"kind":"textbox","id":"sh/0byhcvyl","slide":11,"name":"Complete push cycle","text":"Complete push cycle","textPreview":"Complete push cycle","textChars":19,"textLines":1,"bbox":[860,713.19,978,53.2]}
+{"kind":"textbox","id":"sh/1c7y50z6","slide":11,"name":"Approach, push, release and return, with recorded results","text":"Approach, push, release and return, with recorded results","textPreview":"Approach, push, release and return, with recorded results","textChars":57,"textLines":1,"bbox":[860,788.19,978,42]}

@@ -1,0 +1,21 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+import {PresentationFile,FileBlob} from 'file:///C:/Users/Admin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs';
+process.env.RUNTIME_NODE_MODULES='C:/Users/Admin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules';
+const root=process.cwd(),dir=path.join(root,'tmp/editable-en'),skill='C:/Users/Admin/.codex/plugins/cache/openai-primary-runtime/presentations/26.909.12148/skills/presentations';
+const candidatePath=path.join(dir,'candidate-adjusted.pptx');
+const p=await PresentationFile.importPptx(await FileBlob.load(candidatePath));
+const inspection=await p.inspect({kind:'textbox,table',maxChars:400000});
+const records=inspection.ndjson.split('\n').filter(Boolean).map(x=>JSON.parse(x));
+const title=records.find(r=>r.kind==='textbox'&&r.slide===1&&r.text?.includes('Block-Pushing'));
+const table=records.find(r=>r.kind==='table'&&r.slide===4);
+if(!title||!table)throw Error('Missing editable title or table');
+p.resolve(title.id).text.replace('Block-Pushing Robot Competition','EDIT TEST: Robot Competition');
+p.resolve(table.id).getCell(1,1).value='EDIT TEST: table cell';
+await(await PresentationFile.exportPptx(p)).save(path.join(dir,'edit-test.pptx'));
+console.log('Successfully edited a native title and table cell after re-import.');
+const {finalizePresentation}=await import(pathToFileURL(path.join(skill,'container_tools/artifact_tool_utils.mjs')).href);
+const result=await finalizePresentation({workspaceDir:root,candidatePath,finalPath:path.join(root,'输出/机器人推块比赛_阶段汇报_英文可编辑版.pptx'),explicitTotalSlideCount:11,requiredNativeTableOwnerSlides:[4,5,10],requiredNativeChartOwnerSlides:[],fontPolicy:{basis:'design',families:['Arial']},pythonExecutable:'C:/Users/Admin/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe',integrityValidatorPath:path.join(skill,'container_tools/inspect_presentation_package_integrity.py'),layoutValidatorPath:path.join(skill,'container_tools/inspect_presentation_layout_geometry.py'),layoutArgs:['--expected-slide-size-emu','18288000,10287000','--validate-heading-fit','--require-native-table-slide','4','--require-native-table-slide','5','--require-native-table-slide','10'],verifyArtifactToolImport:true,receiptPath:path.join(dir,'final-validation.json')});
+console.log(JSON.stringify({finalPath:result.finalPath,slideCount:result.packageIntegrity.slide_count,structuralFindings:result.packageIntegrity.findingCount,layoutFindings:result.presentationLayout.findingCount,importPass:result.firstPartyImport.passed}));
+

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>推块比赛 · 照片识别原型</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #17302b; background: #f4f6f3; }
+    body { max-width: 1100px; margin: 24px auto; padding: 0 18px; }
+    h1 { font-size: 1.6rem; margin-bottom: 8px; }
+    p { line-height: 1.55; }
+    .controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; margin: 18px 0; }
+    label { display: inline-flex; align-items: center; gap: 8px; }
+    button, input { font: inherit; }
+    button { padding: 7px 12px; border: 1px solid #92aaa1; border-radius: 5px; background: white; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: default; }
+    .panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .panel { background: white; padding: 12px; border: 1px solid #d7e0d9; border-radius: 8px; }
+    canvas { display: block; width: 100%; height: auto; cursor: crosshair; background: #e8ebe8; }
+    #field { aspect-ratio: 1; }
+    #status { font-weight: 600; }
+    table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+    th, td { border-bottom: 1px solid #d7e0d9; padding: 7px 10px; text-align: left; }
+    small { color: #526860; }
+  </style>
+</head>
+<body>
+  <h1>推块比赛 · 手机照片识别原型</h1>
+  <p>选一张场地照片，按<strong>左上 → 右上 → 右下 → 左下</strong>点击场地内侧四角；再点击右侧图中一个方块的中心取色。照片中的<strong>我方半场应位于画面下方</strong>，坐标原点才对应我方左下角。</p>
+  <div class="controls">
+    <label>照片 <input id="photo" type="file" accept="image/*"></label>
+    <button id="reset" type="button" disabled>重选四角</button>
+    <label>颜色容差 <input id="tolerance" type="range" min="10" max="120" value="45"> <output id="toleranceValue">45</output></label>
+    <label>最小色块面积 <input id="minimum" type="number" min="1" max="10000" value="25" style="width: 75px"> 像素</label>
+  </div>
+  <p id="status" role="status">请先选择照片。</p>
+  <div class="panels">
+    <section class="panel"><h2>原始照片</h2><canvas id="source"></canvas><small>依次点击场地四角；点错可按“重选四角”。</small></section>
+    <section class="panel"><h2>校正后的场地</h2><canvas id="field" width="600" height="600"></canvas><small>点击目标方块中心取色。识别结果仅供原型验证，正式阈值需用比赛现场照片调整。</small></section>
+  </div>
+  <table aria-label="识别结果"><thead><tr><th>色块</th><th>x（毫米）</th><th>y（毫米）</th><th>面积（像素）</th></tr></thead><tbody id="results"></tbody></table>
+  <script>
+    const SIZE = 600, FIELD_MM = 1200;
+    const photo = document.querySelector('#photo');
+    const source = document.querySelector('#source');
+    const field = document.querySelector('#field');
+    const sourceCtx = source.getContext('2d', {willReadFrequently: true});
+    const fieldCtx = field.getContext('2d', {willReadFrequently: true});
+    const status = document.querySelector('#status');
+    const reset = document.querySelector('#reset');
+    const tolerance = document.querySelector('#tolerance');
+    const minimum = document.querySelector('#minimum');
+    const results = document.querySelector('#results');
+    let corners = [], rectified = null, sample = null;
+
+    function canvasPoint(event, canvas) {
+      const r = canvas.getBoundingClientRect();
+      return {x: (event.clientX - r.left) * canvas.width / r.width,
+              y: (event.clientY - r.top) * canvas.height / r.height};
+    }
+
+    // Solve the eight coefficients of a square-to-photo homography.
+    function solve(rows, values) {
+      const a = rows.map((row, i) => [...row, values[i]]);
+      for (let col = 0; col < 8; col++) {
+        let pivot = col;
+        for (let r = col + 1; r < 8; r++) if (Math.abs(a[r][col]) > Math.abs(a[pivot][col])) pivot = r;
+        if (Math.abs(a[pivot][col]) < 1e-9) throw new Error('四角无法确定场地，请重新选择。');
+        [a[col], a[pivot]] = [a[pivot], a[col]];
+        const scale = a[col][col];
+        for (let k = col; k <= 8; k++) a[col][k] /= scale;
+        for (let r = 0; r < 8; r++) if (r !== col) {
+          const factor = a[r][col];
+          for (let k = col; k <= 8; k++) a[r][k] -= factor * a[col][k];
+        }
+      }
+      return a.map(row => row[8]);
+    }
+
+    function homography(points) {
+      const targets = [[0, 0], [SIZE - 1, 0], [SIZE - 1, SIZE - 1], [0, SIZE - 1]];
+      const rows = [], values = [];
+      targets.forEach(([x, y], i) => {
+        const {x: u, y: v} = points[i];
+        rows.push([x, y, 1, 0, 0, 0, -x * u, -y * u]); values.push(u);
+        rows.push([0, 0, 0, x, y, 1, -x * v, -y * v]); values.push(v);
+      });
+      return solve(rows, values);
+    }
+
+    function drawSource() {
+      if (!sourceImage) return;
+      sourceCtx.drawImage(sourceImage, 0, 0, source.width, source.height);
+      sourceCtx.lineWidth = Math.max(2, source.width / 400);
+      sourceCtx.strokeStyle = '#e64726';
+      sourceCtx.fillStyle = '#e64726';
+      sourceCtx.font = `${Math.max(16, source.width / 35)}px sans-serif`;
+      corners.forEach((p, i) => {
+        sourceCtx.beginPath(); sourceCtx.arc(p.x, p.y, sourceCtx.lineWidth * 2, 0, Math.PI * 2); sourceCtx.fill();
+        sourceCtx.fillText(String(i + 1), p.x + 8, p.y - 8);
+      });
+      if (corners.length > 1) {
+        sourceCtx.beginPath(); sourceCtx.moveTo(corners[0].x, corners[0].y);
+        corners.slice(1).forEach(p => sourceCtx.lineTo(p.x, p.y));
+        if (corners.length === 4) sourceCtx.closePath();
+        sourceCtx.stroke();
+      }
+    }
+
+    let sourceImage = null;
+    photo.addEventListener('change', () => {
+      const file = photo.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      const image = new Image();
+      image.onload = () => {
+        URL.revokeObjectURL(url);
+        const scale = Math.min(1, 1600 / Math.max(image.width, image.height));
+        source.width = Math.round(image.width * scale);
+        source.height = Math.round(image.height * scale);
+        sourceImage = image; corners = []; rectified = null; sample = null;
+        reset.disabled = false; results.replaceChildren(); fieldCtx.clearRect(0, 0, SIZE, SIZE);
+        drawSource(); status.textContent = '请在左图依次点击场地内侧四角：左上、右上、右下、左下。';
+      };
+      image.onerror = () => { URL.revokeObjectURL(url); status.textContent = '无法读取这张照片，请换一张 JPG 或 PNG。'; };
+      image.src = url;
+    });
+
+    reset.addEventListener('click', () => {
+      corners = []; rectified = null; sample = null; results.replaceChildren();
+      fieldCtx.clearRect(0, 0, SIZE, SIZE); drawSource();
+      status.textContent = '请重新点击四角：左上、右上、右下、左下。';
+    });
+
+    source.addEventListener('click', event => {
+      if (!sourceImage || corners.length === 4) return;
+      corners.push(canvasPoint(event, source)); drawSource();
+      if (corners.length < 4) { status.textContent = `已选 ${corners.length}/4 个角。`; return; }
+      try { rectify(); status.textContent = '场地已校正。请点击右图中一个方块的中心取色。'; }
+      catch (error) { corners = []; drawSource(); status.textContent = error.message; }
+    });
+
+    function rectify() {
+      const h = homography(corners);
+      const clean = document.createElement('canvas');
+      clean.width = source.width; clean.height = source.height;
+      const cleanCtx = clean.getContext('2d', {willReadFrequently: true});
+      cleanCtx.drawImage(sourceImage, 0, 0, source.width, source.height);
+      const input = cleanCtx.getImageData(0, 0, source.width, source.height);
+      const output = fieldCtx.createImageData(SIZE, SIZE);
+      for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+        const d = h[6] * x + h[7] * y + 1;
+        const sx = Math.round((h[0] * x + h[1] * y + h[2]) / d);
+        const sy = Math.round((h[3] * x + h[4] * y + h[5]) / d);
+        const to = (y * SIZE + x) * 4;
+        if (sx < 0 || sy < 0 || sx >= source.width || sy >= source.height) continue;
+        const from = (sy * source.width + sx) * 4;
+        for (let c = 0; c < 4; c++) output.data[to + c] = input.data[from + c];
+      }
+      rectified = output; sample = null; fieldCtx.putImageData(rectified, 0, 0);
+    }
+
+    field.addEventListener('click', event => {
+      if (!rectified) return;
+      const p = canvasPoint(event, field), x = Math.min(SIZE - 1, Math.max(0, Math.floor(p.x)));
+      const y = Math.min(SIZE - 1, Math.max(0, Math.floor(p.y)));
+      const i = (y * SIZE + x) * 4;
+      sample = Array.from(rectified.data.slice(i, i + 3)); detect();
+    });
+    tolerance.addEventListener('input', () => {
+      document.querySelector('#toleranceValue').value = tolerance.value;
+      if (sample) detect();
+    });
+    minimum.addEventListener('change', () => { if (sample) detect(); });
+
+    function detect() {
+      const data = rectified.data, mask = new Uint8Array(SIZE * SIZE);
+      const limit = Number(tolerance.value) ** 2;
+      for (let i = 0; i < mask.length; i++) {
+        const p = i * 4;
+        const dr = data[p] - sample[0], dg = data[p + 1] - sample[1], db = data[p + 2] - sample[2];
+        mask[i] = dr * dr + dg * dg + db * db <= limit ? 1 : 0;
+      }
+      const blobs = [], stack = [], minimumArea = Math.max(1, Number(minimum.value) || 1);
+      for (let start = 0; start < mask.length; start++) {
+        if (!mask[start]) continue;
+        mask[start] = 0; stack.push(start);
+        let area = 0, sumX = 0, sumY = 0, minX = SIZE, minY = SIZE, maxX = 0, maxY = 0;
+        while (stack.length) {
+          const index = stack.pop(), x = index % SIZE, y = Math.floor(index / SIZE);
+          area++; sumX += x; sumY += y;
+          minX = Math.min(minX, x); minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x); maxY = Math.max(maxY, y);
+          const neighbors = [index - 1, index + 1, index - SIZE, index + SIZE];
+          for (const next of neighbors) {
+            if (next < 0 || next >= mask.length) continue;
+            if (Math.abs(next % SIZE - x) + Math.abs(Math.floor(next / SIZE) - y) !== 1) continue;
+            if (mask[next]) { mask[next] = 0; stack.push(next); }
+          }
+        }
+        if (area >= minimumArea) blobs.push({area, x: sumX / area, y: sumY / area, minX, minY, maxX, maxY});
+      }
+      blobs.sort((a, b) => a.x - b.x);
+      fieldCtx.putImageData(rectified, 0, 0);
+      fieldCtx.strokeStyle = '#e64726'; fieldCtx.lineWidth = 2;
+      fieldCtx.font = '16px sans-serif'; fieldCtx.fillStyle = '#e64726';
+      results.replaceChildren();
+      blobs.forEach((blob, i) => {
+        fieldCtx.strokeRect(blob.minX, blob.minY, blob.maxX - blob.minX + 1, blob.maxY - blob.minY + 1);
+        fieldCtx.fillText(String(i + 1), blob.minX, Math.max(16, blob.minY - 4));
+        const row = results.insertRow();
+        [i + 1, Math.round(blob.x * FIELD_MM / SIZE), Math.round((SIZE - 1 - blob.y) * FIELD_MM / SIZE), blob.area]
+          .forEach(value => { const cell = row.insertCell(); cell.textContent = value; });
+      });
+      status.textContent = `找到 ${blobs.length} 个同色区域。可调整颜色容差、最小面积，或重新点击方块取色。`;
+    }
+  </script>
+</body>
+</html>

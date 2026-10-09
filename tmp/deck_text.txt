@@ -1,0 +1,2626 @@
+
+===== Group 10-01.pptx =====
+SLIDES: 13
+
+-- Slide 1 --
+Autonomous Block-Pushing Robot
+第10组 林楷晨，啊努，吴俊瀚
+2026年9月
+Page 00
+
+-- Slide 2 --
+THE CHALLENGE (RULES & GOALS)
+02
+STRATEGY
+03
+SYSTEM ARCHITECTURE
+04
+ROBOT PROTOTYPE
+05
+SOFTWARE & CONTROL LOGIC
+06
+TASK ARRANGEMENT
+07
+SCHEDULE
+08
+Page 02
+Table of Contents
+Page 01
+CONCLUSION
+10
+RISKS & MITIGATION
+09
+
+-- Slide 3 --
+THE CHALLENGE (RULES & GOALS)
+Objective: Push 2x2x2cm red cubes onto the opponent’s side, team with less cubes on their side wins.
+Time Limit: <90s
+Field Size: 1.2m x 1.2m, blue and yellow halves, 10cm walls
+Robot: <150cm2 footprint, longest side <40cm, fully autonomous; external wireless devices are allowed.
+No intentional damage to the opponent.
+Page 02
+
+-- Slide 4 --
+STRATEGY: PIN & GO
+Core Idea: Mecanum wheels enable sideways strafing → instant corrections + aggressive positioning
+Push Mechanism: Single curved push blade (no scoop/lift) - slides under blocks, pushes without carrying
+Priority: Clear our side faster than opponent can push back
+Fallback: if WiFi/Bluetooth connection drops, drive forward + avoid walls via VL53L0X ToF sensor
+Page 03
+
+-- Slide 5 --
+SYSTEM ARCHITECTURE
+The Loop:
+Camera (Overhead) observes the field.
+Laptop (OpenCV) detects red blocks and robot position.
+Algorithm (Python) decides the next action (waypoint/command).
+Wireless (WiFi) sends the command to the robot.
+ESP32 on the robot executes the movement.
+IMU & Sensors handle fine-tuning and latency between camera updates.
+Page 04
+
+-- Slide 6 --
+Drive System
+4× TT gear motors with AB phase encoders
+4× 48 mm Mecanum wheels (2 left, 2 right)
+Chassis
+3D printed (PLA)
+~15 cm × 10 cm base, <8 cm height (fits under 10 cm walls)
+Push Blade
+Curved polycarbonate/PLA
+5° angled bottom edge to slide under cubes
+Page 05
+Electronics: ESP32-32D Dev Board, TB6612FNG motor driver, 7.4V 1800mAh Li-ion battery, XL4015 buck converter (5V logic), ICM-20602 IMU + VL53L0X ToF sensor
+ROBOT PROTOTYPE
+
+-- Slide 7 --
+Laptop Side (Python + OpenCV)
+HSV color thresholding to find red blocks.
+Perspective transform to map pixels → cm.
+Robot tracking via bright green/pink marker.
+Sends X/Y waypoints to ESP32 via WiFi.
+ESP32 Side (Arduino C++)
+Receives waypoints.
+IMU heading hold between camera frames.
+PID control for straight-line driving.
+Fallback Logic: WiFi drop → drive forward + avoid walls via ToF.
+Key Insight: Camera updates are slow; IMU fills the gaps.
+Page 06
+SOFTWARE & CONTROL LOGIC
+
+-- Slide 8 --
+Page 07
+TASK ARRANGEMENT
+Member
+Primary Responsibility
+林楷晨
+阿努
+吴俊瀚
+Algorithm/Vision — camera calibration, OpenCV pipeline, decision logic, latency testing
+Electronics/Control — wiring, power distribution, motor driver integration, WiFi communication
+Mechanical/Design — CAD design, 3D printing (PLA), blade mounting, chassis assembly
+Integration, testing, and debugging are shared responsibilities.
+
+-- Slide 9 --
+Phase 1 — Design [Sept 29 – Oct 6]
+Complete CAD, order parts, finalize mechanical/electronic/software design.
+Phase 2 — Build & Test [Oct 7 – Oct 20]
+Assemble robot, test Mecanum movement, test camera detection, test wireless communication.
+Phase 3 — Integration & Tuning [Oct 21 – Nov 3]
+Full 90-second match simulations, optimize speed/reliability, modify as needed.
+In Short: Build → Test → Observe → Modify → Repeat.
+Page 08
+SCHEDULE
+
+-- Slide 10 --
+Page 09
+RISKS & MITIGATION
+Risk
+Mitigation
+WiFi Latency
+Camera Lighting
+IMU heading hold + local fallback logic
+Motor Burnout
+Blade Breaking
+Test HSV thresholds under actual competition lighting
+XL4015 voltage regulation; avoid long stalls against walls
+PLA, 5 perimeters, flexible mounting tabs
+
+-- Slide 11 --
+The goal is a reliable, autonomous robot that clears our side faster than opponent can push back.
+Next steps are to finalize CAD (3D Modelling), order parts, begin Phase 2 (Live Testing) immediately.
+There may be inspirations as we prototype our robot, so ideas may evolve over time.
+Build → Test → Observe → Modify → Repeat until competition-ready.
+Page 10
+CONCLUSION & NEXT STEPS
+
+-- Slide 12 --
+Page Extra
+SOME OTHER IDEAS  inspiration
+verticutter: whack blocks forward
+beyblade: random fling all over the place thing
+rat glue: stick to wooden blocks
+maybe also like ice hockey where it just covers its own ground
+
+-- Slide 13 --
+
+===== Group01-1.pptx =====
+SLIDES: 14
+
+-- Slide 1 --
+——Autonomous Block-Clearing Robot
+Team members : 秦琪翔 ， 楚健如 ， 胡锦诚
+ROBOT COMPETITION STRATEGY
+
+-- Slide 2 --
+Part I : Overview —— Competition rules
+Fewer blocks in our field wins
+01
+1.2 m × 1.2 m
+Blue and yellow field
+<90 s
+Match time
+~2 cm
+Cube side length
+Robot envelope
+Area <150 cm². Longest side <40 cm.
+Robot must move. Start near the bottom edge.
+No human intervention or intentional damage.
+External equipment may assist through wireless links.
+
+-- Slide 3 --
+02
+Part I : Overview  —— Our strategy
+
+-- Slide 4 --
+Two thin side plates peel wall blocks away.        The brush sweeps them inward.
+03
+thin plate is nearly close to the wall
+Central bottomless chamber
+Motor-driven brush shaft
+Part II : Hardware  —— Hardware design
+
+-- Slide 5 --
+the central chamber is also to prevent the block from jamming the wheel.
+04
+centeral
+bottomless
+champer
+FRONT
+01  Two thin side plates
+Parallel to side walls. Smooth tips
+enter the gap beside a block.
+02  Rotating brush shaft
+The bristles sweep blocks from the
+front toward the center.
+03  Central chamber
+Blocks stay on the field surface in the champer.
+Part II : Hardware  —— Mechanical layout
+
+-- Slide 6 --
+Two thin plates, one on each front side of the robot
+06
+01
+Align
+Plate parallel
+to the wall
+02
+Insert gently
+Tip enters the gap
+next to the block
+03
+Back away
+Separate the cube
+from the wall
+04
+Brush inward
+Turn the shaft
+to collect the cube
+Part II : Hardware  ——Wall-block separation
+
+-- Slide 7 --
+The motor turns the center shaft. The drum and bristles rotate together.
+05
+SIDE VIEW
+Central
+chamber
+Shaft axis
+Bristles move inward
+at the block contact
+Front
+Robot center
+Part II : Hardware  —— Collection principle
+
+-- Slide 8 --
+07
+Camera frame
+Tag and color detection
+Field coordinates
+CAMERA
+Phone or fast USB camera
+Clamped outside the field
+All corners visible
+Roof tag: pose and heading
+Color: cubes and field
+Image to field map
+Check glare and shadows
+Part III : Software  ——Global vision
+
+-- Slide 9 --
+08
+Feedback: encoders, IMU and robot status return to the PC.
+Part III : Software  —— communication and control
+
+-- Slide 10 --
+09
+Read camera and sensors
+Update field and robot pose
+Choose the next task
+Check the result
+Execute a short movement
+Plan a safe route
+Repeat while match time remains
+Starting Point
+Part III : Software  —— Autonomous decision loop
+
+-- Slide 11 --
+Part III : Software  —— Task choice
+Proposed task ranking, to tune through match tests
+10
+Expected blocks removed
+Total task time
+A useful score for choosing the next task
+Lower priority when
+Collision risk rises
+Detection is uncertain
+Approach or collect takes too long
+Possible tasks
+Push   /   Collect   /   Clear a wall      /   Recover
+
+-- Slide 12 --
+Part III : Software  —— Match timeline
+Illustrative timing. Phase changes should follow actual match conditions.
+11
+0 s
+10 s
+65 s
+80 s
+90 s
+OPENING
+0–10 s
+Locate the robot
+Choose a nearby group
+MAIN PHASE
+10–65 s
+Repeat push or collection
+FINAL TASKS
+65–85 s
+Choose short tasks
+Avoid long wall attempts
+FINISH
+<90 s
+rush to the other
+
+-- Slide 13 --
+Part IV : Robustness  —— Recovery actions
+Proposed responses to events during a match
+12
+Brush jam
+Stop the brush. Back away.
+Try a short controlled reversal.
+Pose uncertain
+Compare tag, encoders and IMU.
+Slow down or stop if uncertain.
+Blocked by another robot
+Wait for 2 seconds.
+If still blocked, plan a new route.
+Route or link lost
+Replan around the opponent.
+Stop locally when commands become stale.
+
+-- Slide 14 --
+Thank you for listening
+Team members : 秦琪翔 ， 楚健如 ， 胡锦诚
+
+===== Group02-1.pptx =====
+SLIDES: 13
+
+-- Slide 1 --
+Block Collection Robot
+Innovation Practice Course · 1st Progress Report
+Instructors
+Xuechao Chen · Qing Shi · Fei Meng
+TA: Yu Zhang
+Report Stage
+1st Report (Weeks 1–2)
+
+-- Slide 2 --
+CONTENTS
+Report Outline
+01
+Background & Competition Task
+Field, scoring rules, hard constraints
+02
+Overall Technical Roadmap
+Layered architecture, V0–V3 iteration
+03
+Competition Strategy
+Rolling planning, utility model, rerouting
+04
+System Implementation
+Mechanical, electrical, software stack
+05
+Team Division
+Mechanical / electrical / perception & strategy
+06
+12-Week Timeline
+Four integration Gates: W4 / W6 / W9 / W12
+
+-- Slide 3 --
+01 · Background & Competition Task
+Match Format & Scoring Conditions
+1.2 m × 1.2 m dual-color field, red vs blue halves, 90 s autonomous per match
+Scoring Rules
+20 blocks (40 mm) scattered
+Less blocks after 90 s wins
+Fully autonomous — no remote control allowed
+Key Design Constraints (Hard Specs)
+Constraint
+Value
+Impact
+Chassis size
+≤ 250 × 250 × 250 mm
+Mechanical chassis
+Weight
+≤ 1.5 kg
+Battery / motor
+Power
+On-board battery, no tether
+Endurance ≥ 90 s
+Autonomy
+No remote control
+Onboard behavior
+Budget
+≤ 1000 RMB
+BOM selection
+03 / 13
+
+-- Slide 4 --
+02 · Overall Technical Roadmap
+Core Strategy: Collection, Not Pushing
+We adopt a "collection-type" strategy, fundamentally different from "push-type" approaches
+Strategy Overview
+The robot actively collects encountered blocks into an internal bin via front side brushes and a central intake, then dumps at optimal timing.
+Strategy Choice
+couples "search" from "transport"
+Efficiency Logic
+Sweep multiple blocks continuously, reduce back-and-forth trips
+Key Design Decision
+choosing which cluster is worth sweeping,
+from which direction,
+how many can be collected at once,
+and when to return to dump.
+Main Risks & Countermeasures
+Jamming, bin-full, and dump failure are the primary risks
+Must be mitigated with feedback and recovery mechanisms
+04 / 13
+
+-- Slide 5 --
+02 · Overall Technical Roadmap
+Two-Layer Decoupled Architecture
+Upper computer handles perception & decision; MCU owns real-time control. Strategy rollout is detailed in the Competition Strategy section.
+Upper Computer · Perception & Decision
+Raspberry Pi 5　·　Vision detection　·　Task planning & utility scoring　·　Path selection
+Outputs: desired (vx, vy, ω) commands at ~10 Hz
+Serial / CAN　·　heartbeat watchdog　·　300–500 ms timeout → FALLBACK
+Lower Computer · Real-time Control
+STM32　·　Motor PID　·　Encoder odometry　·　Obstacle interrupt　·　Jam recovery state machine
+Runs baseline by itself — robot still moves if upper computer drops
+Principles:　Decoupled (upper down, MCU keeps baseline)　·　Testable (bench before on-car)　·　Degradable (fall back, never half-finished)
+05 / 13
+
+-- Slide 6 --
+03 · Competition Strategy
+Three-Step Rollout: From Sweep to Adapt
+Each step is a match-capable build — layer intelligence on top of a solid baseline, never the other way round.
+STEP 1 · V1
+Baseline Sweep
+By W6 Gate · no vision dependency
+▪ Fixed full-field sweep route with overlap
+▪ Track swept area; recover to gaps
+▪ Timer-based dump at safe intervals
+▪ Goal: guarantee a working robot first
+STEP 2 · V2
+Utility Selection
+By W9 Gate · vision on board
+▪ Perceive blocks by position & color
+▪ Rolling utility: score = reward · distance · cluster
+▪ Sweep whole clusters, not block-by-block
+▪ Goal: pick the most valuable cluster
+STEP 3 · V3
+Dynamic Reroute
+By W12 Gate · match-day readiness
+▪ Re-route to a better target as it appears
+▪ Hysteresis + cooldown to avoid thrashing
+▪ Predict opponent motion; safety interrupts
+▪ Goal: adapt in real time without flapping
+Rule of thumb: if a gate slips, we fall back to the previous version — never ship a half-finished intelligent layer on top of a broken baseline.
+06 / 13
+
+-- Slide 7 --
+04 · System Implementation
+Mechanical Chain: 4-Stage Flow
+Contact → Guide → Intake → Dump: every stage is passive, driven by the same motor pair
+1. Contact
+Side brushes
+2. Guide
+Chute angles
+3. Intake
+Rubber roller
+4. Dump
+Tilt bin
+07 / 13
+Jam Recovery State Machine
+NORMAL
+REVERSE
+RETRY
+ABANDON
+current spike
+500 ms reverse
+re-attempt intake
+Recovery rule:
+reverse → retry → if still jammed, abandon this block and switch task. Max 2 retries, then skip.
+
+-- Slide 8 --
+04 · System Implementation
+Electrical & Sensing Solution
+Two computers — host does vision & planning, MCU does real-time control. Camera is the only strategic sensor.
+Host + MCU Split
+Raspberry Pi 5 (Host)
+Vision · DBSCAN clustering · Utility scoring · A* waypoints
+Outputs: (vx, vy, ω) at ~10 Hz
+STM32 (MCU)
+Motor PID · Odometry · Current sense · E-stop
+Runs baseline autonomously on heartbeat loss
+Sensor Roles
+Camera — primary strategic sensor
+Block detection, color ID, full-field state, AprilTag localization
+2D LiDAR
+Obstacle distance, wall following
+Ultrasonic / ToF
+Short-range anti-collision backup
+Safety:　If host heartbeat lost for 300–500 ms, dynamic reroute is disabled and MCU falls back to open-loop sweep.
+08 / 13
+
+-- Slide 9 --
+04 · System Implementation
+Software Stack & Corner Handling
+Clean layered interfaces — hardware and strategy do not bleed into each other.
+5-Layer Software Stack
+L5 · Behavior　State machine, recovery, safety
+L4 · Decision　Task utility, reroute, timing
+L3 · Middleware　Odometry, coordinate transform
+L2 · Driver　Motor PWM, sensor read, camera
+L1 · Hardware　Motors, sensors, camera
+Corner Design
+▪ Chassis rounded to squeeze into corners
+▪ Two side brushes form a V funnel at the front
+▪ Corner blocks get swept in, not stuck
+▪ Pairs with cluster strategy: sweep edges first, then the center
+09 / 13
+
+-- Slide 10 --
+05 · Team Division
+Team Roles & Responsibilities
+Role
+Member
+Responsibilities
+Key Deliverables
+First Gate
+Mechanical Lead
+Zihan Zhu
+Chassis design, side brushes, bin mechanism, 3D printing, assembly
+CAD model, BOM, assembled chassis
+W4 Gate
+Electrical Lead
+Xinyu Zhang
+Power distribution, motor drivers, STM32 firmware, sensor wiring
+Schematic, PCB, motor PID firmware
+W4 Gate
+Perception & Strategy Lead
+Mengyao Ling
+Vision pipeline, task planning, reroute logic, match strategy
+Vision node, utility planner, match script
+W9 Gate
+Integration & Testing
+All members
+Joint debugging, full-match testing, tuning weights, competition rehearsal
+Test reports, tuned params, competition-ready robot
+W12 Gate
+10 / 13
+
+-- Slide 11 --
+06 · 12-Week Timeline
+12-Week Development Roadmap
+W4
+Gate 1: Chassis
+Open-loop drive
+Straight + spin test
+Power on-board
+W6
+Gate 2: V1 Baseline
+Fixed sweep route
+Bumper pushing
+No vision needed
+W9
+Gate 3: V2 Vision
+Block detection
+Utility ranking
+Reroute logic
+W12
+Gate 4: V3 Ready
+Adversarial handling
+Full match tests
+Competition ready
+Rule: if a gate slips, we drop back to the previous version rather than ship a half-finished build. Every gate = a robot that can play a full match.
+11 / 13
+
+-- Slide 12 --
+06 · 12-Week Timeline
+Week-by-Week Plan
+Four integration gates anchor the schedule — each gate is a robot that can play a full match.
+12 / 13
+Week
+Focus
+Gate
+W1–W3
+Chassis design & 3D print · motor PID · camera HSV calibration
+—
+W4
+Chassis v1 done · open-loop drive tested · fixed route script
+G1
+W5
+Side brushes & chute refine · obstacle sensors · sweep tuning
+—
+W6
+Mechanical freeze · V1 baseline: full-field sweep, no vision
+G2
+W7
+Bin dump mechanism · servo & current sense · vision→coordinate
+—
+W8
+Jamming tests · recovery logic · utility function & reroute
+—
+W9
+Mechanical v2 · full electrical integration · V2 strategy online
+G3
+W10
+Final assembly · battery endurance · opponent handling & timing
+—
+W11
+Reliability & stress tests · logging · full-match tuning
+—
+W12
+Competition rehearsal · final check · competition-ready
+G4
+
+-- Slide 13 --
+SUMMARY & NEXT STEPS
+Thank You
+Questions & Discussion Welcome
+Core Goal
+Deliver a match-capable block collection robot within 12 weeks
+Key Approach
+Collection-type strategy · layered architecture · staged V0→V3 delivery
+Next Milestone
+W4 Gate: open-loop chassis drive · full-power on-board test
+13 / 13
+
+===== Group03-1(1).pptx =====
+SLIDES: 18
+
+-- Slide 1 --
+PRELIMINARY DESIGN REPORT
+Autonomous Vision-Guided
+Field-Clearing Robot
+Simulation-Driven Tactics and System Design of a Tracked Mobile Platform for the 90-Second Block-Clearing Competition
+CIRCUIT
+Li Xinyang
+PROGRAMMING
+Zheng Haoran
+MECHANICAL
+Ma Zhenteng
+September 28, 2026 · Robotics Competition Project Team
+Fig. 0 — Preliminary CAD assembly, tracked chassis with push-blade and sensor mast
+Autonomous Field-Clearing Robot · Preliminary Report
+01 / 18
+
+-- Slide 2 --
+CONTENTS
+Report
+Outline
+From problem analysis to simulation-verified tactics — four parts, one evidence chain.
+01
+Background & Team
+Competition rules, objective formalization, and the rationale for a tracked chassis.
+02
+System Design
+Mechanical architecture from CAD, and a six-module custom main-control PCB.
+03
+Simulation Methodology
+A 2-D rigid-body simulator with 37 automated regression checks and a controlled experimental protocol.
+04
+Results & Discussion
+Four decision-grade tactical findings from 1,500+ simulated matches, conclusions, and the road ahead.
+Autonomous Field-Clearing Robot · Preliminary Report
+02 / 18
+
+-- Slide 3 --
+SECTION
+01
+Background & Team
+Before any hardware exists, the problem must be stated precisely — what the rules reward, what they forbid, and which physical platform best survives the duel.
+Competition rules & objective formalization
+Team organization across three engineering tracks
+Chassis decision: why a tracked platform
+03 / 18
+
+-- Slide 4 --
+Competition Rules & Problem Analysis
+01 · Background & Team
+OBJECTIVE FORMALIZATION
+Table 1 — Official rule set, transcribed from the course briefing
+Item
+Specification
+Field
+1.2 m × 1.2 m square, blue / yellow halves
+Blocks
+24 cubes (~2 cm side), fixed intervals along the centre line, 3 lanes
+Robot envelope
+Footprint < 150 cm²; longest side < 40 cm; must be mobile
+Duration
+≤ 90 s per match; both robots play simultaneously
+Win condition
+Fewer blocks remaining on own half wins
+Scoring
+Group stage 3 / 1 / 0 pts; final four teams, best-of-three
+Start position
+Own bottom edge of the field
+Autonomy
+No human intervention; wireless external assistance allowed; no intentional damage to the opponent
+Source: official course introduction slide (photographed in briefing, 2026-09).
+Problem Formalization
+The true objective is minimizing residual blocks on our own half at t = 90 s — not maximizing pushes. Placement quality, not push count, decides the match.
+Design Implications
+· Where a block ends matters more than how fast it moves
+· Full autonomy is mandatory → onboard vision + wireless link
+· Simultaneous play → adversarial, contact-rich dynamics
+· Envelope limit caps blade width and chassis size
+TEAM — THREE TRACKS, ONE ROBOT
+Circuit: Li Xinyang · Programming: Zheng Haoran · Mechanical: Ma Zhenteng
+Autonomous Field-Clearing Robot · Preliminary Report
+04 / 18
+
+-- Slide 5 --
+Chassis Decision: A Tracked Platform
+01 · Background & Team
+DESIGN TRADE-OFF
+Table 2 — Chassis decision matrix against contact-rich match physics
+Criterion
+Tracked (differential)
+Wheeled (4-wheel)
+Yaw stability under pushing load
+High — long contact patch resists rotation
+Low — blade torque spins the chassis
+Tolerance to stray 2 cm blocks
+Rides over loose blocks
+Wheel jam / lift-off risk
+Traction on dusty arena floor
+Full-width contact, load-insensitive
+Point contacts, slip under load
+Collision robustness (simultaneous play)
+Rigid skirt absorbs side impact
+Exposed wheels vulnerable
+Turning precision
+Skid-steer, adequate for lane sweeps
+Higher kinematic agility
+Complexity &amp; mass
+Higher — accepted cost
+Lower
+Decision: stability under contact outranks agility — the tracked chassis is locked as the project baseline.
+Why Stability Wins Matches
+Blocks are cleared by sustained blade contact, not by single touches. A chassis that holds its heading under load converts motor power into net block displacement instead of spin.
+With both robots on the field for the full 90 s, collision survival is a scoring variable, not a comfort feature.
+DOWNSTREAM CONSEQUENCE
+The tactic layer can assume a wall-like rigid body — this assumption is later exploited by the defensive strategy found in simulation (Part 04).
+Autonomous Field-Clearing Robot · Preliminary Report
+05 / 18
+
+-- Slide 6 --
+SECTION
+02
+System Design
+Two engineering artifacts already exist at preliminary stage: a complete CAD assembly and a frozen PCB architecture — both sized by the rule envelope.
+Mechanical architecture — tracked base, blade, vision mast
+Six-module custom main-control PCB
+Vision-guided autonomy with wireless assist link
+06 / 18
+
+-- Slide 7 --
+Mechanical Architecture
+02 · System Design
+CAD ASSEMBLY · PRELIMINARY
+Fig. 1 — Parametric CAD assembly: differential tracked base, one-way push blade, raised vision mast.
+1
+Tracked Base
+Differential skid-steer drive; internal motor + battery bay; long contact patch for yaw stability under blade load.
+2
+One-Way Push Blade
+Near-full-width forward blade. Clears ahead only — an asymmetry that creates the opponent's structural dead zone (Part 04).
+3
+Vision Mast
+Camera raised above blade height; unobstructed block detection while pushing; feeds the autonomous control loop.
+RULE COMPLIANCE
+Footprint < 150 cm² · longest side < 40 cm · fully parametric for post-prototype tuning
+Autonomous Field-Clearing Robot · Preliminary Report
+07 / 18
+
+-- Slide 8 --
+Electronics: Main-Control PCB Architecture
+02 · System Design
+SIX MODULES · FROZEN
+FIG. 2 — BLOCK DIAGRAM
+One Board,
+Six Modules
+Architecture transcribed from the team's PCB mind-map into a six-module block diagram. Design rule: every module fails safe and every high-current path is sensed.
+Design rules: link-loss fallback on MCU · hardware E-stop cuts enable · per-motor current sensing
+1
+Power
+3S input, reverse-polarity protection + fuse · 12 V direct to drivers · 5 V DC-DC → ESP32 · 3.3 V LDO → MCU
+2
+Main MCU
+STM32 · 200 Hz control loop · chassis inverse kinematics + dual-loop PID · SWD debug / crystal / reset
+3
+Motor Drivers
+BTS7960 × 4, one per motor · IS current-sense → ADC · heavy copper pour + thermal relief
+4
+Encoder Interface
+4× Hall encoders, 8 quadrature channels · timer encoder mode · pull-up + RC filtering
+5
+Communication
+ESP32 · Wi-Fi UDP @ 30–50 Hz (rules permit wireless assist) · UART to MCU · link-loss fallback on MCU
+6
+Safety & Expansion
+Hardware E-stop cuts driver enable · start button + status LEDs · I²C / UART expansion reserved
+Autonomous Field-Clearing Robot · Preliminary Report
+08 / 18
+
+-- Slide 9 --
+SECTION
+03
+Simulation Methodology
+Tactics are hypotheses until tested. We built a full-rule 2-D physics simulator and a controlled experimental protocol so that every tactical claim carries a number.
+Full-rule 2-D rigid-body simulator in Python
+Three hard non-penetration constraints, 37 regression checks
+Controlled protocol: one variable per experiment, 24 seeds per cell
+09 / 18
+
+-- Slide 10 --
+Simulator & Experimental Protocol
+03 · Simulation Methodology
+FULL-RULE MODEL · OFAT DESIGN
+1500+
+adversarial matches simulated across the whole verification campaign
+37
+automated self-checks, full regression after every code change
+24
+random seeds averaged per experimental cell; one variable changed per experiment (OFAT)
+World Model
+1.2 m × 1.2 m arena · 3 lanes · 24 blocks at fixed intervals flanking the centre line · both robots on field, 90 s simultaneous play · robot = omnidirectional chassis + one-way push blade
+Hard constraints (verified, not assumed): robot ↔ robot, robot ↔ block, and block ↔ block interpenetration are all forbidden.
+Metrics (used throughout Part 04)
+TRC — Terminal Residual Count: blocks remaining on our half at t = 90 s; this is exactly the scored quantity.
+TWMR — Time-Weighted Mean Residual: residual integrated over match time; rewards clearing early, not just clearing eventually.
+Opponent level: normalized speed/skill factor; 1.0 = equal to our robot.
+Autonomous Field-Clearing Robot · Preliminary Report
+10 / 18
+
+-- Slide 11 --
+SECTION
+04
+Results & Discussion
+Every figure in this section is an average over 24 random seeds under one-factor-at-a-time control. Error bars and shaded bands show seed-level dispersion.
+R1 — Return-path policy: serpentine return rejected (35× worse)
+R2 — The structural dead zone: the tactical keystone
+R3 — Opening lane order and the speed knee at 1.0–1.2 m/s
+R4 — Switching to defense after round 1 (−42% residual)
+11 / 18
+
+-- Slide 12 --
+R1 — Return-Path Policy: A Strategy Rejected
+04 · Results & Discussion
+EXPERIMENT 1
+35×
+higher terminal residual under serpentine re-entry (TRC 19.33 vs 0.58 blocks)
+DECISION — REJECTED
+Boustrophedon ("serpentine") return is removed from the tactic set; backtracking along the cleared lane is adopted.
+Mechanism: the one-way blade's back face scrapes opponent blocks back into our half on the return leg — kinematic efficiency, dynamic disaster.
+Fig. 3 — Exp. 1: Terminal Residual Count (TRC) vs Return-Path Policy
+P1 backtracking vs P2 boustrophedon re-entry · 24 seeds · no opponent · kinematics-matched · lower is better
+Autonomous Field-Clearing Robot · Preliminary Report
+12 / 18
+
+-- Slide 13 --
+R2 — The Structural Dead Zone: Tactical Keystone
+04 · Results & Discussion
+EXPERIMENT 2
+Fig. 4 — Exp. 2: Time-Weighted Mean Residual (TWMR) vs Push Depth Beyond the Centre Line
+Crossing ≥ 0.30 m delivers blocks to y = 0.911 — inside the opponent's structural dead zone · shaded band = seed dispersion
+Why a Dead Zone Exists
+A one-way blade can only push away from its own body. The strip within one body-length of the far wall is therefore geometrically unreachable for the opponent — blocks placed there can never be retrieved.
+Two Regimes, One Threshold
+· Crossing 0.10–0.20 m: blocks stay reachable → TWMR rises to ~17
+· Crossing ≥ 0.30 m: dead-zone lock-in → TWMR falls monotonically
+· Full depth 0.59 m: optimum
+TACTICAL RULE: never stop a push halfway — always drive blocks to the far wall.
+Autonomous Field-Clearing Robot · Preliminary Report
+13 / 18
+
+-- Slide 14 --
+R3 — Opening Order & the Speed Knee
+04 · Results & Discussion
+EXPERIMENTS 3–4
+Fig. 5 — Exp. 3: TWMR vs Opening Lane-Visit Order
+24 seeds · opponent level 0.85 at field centre
+Centre-First Opening
+Centre → Left → Right yields TWMR 9.44 vs ≈ 13.2 for side-first orders — a ~28% improvement. Owning the middle corridor first pushes the duel onto our preferred half.
+Frozen: opening sequence C → L → R
+Fig. 6 — Exp. 4: TWMR vs Maximum Velocity v_max
+Opponent speed locked at 0.68 m/s · only our v_max varied
+Diminishing Returns Past the Knee
+TWMR falls steeply to 1.0 m/s, flattens afterwards; beyond 1.2 m/s the gain is marginal. Drive spec is frozen at v_max = 1.2 m/s — no reason to oversize motor, gearbox, or battery.
+Frozen: v_max = 1.2 m/s
+Autonomous Field-Clearing Robot · Preliminary Report
+14 / 18
+
+-- Slide 15 --
+R4 — Clean-to-Defense Switch: The Counterintuitive Optimum
+04 · Results & Discussion
+EXPERIMENT 5 · KEY FINDING
+Fig. 7 — Exp. 5: TWMR vs Clean-to-Defense Transition Timing
+24 seeds · opponent level 0.85 · rigid-body physics · lower is better
+−42%
+TWMR when switching to defense after round 1 (6.30) vs clearing all match (10.89)
+The Chassis Is a Wall
+A stopped rigid body at the centre line physically blocks the opponent's push lanes. Defense by position, not by motion — only visible once robots are modelled as rigid bodies.
+MATCH PLAN: two phases — one full clearing round, then park at the centre line and defend.
+Autonomous Field-Clearing Robot · Preliminary Report
+15 / 18
+
+-- Slide 16 --
+Supplementary Evidence
+04 · Results & Discussion
+EXPERIMENTS 6–8
+Fig. 8 — Exp. 6: Boundary-Crossing Allowance
+TWMR · 24 seeds · no-crossing = legacy v1 rules
+The whole tactic chain stands on crossing rights: recommended 0.40 m or full-depth push both outperform the legacy no-crossing rules (10.30 best vs 12.49 shallow).
+Fig. 9 — Exp. 7: Start-Phase Sensitivity
+TWMR vs opponent start delay · we move first
+Response is oscillatory and non-monotonic: phase decides head-on collision vs offset pass. 3.0 s opponent delay is most favourable; 0.2 s the worst — first leverage of the match.
+Fig. 10 — Exp. 8: Opponent-Strength Sensitivity
+TWMR vs opponent level · 0 = solo practice
+Solo clearing leaves ~1 block; any real opponent costs ≥ 8 blocks. The dead-zone lock-in is what floors the worst case against strong rivals.
+Autonomous Field-Clearing Robot · Preliminary Report
+16 / 18
+
+-- Slide 17 --
+Conclusions & Roadmap
+04 · Results & Discussion
+WHAT IS FROZEN · WHAT IS NEXT
+SUMMARY
+Tactics Verified Before Hardware Exists
+1,500+ simulated matches turned four tactical questions into frozen design parameters — the remaining risk is purely physical.
+Evidence base: 37 automated checks · 24 seeds per cell · OFAT protocol · two metrics (TRC / TWMR)
+C1 · Return path
+Backtracking only; serpentine rejected (35× residual)
+C2 · Push depth
+Always to the far wall — dead-zone lock-in ≥ 0.30 m crossing
+C3 · Opening & speed
+Centre → Left → Right; v_max frozen at 1.2 m/s (knee)
+C4 · Match plan
+One clearing round → positional defense at centre line (−42%)
+ROADMAP TO FIRST MATCH
+1 · PCB
+Layout & fabrication of the 6-module board
+2 · Chassis
+Fabricate tracked base, blade & mast
+3 · Integration
+Close vision → control loop; verify 1.2 m/s
+4 · Mock Match
+Re-verify simulation findings on the real field
+Autonomous Field-Clearing Robot · Preliminary Report
+17 / 18
+
+-- Slide 18 --
+PRELIMINARY DESIGN REPORT · 2026
+Thank You · Q&A
+Autonomous Vision-Guided Field-Clearing Robot
+Simulation-verified tactics · Tracked platform · Six-module main-control PCB
+Circuit — Li Xinyang
+·
+Programming — Zheng Haoran
+·
+Mechanical — Ma Zhenteng
+Autonomous Field-Clearing Robot · Preliminary Report
+18 / 18
+
+===== Group03-1.pptx =====
+SLIDES: 18
+
+-- Slide 1 --
+PRELIMINARY DESIGN REPORT
+Autonomous Vision-Guided
+Field-Clearing Robot
+Simulation-Driven Tactics and System Design of a Tracked Mobile Platform for the 90-Second Block-Clearing Competition
+CIRCUIT
+Li Xinyang
+PROGRAMMING
+Zheng Haoran
+MECHANICAL
+Ma Zhenteng
+September 28, 2026 · Robotics Competition Project Team
+Fig. 0 — Preliminary CAD assembly, tracked chassis with push-blade and sensor mast
+Autonomous Field-Clearing Robot · Preliminary Report
+01 / 18
+
+-- Slide 2 --
+CONTENTS
+Report
+Outline
+From problem analysis to simulation-verified tactics — four parts, one evidence chain.
+01
+Background & Team
+Competition rules, objective formalization, and the rationale for a tracked chassis.
+02
+System Design
+Mechanical architecture from CAD, and a six-module custom main-control PCB.
+03
+Simulation Methodology
+A 2-D rigid-body simulator with 37 automated regression checks and a controlled experimental protocol.
+04
+Results & Discussion
+Four decision-grade tactical findings from 1,500+ simulated matches, conclusions, and the road ahead.
+Autonomous Field-Clearing Robot · Preliminary Report
+02 / 18
+
+-- Slide 3 --
+SECTION
+01
+Background & Team
+Before any hardware exists, the problem must be stated precisely — what the rules reward, what they forbid, and which physical platform best survives the duel.
+Competition rules & objective formalization
+Team organization across three engineering tracks
+Chassis decision: why a tracked platform
+03 / 18
+
+-- Slide 4 --
+Competition Rules & Problem Analysis
+01 · Background & Team
+OBJECTIVE FORMALIZATION
+Table 1 — Official rule set, transcribed from the course briefing
+Item
+Specification
+Field
+1.2 m × 1.2 m square, blue / yellow halves
+Blocks
+24 cubes (~2 cm side), fixed intervals along the centre line, 3 lanes
+Robot envelope
+Footprint < 150 cm²; longest side < 40 cm; must be mobile
+Duration
+≤ 90 s per match; both robots play simultaneously
+Win condition
+Fewer blocks remaining on own half wins
+Scoring
+Group stage 3 / 1 / 0 pts; final four teams, best-of-three
+Start position
+Own bottom edge of the field
+Autonomy
+No human intervention; wireless external assistance allowed; no intentional damage to the opponent
+Source: official course introduction slide (photographed in briefing, 2026-09).
+Problem Formalization
+The true objective is minimizing residual blocks on our own half at t = 90 s — not maximizing pushes. Placement quality, not push count, decides the match.
+Design Implications
+· Where a block ends matters more than how fast it moves
+· Full autonomy is mandatory → onboard vision + wireless link
+· Simultaneous play → adversarial, contact-rich dynamics
+· Envelope limit caps blade width and chassis size
+TEAM — THREE TRACKS, ONE ROBOT
+Circuit: Li Xinyang · Programming: Zheng Haoran · Mechanical: Ma Zhenteng
+Autonomous Field-Clearing Robot · Preliminary Report
+04 / 18
+
+-- Slide 5 --
+Chassis Decision: A Tracked Platform
+01 · Background & Team
+DESIGN TRADE-OFF
+Table 2 — Chassis decision matrix against contact-rich match physics
+Criterion
+Tracked (differential)
+Wheeled (4-wheel)
+Yaw stability under pushing load
+High — long contact patch resists rotation
+Low — blade torque spins the chassis
+Tolerance to stray 2 cm blocks
+Rides over loose blocks
+Wheel jam / lift-off risk
+Traction on dusty arena floor
+Full-width contact, load-insensitive
+Point contacts, slip under load
+Collision robustness (simultaneous play)
+Rigid skirt absorbs side impact
+Exposed wheels vulnerable
+Turning precision
+Skid-steer, adequate for lane sweeps
+Higher kinematic agility
+Complexity &amp; mass
+Higher — accepted cost
+Lower
+Decision: stability under contact outranks agility — the tracked chassis is locked as the project baseline.
+Why Stability Wins Matches
+Blocks are cleared by sustained blade contact, not by single touches. A chassis that holds its heading under load converts motor power into net block displacement instead of spin.
+With both robots on the field for the full 90 s, collision survival is a scoring variable, not a comfort feature.
+DOWNSTREAM CONSEQUENCE
+The tactic layer can assume a wall-like rigid body — this assumption is later exploited by the defensive strategy found in simulation (Part 04).
+Autonomous Field-Clearing Robot · Preliminary Report
+05 / 18
+
+-- Slide 6 --
+SECTION
+02
+System Design
+Two engineering artifacts already exist at preliminary stage: a complete CAD assembly and a frozen PCB architecture — both sized by the rule envelope.
+Mechanical architecture — tracked base, blade, vision mast
+Six-module custom main-control PCB
+Vision-guided autonomy with wireless assist link
+06 / 18
+
+-- Slide 7 --
+Mechanical Architecture
+02 · System Design
+CAD ASSEMBLY · PRELIMINARY
+Fig. 1 — Parametric CAD assembly: differential tracked base, one-way push blade, raised vision mast.
+1
+Tracked Base
+Differential skid-steer drive; internal motor + battery bay; long contact patch for yaw stability under blade load.
+2
+One-Way Push Blade
+Near-full-width forward blade. Clears ahead only — an asymmetry that creates the opponent's structural dead zone (Part 04).
+3
+Vision Mast
+Camera raised above blade height; unobstructed block detection while pushing; feeds the autonomous control loop.
+RULE COMPLIANCE
+Footprint < 150 cm² · longest side < 40 cm · fully parametric for post-prototype tuning
+Autonomous Field-Clearing Robot · Preliminary Report
+07 / 18
+
+-- Slide 8 --
+Electronics: Main-Control PCB Architecture
+02 · System Design
+SIX MODULES · FROZEN
+FIG. 2 — BLOCK DIAGRAM
+One Board,
+Six Modules
+Architecture transcribed from the team's PCB mind-map into a six-module block diagram. Design rule: every module fails safe and every high-current path is sensed.
+Design rules: link-loss fallback on MCU · hardware E-stop cuts enable · per-motor current sensing
+1
+Power
+3S input, reverse-polarity protection + fuse · 12 V direct to drivers · 5 V DC-DC → ESP32 · 3.3 V LDO → MCU
+2
+Main MCU
+STM32 · 200 Hz control loop · chassis inverse kinematics + dual-loop PID · SWD debug / crystal / reset
+3
+Motor Drivers
+BTS7960 × 4, one per motor · IS current-sense → ADC · heavy copper pour + thermal relief
+4
+Encoder Interface
+4× Hall encoders, 8 quadrature channels · timer encoder mode · pull-up + RC filtering
+5
+Communication
+ESP32 · Wi-Fi UDP @ 30–50 Hz (rules permit wireless assist) · UART to MCU · link-loss fallback on MCU
+6
+Safety & Expansion
+Hardware E-stop cuts driver enable · start button + status LEDs · I²C / UART expansion reserved
+Autonomous Field-Clearing Robot · Preliminary Report
+08 / 18
+
+-- Slide 9 --
+SECTION
+03
+Simulation Methodology
+Tactics are hypotheses until tested. We built a full-rule 2-D physics simulator and a controlled experimental protocol so that every tactical claim carries a number.
+Full-rule 2-D rigid-body simulator in Python
+Three hard non-penetration constraints, 37 regression checks
+Controlled protocol: one variable per experiment, 24 seeds per cell
+09 / 18
+
+-- Slide 10 --
+Simulator & Experimental Protocol
+03 · Simulation Methodology
+FULL-RULE MODEL · OFAT DESIGN
+1500+
+adversarial matches simulated across the whole verification campaign
+37
+automated self-checks, full regression after every code change
+24
+random seeds averaged per experimental cell; one variable changed per experiment (OFAT)
+World Model
+1.2 m × 1.2 m arena · 3 lanes · 24 blocks at fixed intervals flanking the centre line · both robots on field, 90 s simultaneous play · robot = omnidirectional chassis + one-way push blade
+Hard constraints (verified, not assumed): robot ↔ robot, robot ↔ block, and block ↔ block interpenetration are all forbidden.
+Metrics (used throughout Part 04)
+TRC — Terminal Residual Count: blocks remaining on our half at t = 90 s; this is exactly the scored quantity.
+TWMR — Time-Weighted Mean Residual: residual integrated over match time; rewards clearing early, not just clearing eventually.
+Opponent level: normalized speed/skill factor; 1.0 = equal to our robot.
+Autonomous Field-Clearing Robot · Preliminary Report
+10 / 18
+
+-- Slide 11 --
+SECTION
+04
+Results & Discussion
+Every figure in this section is an average over 24 random seeds under one-factor-at-a-time control. Error bars and shaded bands show seed-level dispersion.
+R1 — Return-path policy: serpentine return rejected (35× worse)
+R2 — The structural dead zone: the tactical keystone
+R3 — Opening lane order and the speed knee at 1.0–1.2 m/s
+R4 — Switching to defense after round 1 (−42% residual)
+11 / 18
+
+-- Slide 12 --
+R1 — Return-Path Policy: A Strategy Rejected
+04 · Results & Discussion
+EXPERIMENT 1
+35×
+higher terminal residual under serpentine re-entry (TRC 19.33 vs 0.58 blocks)
+DECISION — REJECTED
+Boustrophedon ("serpentine") return is removed from the tactic set; backtracking along the cleared lane is adopted.
+Mechanism: the one-way blade's back face scrapes opponent blocks back into our half on the return leg — kinematic efficiency, dynamic disaster.
+Fig. 3 — Exp. 1: Terminal Residual Count (TRC) vs Return-Path Policy
+P1 backtracking vs P2 boustrophedon re-entry · 24 seeds · no opponent · kinematics-matched · lower is better
+Autonomous Field-Clearing Robot · Preliminary Report
+12 / 18
+
+-- Slide 13 --
+R2 — The Structural Dead Zone: Tactical Keystone
+04 · Results & Discussion
+EXPERIMENT 2
+Fig. 4 — Exp. 2: Time-Weighted Mean Residual (TWMR) vs Push Depth Beyond the Centre Line
+Crossing ≥ 0.30 m delivers blocks to y = 0.911 — inside the opponent's structural dead zone · shaded band = seed dispersion
+Why a Dead Zone Exists
+A one-way blade can only push away from its own body. The strip within one body-length of the far wall is therefore geometrically unreachable for the opponent — blocks placed there can never be retrieved.
+Two Regimes, One Threshold
+· Crossing 0.10–0.20 m: blocks stay reachable → TWMR rises to ~17
+· Crossing ≥ 0.30 m: dead-zone lock-in → TWMR falls monotonically
+· Full depth 0.59 m: optimum
+TACTICAL RULE: never stop a push halfway — always drive blocks to the far wall.
+Autonomous Field-Clearing Robot · Preliminary Report
+13 / 18
+
+-- Slide 14 --
+R3 — Opening Order & the Speed Knee
+04 · Results & Discussion
+EXPERIMENTS 3–4
+Fig. 5 — Exp. 3: TWMR vs Opening Lane-Visit Order
+24 seeds · opponent level 0.85 at field centre
+Centre-First Opening
+Centre → Left → Right yields TWMR 9.44 vs ≈ 13.2 for side-first orders — a ~28% improvement. Owning the middle corridor first pushes the duel onto our preferred half.
+Frozen: opening sequence C → L → R
+Fig. 6 — Exp. 4: TWMR vs Maximum Velocity v_max
+Opponent speed locked at 0.68 m/s · only our v_max varied
+Diminishing Returns Past the Knee
+TWMR falls steeply to 1.0 m/s, flattens afterwards; beyond 1.2 m/s the gain is marginal. Drive spec is frozen at v_max = 1.2 m/s — no reason to oversize motor, gearbox, or battery.
+Frozen: v_max = 1.2 m/s
+Autonomous Field-Clearing Robot · Preliminary Report
+14 / 18
+
+-- Slide 15 --
+R4 — Clean-to-Defense Switch: The Counterintuitive Optimum
+04 · Results & Discussion
+EXPERIMENT 5 · KEY FINDING
+Fig. 7 — Exp. 5: TWMR vs Clean-to-Defense Transition Timing
+24 seeds · opponent level 0.85 · rigid-body physics · lower is better
+−42%
+TWMR when switching to defense after round 1 (6.30) vs clearing all match (10.89)
+The Chassis Is a Wall
+A stopped rigid body at the centre line physically blocks the opponent's push lanes. Defense by position, not by motion — only visible once robots are modelled as rigid bodies.
+MATCH PLAN: two phases — one full clearing round, then park at the centre line and defend.
+Autonomous Field-Clearing Robot · Preliminary Report
+15 / 18
+
+-- Slide 16 --
+Supplementary Evidence
+04 · Results & Discussion
+EXPERIMENTS 6–8
+Fig. 8 — Exp. 6: Boundary-Crossing Allowance
+TWMR · 24 seeds · no-crossing = legacy v1 rules
+The whole tactic chain stands on crossing rights: recommended 0.40 m or full-depth push both outperform the legacy no-crossing rules (10.30 best vs 12.49 shallow).
+Fig. 9 — Exp. 7: Start-Phase Sensitivity
+TWMR vs opponent start delay · we move first
+Response is oscillatory and non-monotonic: phase decides head-on collision vs offset pass. 3.0 s opponent delay is most favourable; 0.2 s the worst — first leverage of the match.
+Fig. 10 — Exp. 8: Opponent-Strength Sensitivity
+TWMR vs opponent level · 0 = solo practice
+Solo clearing leaves ~1 block; any real opponent costs ≥ 8 blocks. The dead-zone lock-in is what floors the worst case against strong rivals.
+Autonomous Field-Clearing Robot · Preliminary Report
+16 / 18
+
+-- Slide 17 --
+Conclusions & Roadmap
+04 · Results & Discussion
+WHAT IS FROZEN · WHAT IS NEXT
+SUMMARY
+Tactics Verified Before Hardware Exists
+1,500+ simulated matches turned four tactical questions into frozen design parameters — the remaining risk is purely physical.
+Evidence base: 37 automated checks · 24 seeds per cell · OFAT protocol · two metrics (TRC / TWMR)
+C1 · Return path
+Backtracking only; serpentine rejected (35× residual)
+C2 · Push depth
+Always to the far wall — dead-zone lock-in ≥ 0.30 m crossing
+C3 · Opening & speed
+Centre → Left → Right; v_max frozen at 1.2 m/s (knee)
+C4 · Match plan
+One clearing round → positional defense at centre line (−42%)
+ROADMAP TO FIRST MATCH
+1 · PCB
+Layout & fabrication of the 6-module board
+2 · Chassis
+Fabricate tracked base, blade & mast
+3 · Integration
+Close vision → control loop; verify 1.2 m/s
+4 · Mock Match
+Re-verify simulation findings on the real field
+Autonomous Field-Clearing Robot · Preliminary Report
+17 / 18
+
+-- Slide 18 --
+PRELIMINARY DESIGN REPORT · 2026
+Thank You · Q&A
+Autonomous Vision-Guided Field-Clearing Robot
+Simulation-verified tactics · Tracked platform · Six-module main-control PCB
+Circuit — Li Xinyang
+·
+Programming — Zheng Haoran
+·
+Mechanical — Ma Zhenteng
+Autonomous Field-Clearing Robot · Preliminary Report
+18 / 18
+
+===== Group05-1.pptx =====
+SLIDES: 9
+
+-- Slide 1 --
+Block-Collecting Robot
+Stage I Concept Design & Competition Strategy
+SWEEP   ·   CONTAIN   ·   PARK
+Group 5  艾莫森  陈家宇  姚志远
+2026/09/29
+1
+
+-- Slide 2 --
+1. Competition Overview
+2
+Key constraints that shape our concept
+• Field: 1.2 m × 1.2 m
+• 22 lightweight blocks, about 2 cm × 2 cm × 2 cm
+• Match time: less than 90 s
+• Robot must be mobile; longest side < 40 cm
+• No human intervention during the match
+• Wireless external assistance is allowed
+Competition field
+OPPONENT FIELD
+OUR FIELD
+Design focus: transfer as many blocks as possible with a simple and reliable mechanism.
+
+-- Slide 3 --
+2. Competition Strategy
+3
+Our concept: collect several blocks in one cycle instead of pushing them one by one.
+1
+SWEEP
+Two inward-rotating arms guide
+nearby blocks toward the center.
+2
+CONTAIN
+Blocks stay inside a containment area while remaining on the field.
+3
+PARK
+The robot moves into the opponent field and stays
+open bottom
+opponent field
+Main idea: reduce repeated transportation by moving multiple blocks together.
+😴
+
+-- Slide 4 --
+3. Robot Concept
+4
+A simple collection-oriented mechanical concept
+Top view (concept only)
+OPEN-BOTTOM
+CONTAINMENT AREA
+electronics / battery
+Key design ideas
+• Two inward-rotating arms sweep blocks into the center.
+• No storage floor: the blocks remain in direct contact with the field.
+• Side walls keep the collected blocks inside during movement.
+• Four-wheel differential drive provides simple and flexible motion.
+• Electronics are separated from the block containment area.
+At this stage, the structure is still a concept and may change after testing.
+
+-- Slide 5 --
+4. Why a Collection-Based Robot?
+5
+The strategy is chosen for efficiency, not mechanical complexity.
+Conventional pushing
+Collection concept
+• Simple direct interaction with blocks
+• Usually moves only one or a few blocks at a time
+• May require repeated trips across the field
+• Collects several blocks before moving to the opponent side
+• Uses the robot body itself as the containment structure
+• Potentially reduces the number of transport cycles
+Because the blocks are very light and there are only 20 of them, capacity is not expected to be the main limitation.
+The main question is whether collection and containment can be made reliable.
+
+-- Slide 6 --
+5. Control & Perception Concept
+6
+The detailed implementation is not fixed yet; this is the intended system structure.
+LAPTOP
+Vision
+Localization
+High-level strategy
+Wi-Fi
+ESP32
+Receive commands
+Control motors & arms
+ROBOT
+Drive system
+Collection arms
+Why this structure?
+• A laptop can handle more complex vision and strategy algorithms.
+• ESP32 provides a simple wireless connection to the robot.
+• The robot-side controller remains focused on basic motion and actuator control.
+
+-- Slide 7 --
+6. Current Questions & Next Stage
+7
+The next stage is mainly about checking whether the concept works in practice.
+Current questions
+• Can the two rotating arms collect blocks reliably?
+• Will blocks remain inside the open-bottom structure
+while the robot turns?
+• Can the robot move stably when many blocks are contained?
+• Will the vision and wireless-control
+concept be practical enough for the match?
+Next stage
+• Confirm the remaining rule details with the instructor.
+• Finalize the basic chassis and collection-mechanism dimensions.
+• Build a simple first prototype.
+• Test collection, containment and basic movement.
+• Refine the concept based on the test results.
+The detailed hardware and control implementation will be decided after the concept is validated.
+
+-- Slide 8 --
+7. Summary
+8
+Locate, world model
+Passive collection
+Active collection
+Enough blocks?
+Yes
+No
+Move to opponent’s field
+
+-- Slide 9 --
+Q & A
+Feel free to ask any 	questions!
+Group 5  艾莫森  陈家宇  姚志远
+2026/09/29
+9
+Q & A
+
+===== Group06-1.pptx =====
+SLIDES: 17
+
+-- Slide 1 --
+Group 6   陈雪芳，杨文俊，加尼派
+Beijing Institute of Technology
+Department of Mechatronics Engineering
+Innovation Practice – Intelligent Mechatronic System
+2026 September 29
+
+-- Slide 2 --
+Table of Contents
+1   Project Overview
+Competition Strategy
+Detailed Task Division
+Personal Module Progress (3 Members)
+Project Time Schedule & Progress
+Summary
+
+-- Slide 3 --
+Table of Contents
+1   Project Overview
+Competition Strategy
+Detailed Task Division
+Personal Module Progress (3 Members)
+Project Time Schedule & Progress
+Summary
+
+-- Slide 4 --
+1 Project Overview
+Competition Field & Robot Specifications
+Field dimension: 1.2 m × 1.2 m, divided into blue and yellow zones
+Block size: 2 cm × 2 cm × 2 cm
+Robot requirements: must be mobile; longest side < 40 cm; footprint < 150 cm²
+Core Competition Rules
+Time limit for each round: 90 seconds
+Winning condition: The team with fewer blocks in its own field wins
+Group stage: 3 points for a win, 1 point for a draw. Top 4 teams advance to finals with best‑of‑three format
+Robot starts at the bottom edge of the field. Intentional damage to opponents’ robots or the field is forbidden. No manual intervention during matches; wireless external auxiliary devices are permitted
+
+-- Slide 5 --
+Table of Contents
+1   Project Overview
+Competition Strategy
+Detailed Task Division
+Personal Module Progress (3 Members)
+Project Time Schedule & Progress
+Summary
+
+-- Slide 6 --
+2 Competition Strategy
+Reference: Wedge-type pushing robots (CAD model & physical prototype)
+Core tactic: Use front wedge to collect and push cubes out of our zone
+Workflow：
+Rapidly locate scattered blocks at the start
+Gather blocks with the sloped wedge
+Push cubes across the field boundary
+Repeat within the 90 s time limit
+
+-- Slide 7 --
+Table of Contents
+1   Project Overview
+Competition Strategy
+Detailed Task Division
+Personal Module Progress (3 Members)
+Project Time Schedule & Progress
+Future Plan & Summary
+
+-- Slide 8 --
+3 Detailed Task Division
+The whole project is divided into 3 interconnected modules, with each team member responsible for one domain and working together for system integration.
+
+-- Slide 9 --
+Table of Contents
+1   Project Overview
+Competition Strategy
+Detailed Task Division
+Personal Module Progress (3 Members)
+Project Time Schedule & Progress
+Summary
+
+-- Slide 10 --
+3 Detailed Task Division
+陈雪芳
+Main board: STM32F103RCT6 (high main frequency, abundant timer resources, good performance on multi-motor)
+Wheels: Mecanum wheels
+Future Works
+Responsible for component ordering, circuit simulation using Multisim, and PCB fabrication via JLCPCB. Built and soldered hardware interfaces between the core board, motor drivers and sensor modules, conducted power supply stability tests, coordinated with the software team for joint debugging, and took charge of power reliability verification of the complete machine in later stages.
+
+-- Slide 11 --
+3 Detailed Task Division
+杨文俊
+IDE Software: Arduino，Machine Learning
+
+-- Slide 12 --
+3 Detailed Task Division
+加尼派
+Software: Solidworks, Engineering Drawing, Bill of Materials
+Figure – Ver 1.0 Chassis, Base Plate, Bulldozer Plate and Wheels
+
+-- Slide 13 --
+Table of Contents
+1   Project Overview
+Competition Strategy
+Detailed Task Division
+Personal Module Progress (3 Members)
+Project Time Schedule & Progress
+Summary
+
+-- Slide 14 --
+5 Project Time Schedule & Process
+Week 1: Divide team tasks, select core control board, confirm overall robot design
+Week 2: Finalize 3‑D model, purchase main board, build basic frame
+Week 3: Holiday (No project work)
+Week 4:
+‑If Week‑2 3D design performs well: Purchase camera, wheels, sensors, solenoid, wires, heat‑shrink tubes; confirm all component list
+‑If Week‑2 3D design fails: Push all subsequent tasks backward by one week
+Week 5: 3D‑printing, mechanical assembly and hardware soldering
+Week 6‑Week 10: Code development, experimental log keeping, report writing & presentation preparation
+
+-- Slide 15 --
+Table of Contents
+1   Project Overview
+Competition Strategy
+Detailed Task Division
+Personal Module Progress (3 Members)
+Project Time Schedule & Progress
+Summary
+
+-- Slide 16 --
+6 Summary
+Already Completed
+Finished team‑level hierarchical task division among three modules
+Selected core control board and confirmed Mecanum wheel solution
+Completed Version 1.0 3D modelling for chassis, base plate and bulldozer plate
+Current Status
+3‑D design is under validation; component purchasing will start after verification
+Hardware and software preparation are ready for follow‑up integration
+
+-- Slide 17 --
+Thanks for your attention!
+Any questions?
+
+===== group07-1.pptx =====
+SLIDES: 11
+
+-- Slide 1 --
+INNOVATION PRACTICE - INTELLIGENT MECHATRONIC SYSTEM
+北京理工大学
+BEIJING INSTITUTE OF TECHNOLOGY
+Group 7: 张堃茷，吴良翊，陈宗乐
+
+-- Slide 2 --
+目录
+北京理工大学
+BEIJING INSTITUTE OF TECHNOLOGY
+CONTENTS
+SCHEME & FLOWCHART
+POTENTIAL PROBLEM
+FUTURE TIMELIINE
+MEMBERS INTRODUCTION
+TASK ARRANGEMENT
+
+-- Slide 3 --
+MEMBERS INTRODUCTION & Task Arrangement
+陈宗乐
+张堃茷
+吴良翊
+| 马来西亚
+| 马来西亚
+| 马来西亚
+Chassis Design, Hardware
+Hardware,
+Assembly
+北京理工大学
+BEIJING INSTITUTE OF TECHNOLOGY
+Software,
+Testing
+Individual responsibilities, collective teamwork — we will understand each other’s work to ensure smooth integration and solve problems together.
+
+-- Slide 4 --
+Completed Tasks
+Assigned responsibilities to each team member
+Researched similar open-source robot projects for design references
+Discussed and finalized the robot's overall structure and movement strategy
+Selected suitable components and checked their compatibility
+Established the preliminary control and vision system architecture
+北京理工大学
+BEIJING INSTITUTE OF TECHNOLOGY
+Purchase and receive the selected components
+Complete the robot chassis design in SolidWorks
+Manufacture the chassis using 3D printing / laser cutting
+Assemble the motors, ESP32, MaixCam, and other components
+Develop the vision algorithm for detecting the robot and blocks
+Establish communication between MaixCam and ESP32
+Implement basic autonomous movement and motor control
+Conduct initial testing and record problems for adjustment
+Tasks for upcoming weeks
+
+-- Slide 5 --
+ESP32 Microcontroller
+Component List
+北京理工大学
+BEIJING INSTITUTE OF TECHNOLOGY
+On/Off switch (for battery)
+12V Rechargeable Battery
+7.4V Encoded DC Motor
+48mm omniwheels
+Maixcam Pro （已有）
+
+-- Slide 6 --
+ESP32
+ESP32 serves as the robot's main control unit. It controls the four encoder motors, processes motion-related data, and uses its built-in IMU (accelerometer + gyroscope) to estimate the robot's orientation and movement. It also communicates with the MaixCam to receive vision-related commands.
+MaixCam is the robot's vision and image-processing unit. The overhead camera captures the arena and uses computer vision to identify the robot and blocks, determine their positions, and provide this information to the ESP32 for autonomous movement.
+System Composition
+北京理工大学
+BEIJING INSTITUTE OF TECHNOLOGY
+Maixcam
+
+-- Slide 7 --
+仅供电
+供电与发送信号
+ESP32
+4x encoder motors for omniwheels movement
+maixcam
+12V Battery
+Process Flow
+北京理工大学
+BEIJING INSTITUTE OF TECHNOLOGY
+wifi
+
+-- Slide 8 --
+2
+3
+4
+Maixcam(overhead)
+Fixed, wired mount above the field
+(sense object locations)
+1
+ESP32 (on robot)
+WiFi receiver, plus local fallback logic, gives commands
+Encoded motor
+Converts commands into motor signals
+How it works
+北京理工大学
+BEIJING INSTITUTE OF TECHNOLOGY
+Motors + Plow Physical push toward the boundary line
+
+-- Slide 9 --
+Latency Issue
+WiFi dropout
+ESP-NOW (low overhead) + reactive control loop
+Local fallback behavior after 300ms of silence
+Color miscalibration
+Recalibrate HSV thresholds on-site before matches
+Expected Problems & Solutions
+北京理工大学
+BEIJING INSTITUTE OF TECHNOLOGY
+
+-- Slide 10 --
+Next Week
+Finalize the overall robot design and approach
+北京理工大学
+BEIJING INSTITUTE OF TECHNOLOGY
+Finalize and purchase the required components
+Begin basic chassis/mechanical design
+Begin developing camera tracking and object detection code
+
+-- Slide 11 --
+感谢您的耐心聆听!
+欢迎提问
+
+===== group08-1.pptx =====
+SLIDES: 12
+
+-- Slide 1 --
+AUTONOMOUS BLOCK CLEARING ROBOT
+Hybrid Strategy Design for Intelligent Mechatronic System
+Core idea:
+Use fixed-path planning in the predictable opening stage,
+then switch to vision-based adaptive decision-making
+for the dynamic later stage.
+Keywords: fixed path • visual assistance • decision priority • mecanum drive
+Innovation Practice 2026
+
+-- Slide 2 --
+1. Competition Analysis
+Understand the task first, then design the strategy.
+Competition constraints
+Autonomous operation within 90 seconds
+Limited robot size
+Dynamic block distribution
+Main challenges
+Fast response under time pressure
+Unpredictable interference from the opponent
+Need for reliable mechanical operation
+Conclusion:
+A single control method is not enough.
+Innovation Practice 2026
+2
+
+-- Slide 3 --
+2. Overall Strategy Framework
+A three-stage hybrid strategy for different competition phases.
+Stage 1
+Fixed-path fast clearing
+Stage 2
+Boundary patrol and recovery
+Stage 3
+Vision-based intelligent search
+Why three stages?
+At the beginning, the blocks are relatively ordered, so predefined motion can be faster than visual computation.
+After the first offensive action, some blocks may be pushed back into our side, so boundary recovery becomes necessary.
+In the later stage, the environment becomes uncertain, so the robot needs visual assistance and target prioritization.
+Core principle:
+Use deterministic control when the situation is predictable, and use adaptive control when the situation becomes complex.
+Innovation Practice 2026
+3
+
+-- Slide 4 --
+3. Stage 1 — Fixed-path Fast Clearing
+Take advantage of the regular initial layout to win time.
+Motion sequence
+Start from the corner.
+Push the front blocks toward the opponent area.
+Return to our field.
+Move to the right and repeat the same operation.
+Why this works
+No vision delay in the opening stage.
+Trajectory is stable and easy to debug.
+The first 20–30 seconds are used with maximum efficiency.
+Innovation Practice 2026
+4
+
+-- Slide 5 --
+4. Stage 2 — Boundary Patrol and Recovery
+Clear the high-impact blocks that enter our territory.
+Operational logic
+Return to the original corner after the first clearing task.
+Move along our boundary to check for intrusion blocks.
+Push these blocks away before starting free searching.
+Reason for the strategy
+Blocks near the boundary can quickly affect the final score.
+This stage helps restore field advantage.
+It also creates a cleaner state for the later vision stage.
+Innovation Practice 2026
+5
+
+-- Slide 6 --
+5. Stage 3 — Vision-based Decision
+Switch from predefined motion to autonomous target selection.
+The camera provides block position and relative distance information. The controller then evaluates target priority and sends motion commands to the mecanum drive system.
+Innovation Practice 2026
+6
+
+-- Slide 7 --
+6. Decision Priority Algorithm
+Do not push randomly—push in the most valuable order.
+Decision rule
+Priority 1: blocks close to the center line, because they are easier to transfer and have higher competitive impact.
+Priority 2: blocks already in our area, because they directly increase our final score.
+Within our area, boundary blocks are processed before corner blocks, and corner blocks are processed before remaining blocks.
+Key idea:
+Handle the blocks with the highest influence and the lowest cost first.
+Innovation Practice 2026
+7
+
+-- Slide 8 --
+7. Mechanical Structure Design
+A compact robot built for omnidirectional motion and reliable pushing.
+Main components
+Four mecanum wheels with independent encoder motors
+Front arc-shaped pushing bar
+Surrounding protection frame
+Camera and main controller mounted on the chassis
+Mechanical advantages
+Omnidirectional movement for flexible routing
+Better handling of corner blocks
+Reduced risk of block jamming
+Innovation Practice 2026
+8
+
+-- Slide 9 --
+8. Pushing Mechanism and Anti-blocking Design
+Mechanical details that improve robustness.
+Arc-shaped front pushing bar
+A straight bar can trap blocks near corners.
+The arc shape guides blocks outward during contact.
+This improves corner handling and keeps the pushing flow smoother.
+Guides blocks outward instead of trapping them
+Protection frame against jamming
+Blocks may enter the gap between the chassis and the pusher.
+Straight protective bars are added around the robot body.
+The frame prevents blocks from getting stuck and protects internal parts.
+Protection frame surrounds the main body
+Innovation Practice 2026
+9
+
+-- Slide 10 --
+9. System Architecture
+From perception to actuation: an integrated intelligent mechatronic system.
+The camera detects the environment, the main controller runs the decision algorithm, and the motor driver commands the four encoder motors to execute the motion plan.
+Innovation Practice 2026
+10
+
+-- Slide 11 --
+10. Development Plan
+Roadmap from concept to competition.
+1
+Mechanical
+prototype
+2
+Motion
+calibration
+3
+Vision
+algorithm
+4
+System
+integration
+5
+Competition
+testing
+Final objective: build a compact robot that is fast in the opening stage, stable during motion, and intelligent in the dynamic late stage of the competition.
+Innovation Practice 2026
+11
+
+-- Slide 12 --
+Conclusion
+Our proposed robot combines strategy, perception, and mechanical reliability.
+Hybrid strategy
+Fast opening + adaptive later-stage control
+Priority decision
+Push the most valuable targets first
+Mecanum drive
+Flexible omnidirectional movement
+Reliable mechanism
+Arc pusher + protection frame
+Thank you
+Innovation Practice 2026
+12
+
+===== Group09-1.pptx =====
+SLIDES: 14
+
+-- Slide 1 --
+Team9  PROGRESS UPDATE
+Strategy  |  System Design  |  Team  |  Schedule
+Yicheng Hao     Yucan Chen    Wenyu Zhang
+SMART BLOCK-COLLECTING ROBOT
+COLLECT  |  CARRY  |  CROSS THE LINE
+
+-- Slide 2 --
+CONTENTS
+01
+GAME STRATEGY
+Rules / Collection strategy / 90-second flow
+02
+SYSTEM DESIGN
+Compact chassis / ESP32 / Overhead vision
+03
+TEAM ROLES
+A: Mechanics   B: Control   C: Vision & communication
+04
+SCHEDULE
+13-week plan / Week 2 status / Week 3 deliverables
+SMART COLLECTION ROBOT  |  WEEK 2 UPDATE
+2
+
+-- Slide 3 --
+GAME STRATEGY
+1
+
+-- Slide 4 --
+RULES AND SCORING
+01
+SMART COLLECTION ROBOT  |  WEEK 2 UPDATE
+4
+After 90 seconds, the side with fewer red blocks wins.
+Previous field
+Previous field and initial block layout
+01
+Projection counts
+Blocks may stay onboard if their projection is in the opponent half.
+02
+Center-line rule
+A block belongs to the side containing most of its projected area.
+03
+Crossing is allowed
+Start against the home baseline; the robot may cross the center line.
+04
+Strict size limit
+Robot footprint < 150 cm²; longest side < 40 cm.
+Key insight: no unloading is required — carry the blocks across the line.
+
+-- Slide 5 --
+WHY A COLLECTION ROBOT FITS THE RULES
+01
+PUSHING
+COLLECTING
+Action
+Contact → push → realign → push again
+Detect → collect → carry → cross
+Block state
+Exposed and easy to disturb
+Stored together inside the robot
+Risk
+Repeated alignment and contact
+Several blocks cross in one trip
+Scoring
+Each block must remain in place
+No unloading; onboard projection counts
+Focus
+Accurate pushing and alignment
+Intake reliability and capacity
+SMART COLLECTION ROBOT  |  WEEK 2 UPDATE
+5
+
+-- Slide 6 --
+A COMPLETE SCORING LOOP
+01
+Only the final projection matters. No unloading mechanism is needed.
+1  DETECT
+Locate red blocks
+2  APPROACH
+Align with target
+3  COLLECT
+Guide into bin
+4  CARRY
+Move several blocks
+5  CROSS
+Projection crosses line
+90-second plan: collect near the center, carry several blocks across, then stop safely.
+SMART COLLECTION ROBOT  |  WEEK 2 UPDATE
+6
+
+-- Slide 7 --
+MATCH PLAN: COLLECT FIRST, CROSS ONCE
+01
+Preset the start, collection threshold, and crossing trigger.
+01
+START
+Start near the center of the baseline and head for the dense block area.
+02
+THRESHOLD
+First target: collect three blocks continuously.
+03
+CROSSING
+Cross slowly and straight to prevent loss.
+04
+FINAL STOP
+The robot may overlap the line, but the blocks must project beyond it.
+Version 1 goal: collect 3 blocks, cross, and stop reliably.
+SMART COLLECTION ROBOT  |  WEEK 2 UPDATE
+7
+
+-- Slide 8 --
+SYSTEM DESIGN
+2
+
+-- Slide 9 --
+SYSTEM ARCHITECTURE: VISION-TO-MOTION LOOP
+02
+The laptop sees and decides; the ESP32 drives; the chassis collects.
+COLLECTION CHASSIS
+Compact semi-finished chassis
+Wide front funnel + low bin
+Verify the full footprint before purchase
+MECHANICS
+ESP32 CONTROL
+Receives speed and steering commands
+Drives two DC gear motors
+Stops after 300 ms without commands
+CONTROL
+OVERHEAD VISION
+Detects blocks, robot, and field
+Computes target and heading
+Sends commands by UDP
+VISION
+CAMERA  →  OPENCV  →  UDP  →  ESP32  →  MOTORS  →  FEEDBACK
+SMART COLLECTION ROBOT  |  WEEK 2 UPDATE
+9
+
+-- Slide 10 --
+PRELIMINARY HARDWARE AND INTERFACES
+02
+MECHANICS
+CONTROL
+VISION
+Buy reusable modules first; iterate the structure later. Total budget: under RMB 1,000.
+SMART COLLECTION ROBOT  |  WEEK 2 UPDATE
+10
+• Compact chassis
+• Full-scale cardboard mock-up
+• Rounded, adjustable intake
+• Capacity target: 3 blocks
+• ESP32 receives UDP commands
+• TB6612 motor driver
+• Sequence number + timestamp
+• Fail-safe stop on timeout
+• Overhead USB camera
+• HSV red-block detection
+• Perspective correction
+• Robot position and heading
+
+-- Slide 11 --
+TEAM ROLES & SCHEDULE
+3 / 4
+
+-- Slide 12 --
+TEAM ROLES AND 13-WEEK PLAN
+03 / 04
+Zhang Wenyu
+MECHANICS & SIZE
+Chassis, funnel, bin, center of mass
+Checks the maximum footprint
+Hao
+Yicheng
+CONTROL & MOTION
+ESP32, driver, power, motors
+Implements basic motion and fail-safe stop
+Chen
+Yucan
+VISION & COMMS
+Camera, block and robot localization
+UDP link and state-machine integration
+ROADMAP
+W1–2
+Freeze concept
+Confirm rules, size, hardware, and interfaces
+W3–7
+Build early prototype
+W3 moves, W4 collects, W5 first full integration
+W8–11
+Closed-loop testing
+Localization, communication, continuous collection, repeated trials
+W12–13
+Competition readiness
+Mock matches, spare parts, final presentation
+Rule for progress: a moving prototype by Week 3, then improve with test data.
+SMART COLLECTION ROBOT  |  WEEK 2 UPDATE
+12
+
+-- Slide 13 --
+WEEK 2 STATUS AND WEEK 3 DELIVERABLES
+02
+SMART COLLECTION ROBOT  |  WEEK 2 UPDATE
+13
+COMPLETED
+• Confirmed scoring rules
+• Selected collection strategy
+• Assigned three workstreams
+• Chose camera + ESP32 architecture
+IN PROGRESS
+• Check chassis size and cost
+• Build a full-scale cardboard intake
+• Run basic red-block detection
+• Define the UDP message format
+WEEK 3 ACCEPTANCE
+• Manual forward, reverse, and turning
+• Hold at least 3 hand-fed blocks
+• Output red-block center coordinates
+• Stop within 300 ms after link loss
+TOP RISKS
+Oversize — verify footprint   |   Jamming — adjustable intake   |   Link loss — timeout stop
+Order reusable hardware now and build the cardboard mock-up in parallel.
+
+-- Slide 14 --
+NEXT STEPS
+Size check  |  Hardware purchase  |  First prototype
+THANK YOU
+Questions and feedback are welcome
+
+===== Group11-01.pptx =====
+SLIDES: 8
+
+-- Slide 1 --
+Field and Robot Project
+王明清 贾斯伯 提加尼 素哈尔
+
+-- Slide 2 --
+Ideas we have had
+Forklift-like robot
+Lift the whole arena to cause the cubes to slide down into the opponent’s side
+Principle:
+Problems:
+
+-- Slide 3 --
+Ideas we have had
+Vaccum-like robot
+Suck the cubes into a storage compartment
+Principle:
+Problems:
+The size needed for such vaccum is out of the range required
+No battery can sustain the vaccum for more than couple seconds without getting plugged into an outlet
+
+-- Slide 4 --
+Ideas we have had
+Fan-like robot
+Blow the cubes into the opponent’s area
+Principle:
+Problems:
+No battery can sustain the blowing for the entire duration of the battle.
+
+-- Slide 5 --
+Ideas we have had
+Arm-like robot
+Carry the cubes from one side to another autonomously
+Principle:
+Problems:
+Size requirements
+Complex perception and positioning system needed
+
+-- Slide 6 --
+What we settled with
+Rolling ball collector
+Pick the cubes
+Principle:
+
+-- Slide 7 --
+Next Steps
+Figure out how will the cubes be picked
+How will the robot navigate the arena
+Materials
+Plausibality of the idea
+...
+
+-- Slide 8 --
+Thank you
+Here is a chocolate for your time
+
+===== group12-1.pptx =====
+SLIDES: 17
+
+-- Slide 1 --
+Innovation Practice — Intelligent Mechatronic System
+Floorless Single-Layer
+Collector Robot
+Strategy Derivation  ·  Mechanical Design  ·  Validation Plan
+Team12: 宁宇灏 马一鸣 许迠雄
+Date: 2026-09-29     Progress Review 1
+
+-- Slide 2 --
+P2
+Rules & Key Numbers
+1200 × 1200
+mm
+Field, blue / yellow halves
+20
+blocks
+Total, in 2 rows × 10 on the centre line
+20
+mm
+Block edge length
+90
+s
+Match duration
+150
+cm²
+Max robot silhouette (projected) area
+20
+blocks
+Blocks inside the robot also count
+Blocks inside the robot count toward the half the robot stands in.        Fewer blocks in your half wins.
+
+-- Slide 3 --
+P3
+How to Win
+us, A
+them, B
+Their half = A     Our half = B
+we need A > 10
+themB
+
+-- Slide 4 --
+P4
+Tactics
+①	Steal a march:
+All 20 blocks start on the centre line, both sides perfectly symmetric — at first we should race for the centre.
+themB
+Assume the worst-case scenario: the opponent pushes all remaining blocks into our half.
+then WIN  =  collect more than 10 blocks   +   finish in their half.   Both are mandatory.
+②	Get the blocks into the opponent's half:
+From ①, If we get a head start we can push the centre blocks into the opponent’s half, or further, COLLECT them and stop at the opponent’s half when the game ends so that the opponent won’t be able to get the blocks back into our side.
+
+-- Slide 5 --
+P5
+Deriving Design Targets from our Tactics
+What the formula requires
+Engineering target
+Our value
+Collect > 10 blocks
+Intake width
+≈ 120 mm (over half of the 200 mm strip)
+Capacity
+A single layer already holds all 20 blocks
+No mid-match jam or spill
+No unloading step at all — one pass takes everything
+Finish in their half
+Reliable crossing
+Done 15 s early, parked deep in their half
+Note row two: once capacity covers the whole field, no unloading mechanism is needed — one capacity figure removes an entire subsystem.
+
+-- Slide 6 --
+P6
+Three Candidate Architectures
+Architecture
+Complexity
+Ceiling
+Main risk
+Plain bulldozer blade
+★
+Medium
+Head-on shoving match — a coin flip
+Floored bin + lift-in intake
+★★★
+High
+Blocks must be lifted 20 mm over the bin lip → jam hotspot
+Floorless cage  (ours)
+★
+High
+Relies on front sealing — must be validated
+We did not choose the simpler option. We chose the only one that removes the dominant failure mode outright.
+In a floored design, the paddle wheel must throw every block up and over the bin lip — that one task sets the torque, the speed, the blade strength and the jam probability.
+
+-- Slide 7 --
+P7
+Innovation ① — The Floorless Cage
+The field itself is the bin floor
+What it deletes
+✗  No lifting of blocks
+✗  No bin lip, no ramp
+✗  No high-torque motor
+✗  No geometry where a block wedges at the lip
+— the deadlock state cannot occur
+The key physical picture
+The robot drives forward; the blocks lie still on the field.
+
+In the robot frame, the field flows backwards.
+
+The blocks behave like driftwood in a river — carried rearward until they hit the back wall.
+The back wall is a dam, not a blade
+
+-- Slide 8 --
+P8
+Innovation ② — Single-Layer Lock  →  One-Pass Collection
+Bin height admits exactly one layer — a second layer cannot fit, geometrically
+Failure mode eliminated
+If a second layer it applied, the upper block would wedge between the bin roof and the field.
+
+When pushed, it would not move. When pulled, the robot would get stuck. The robot will lifts itself off its own payload and the rear wheels will leave the ground and lost its control.
+Capability gained
+One layer already holds more than 20 blocks — more than the whole field contains.
+
+So a single sweep collects everything: no second trip, and no unloading mechanism of any kind.
+This is not something we "try to avoid" — it is geometrically impossible.
+The saved height becomes the electronics deck: one dimension, two jobs.
+
+-- Slide 9 --
+P9
+Layout — Plan View
+Front of the robot at the top
+SINGLE-LAYER
+≈ 120 × 100 mm
+one layer only
+capacity ≥ 20 blocks
+one-way gate
+▲ front — intake ≈120 mm wide
+front wheels (idler) ×2   ·   rear wheels (driven) ×2   ·   red = deflectors
+Layout decisions and why
+Wheels in full-length side bays
+Frees the full width for the mouth, and lets the bin run the whole length instead of being cut by the front axle
+Bin is parallel throughout
+Blocks flow rearward on ground friction. Any rearward taper wedges and jams them
+Outer skirts
+Seal the outer face of the wheel bays so loose blocks cannot roll under a wheel
+Deflectors ahead of each wheel
+Steer blocks from the outer lanes into the bin, and keep blocks out from under the wheels
+
+-- Slide 10 --
+P10
+Layout — Height Stack
+field
+single-layer bin
+one layer only
+battery + controller
+electronics
+bin roof (also the bending structure)
+gate
+back wall
+Every layer solves one problem
+Bin
+one layer only
+Blocks are 20 mm tall; a second layer does not fit
+Bin roof
+seals the bin + carries bending loads
+Doubles as the floor of the electronics deck
+Electronics
+battery, controller, driver
+Centre of mass kept low and inside the wheelbase
+Ground gap
+1–2 mm clearance
+A block’s minimum projected width is 20 mm — it cannot pass
+
+-- Slide 11 --
+P11
+What Each Part Does, and Why
+Part
+Function
+Design rationale
+If removed
+Back wall
+Traps blocks under the robot so the payload piles at the rear
+It is a dam, not a blade — blocks arrive on ground friction alone
+Blocks pass straight through; nothing is retained
+Side walls / partitions
+Side sealing, and separates the wheel bays from the bin
+Blocks are 20 mm; a 1–2 mm gap is impassable
+Blocks leak sideways; wheels crush blocks in the bin
+Outer skirts
+Seals the outer face of the wheel bays
+Stops loose blocks rolling in from the side
+A block lifts a wheel → the ground gap opens → the whole load spills
+Deflectors
+Steers blocks from the outer lanes into the bin
+The angle must be shallow, or blocks are bulldozed instead of sliding in
+Outer lanes are never collected; blocks can reach a wheel
+Bin roof
+Locks the single layer + main bending structure
+One layer only — a second cannot fit; also the electronics floor
+Blocks stack and wedge, lifting the robot off the ground
+One-way gate
+The only exit control
+Seals on a rigid stop rather than friction — passes in, blocks out
+Blocks spill on braking, when shoved, or when reversing
+
+-- Slide 12 --
+P12
+The One-Way Gate — Top-Hinged Flap + Stop Pin
+The only exit control
+header / hinge mount
+open
+hinge (flexible tape)
+stop pin (no forward swing)
+block
+travel
+closed
+Option
+Holds when shoved
+Verdict
+Top-hinged flap + stop pin
+✓ rigid stop
+✓ CHOSEN
+Brush curtain / strip
+✗ fails
+rejected
+Paddle wheel
+✓ but needs a motor
+not needed here
+Why a brush curtain fails
+A brush is one-way only through a force difference: during intake the motor is strong and pushes it open.
+
+But when the opponent shoves you, your own brush retreats into the blocks — they have to overcome nothing.
+
+Being shoved = you pulling the brush off the blocks yourself.
+
+-- Slide 13 --
+P13
+90-Second Timeline
+One pass collects everything — there is no unloading step
+0
+3
+40
+75
+85
+90
+launch
+COLLECT EVERYTHING  (decides the match)
+clear strays from our half
+cross
+freeze
+these 37 s decide 80% of the match
+parked 15 s early — no last-second gamble
+Time
+Action
+Key point
+0 – 3 s
+Full-speed straight run
+Start directly opposite the centre of the strip
+3 – 40 s
+Collect everything: sweep the whole strip
+Mouth ≈120 mm against a 200 mm strip — one pass takes most of it
+40 – 75 s
+Return and clear strays from our half
+Each block is a ±2 swing: one less for us, one more for them
+75 – 85 s
+Cross and park deep in their half
+15 s of margin
+85 – 90 s
+Full stop, motors braked
+Position is judged at the buzzer — no need to fight for it
+
+-- Slide 14 --
+P14
+Opponent Scenarios and Counters
+Likely opponent play
+Our answer
+Head straight for the centre line
+Most likely. Our ≈120 mm mouth covers more in one pass, and the deflectors sweep in the outer strays.
+Collect, cross immediately, then defend
+The remaining blocks are ours. A defending opponent stops attacking — we keep clearing.
+Patrol the centre line, pushing blocks back at us
+Go around the flank (the field is 1200 mm wide), and drop blocks deep in their half to raise the time cost of bringing them back.
+Ram us or try to tip us
+Damage is banned; contact is not. Our answer: low centre of mass, four wheels, no exposed wheels, and a single-layer lock so the CoM does not rise with payload.
+Block our crossing line
+Crossing only needs the nose over the line — no U-turn, so the manoeuvre is very short.
+One tactical rule: the deeper the drop, the longer it takes them to bring those blocks back. We trade position for their time.
+
+-- Slide 15 --
+P15
+Validation Plan & Open Questions
+Week 3: cardboard mock-up  ·  ¥0  ·  2 hours
+Test
+Pass criterion
+Static seal: drive it fully loaded
+loses ≤ 2 / 20
+Drive-over capture: does forward motion alone pick blocks up?
+takes ≥ 4 / 5
+Hard stop: does the gate hold?
+spills ≤ 2 / 20
+Gate under shove (the decisive test)
+stop pin holds, zero loss
+Turning leak + reversing loss
+loses ≤ 3 / 20
+Decision rule, fixed in advance: if any two of static seal / hard stop / gate-under-shove fail, the floorless concept is dead and we fall back to a shallow floor with a front lip.
+Open questions
+① Add a paddle wheel?
+Not yet. Trigger: if drive-over capture only takes 2–3 of 5, add one ahead of the gate. The mounting space is already reserved.
+② Battery forward or aft?
+Decide after measuring the assembled centre of mass. Target: just ahead of the rear axle — traction without pitching back.
+③ Viewing port in the bin roof?
+Recommended near the back wall. It is the only internal process we cannot observe.
+
+-- Slide 16 --
+P16
+Roles · Budget · Milestones
+Roles
+Role
+Owns
+Name
+Mechanics
+Frame / gate / deflectors
+Electronics
+Motor drive / power / MCU
+Software
+Motion control / odometry
+Perception
+Vision / localisation
+Budget  (target ≤ ¥500)
+Item
+¥
+Motors + driver
+~160
+Controller + battery
+~120
+Camera
+~60
+Filament + fasteners
+~90
+Total
+~430
+Milestones
+Wk
+Deliverable
+W3
+Cardboard mock-up validation
+W5
+CAD frozen + parts ordered
+W8
+Full sequence runs end-to-end
+W11
+Vision integrated + head-to-head
+W14
+Final contest
+
+-- Slide 17 --
+WIN  =  collect > 10 blocks
+              +   finish in their half
+Thank you — questions welcome
+Next: cardboard validation this week; a go / no-go on the concept next week.
+
+===== Group13-1.pptx =====
+SLIDES: 12
+
+-- Slide 1 --
+Robot Scheme
+2026年9月29日
+Group 13
+1820242036 张玉雯
+1820242039 郭邵豪
+1820242040 杨伟煌
+
+-- Slide 2 --
+Group 13
+Changing the Playing Field
+Move the metal borders into the enemies’ field, so that no block can remain on our own field.
+Strategies
+2
+
+-- Slide 3 --
+Navigation System
+To self-correct to face to the front if hit by enemy robot.
+To move the metal border alongside the robot.
+How to Stick
+To have enough power to move the metal border.
+To prevent being outpowered by enemy robot.
+High Power
+Schemes
+3
+Group 13
+
+-- Slide 4 --
+Schemes
+How to Stick
+Stick a strong magnet outside of the steel border and one on the robot.
+Magnet
+Either by glue or other dry adhesive options.
+Adhesive
+4
+
+-- Slide 5 --
+High Power
+Use a strong power battery to power up the motors.
+Battery
+Prioritize torque over speed.
+Motor
+5
+Schemes
+
+-- Slide 6 --
+Navigation System
+To be able to identify the blocks and arena ground colors.
+Sensor Camera
+Top-down Camera
+To be able to identify the blocks and arena ground colors.
+6
+Schemes
+
+-- Slide 7 --
+Backup
+Store it Inside the Robot
+Backup
+Strategy
+7
+
+-- Slide 8 --
+Navigation System
+To go to the enemy area before timer runs out.
+To store at least 11 cubes (more than half).
+Have Room
+To keep cubes from enemies.
+How to Collect
+Schemes
+8
+Backup
+
+-- Slide 9 --
+Have Room
+Beside the wheels.
+Use larger wheels.
+Under Body
+Use a slope to get it inside.
+Hollow Body
+9
+Schemes
+
+-- Slide 10 --
+How to Collect
+Stick a strong magnet outside of the steel border and one on the robot
+Vacuum
+Either by glue or other dry adhesive options
+Claws
+10
+Schemes
+
+-- Slide 11 --
+Navigation System
+To be able to identify the blocks and arena ground colors.
+Sensor Camera
+Top-down Camera
+To be able to identify the blocks and arena ground colors.
+11
+Schemes
+
+-- Slide 12 --
+Thank you For listening
+12

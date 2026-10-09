@@ -1,0 +1,11 @@
+import fs from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import {Presentation,PresentationFile} from 'file:///C:/Users/Admin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs';
+const p=Presentation.create({slideSize:{width:1920,height:1080}});
+const s=p.slides.add();s.background.fill='#f7f8f3';
+const t=s.shapes.add({geometry:'textbox',position:{left:90,top:88,width:1700,height:100},fill:'none',line:{fill:'none',width:0}});
+t.text='机器人推块比赛 · 阶段方案与策略';t.text.style={fontSize:65,typeface:'Microsoft YaHei',bold:true,color:'#28332f',insets:{top:0,bottom:0,left:0,right:0},wrap:'none',autoFit:'none'};
+await fs.mkdir(new URL('./ppt-build/',import.meta.url),{recursive:true});
+await (await PresentationFile.exportPptx(p)).save(fileURLToPath(new URL('./ppt-build/probe.pptx',import.meta.url)));
+const png=await p.export({slide:s,format:'png',scale:.667});await fs.writeFile(new URL('./ppt-build/probe.png',import.meta.url),new Uint8Array(await png.arrayBuffer()));
+console.log('Artifact export and render working');

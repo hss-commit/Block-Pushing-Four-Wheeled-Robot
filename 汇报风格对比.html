@@ -1,0 +1,491 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>汇报视觉方向对比</title><style>*{box-sizing:border-box}body{margin:0;background:#171b1d;color:#f4f4ee;font:15px "Microsoft YaHei",sans-serif;height:100vh;overflow:hidden}.toolbar{height:78px;display:flex;justify-content:center;gap:14px;align-items:center;padding:12px}button{font:inherit;cursor:pointer;padding:12px 22px;border:1px solid #505956;border-radius:5px;color:#d6dad7;background:transparent}button.active{background:#f4f5f0;color:#23322b;border-color:#f4f5f0}iframe{position:absolute;top:78px;left:0;width:100%;height:calc(100% - 78px);border:0;visibility:hidden}iframe.active{visibility:visible}button:focus-visible{outline:2px solid #f2bd72;outline-offset:2px}@media(max-width:600px){button{padding:10px;font-size:12px}.toolbar{gap:6px}}</style></head><body><nav class="toolbar" aria-label="选择视觉方向"><button class="active" onclick="show(0)">A · 工程评审</button><button onclick="show(1)">B · 深色叙事</button><button onclick="show(2)">C · 策略推演</button></nav><iframe title="视觉方向 A" class="active" srcdoc="&lt;!DOCTYPE html&gt;&lt;html lang=&quot;zh-CN&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot;&gt;&lt;title&gt;中盘策略&lt;/title&gt;&lt;style&gt;/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   Include this ENTIRE file in every presentation.
+   Slides are authored at 1920×1080 and scaled as a whole.
+   =========================================== */
+
+/* 1. Lock the browser viewport */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 2. Full-window deck viewport */
+.deck-viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 3. Fixed 16:9 design canvas.
+   JavaScript sets transform: translate(...) scale(...). */
+.deck-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--slide-bg, #fff);
+}
+
+/* 4. Slides stack inside the fixed stage.
+   Content must be laid out at 1920×1080, not reflowed per device. */
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--slide-bg, #fff);
+}
+
+.slide.active,
+.slide.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+/* 5. Keep media inside authored slide bounds */
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* 6. Presentation chrome stays outside the slide design system */
+.deck-controls {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* 7. Print one fixed-size slide per page */
+@media print {
+    html,
+    body {
+        width: 1920px;
+        height: auto;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-viewport {
+        position: static;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-stage {
+        position: static;
+        width: auto;
+        height: auto;
+        transform: none !important;
+        background: none;
+    }
+
+    .slide {
+        position: relative;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: 1920px;
+        height: 1080px;
+        break-after: page;
+        page-break-after: always;
+    }
+
+    .slide:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+
+    .deck-controls {
+        display: none !important;
+    }
+}
+
+/* 8. Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+}
+
+*{box-sizing:border-box}body{font-family:&quot;Microsoft YaHei&quot;,&quot;PingFang SC&quot;,sans-serif;color:var(--ink)}
+.slide{padding:78px 90px;background:var(--slide-bg);color:var(--ink)}h1,h2,h3,p{margin:0}h1{font-size:65px;line-height:1.4;font-weight:600;letter-spacing:-1px}p{font-size:30px;line-height:1.75}svg{width:100%;height:100%;font-family:inherit} .slide.active{visibility:visible;opacity:1}
+
+:root{--stage-bg:#e6e8e1;--slide-bg:#f7f8f3;--ink:#28332f;--muted:#768179;--accent:#34695b}
+h1{border-bottom:2px solid #2c4033;padding-bottom:36px}.layout{display:grid;grid-template-columns:600px 1fr;gap:60px;margin-top:50px;height:718px}.reading{padding:20px 5px 0 0}.reading h2{font-size:42px;font-weight:500;line-height:1.6;margin-bottom:48px}.point{padding:24px 0;border-top:1px solid #d9ded5}.point h3{font-size:32px;font-weight:600;margin-bottom:10px}.point p{font-size:28px;color:#718076}.point:last-child h3{color:var(--accent)}.map{height:738px;margin-top:-17px}.reading h2 span{color:var(--accent)}
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;deck-viewport&quot;&gt;&lt;main class=&quot;deck-stage&quot;&gt;&lt;section class=&quot;slide active&quot;&gt;&lt;h1&gt;中盘决策：优先选择收益更高的目标&lt;/h1&gt;&lt;div class=&quot;layout&quot;&gt;&lt;div class=&quot;reading&quot;&gt;&lt;h2&gt;同一批方块出现争夺时，&lt;br&gt;&lt;span&gt;先比较收益，再决定动作。&lt;/span&gt;&lt;/h2&gt;&lt;div class=&quot;point&quot;&gt;&lt;h3&gt;先检查可行性&lt;/h3&gt;&lt;p&gt;推板能覆盖，路径和绕后空间可达。&lt;/p&gt;&lt;/div&gt;&lt;div class=&quot;point&quot;&gt;&lt;h3&gt;再比较完整循环&lt;/h3&gt;&lt;p&gt;把接近、推送、释放与返回都计入耗时。&lt;/p&gt;&lt;/div&gt;&lt;div class=&quot;point&quot;&gt;&lt;h3&gt;到达时间接近时换目标&lt;/h3&gt;&lt;p&gt;降低正面对推的时间损失。&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;map&quot;&gt;&lt;svg viewBox=&quot;0 0 1000 740&quot; role=&quot;img&quot; aria-label=&quot;中盘目标比较示意：放弃有争夺风险的目标 A，转向目标 B。路径仅为策略示意。&quot;&gt;
+    &lt;defs&gt;&lt;pattern id=&quot;grid&quot; width=&quot;52&quot; height=&quot;52&quot; patternUnits=&quot;userSpaceOnUse&quot;&gt;&lt;path d=&quot;M52 0H0V52&quot; fill=&quot;none&quot; stroke=&quot;#c6ccc6&quot; stroke-width=&quot;.6&quot; opacity=&quot;.45&quot;/&gt;&lt;/pattern&gt;&lt;marker id=&quot;tip&quot; markerWidth=&quot;8&quot; markerHeight=&quot;8&quot; refX=&quot;7&quot; refY=&quot;4&quot; orient=&quot;auto&quot;&gt;&lt;path d=&quot;M1 1L7 4L1 7&quot; fill=&quot;none&quot; stroke=&quot;#34695b&quot; stroke-width=&quot;1.5&quot;/&gt;&lt;/marker&gt;&lt;/defs&gt;
+    &lt;rect x=&quot;72&quot; y=&quot;95&quot; width=&quot;520&quot; height=&quot;260&quot; fill=&quot;#657d95&quot; opacity=&quot;.07&quot;/&gt;&lt;rect x=&quot;72&quot; y=&quot;355&quot; width=&quot;520&quot; height=&quot;260&quot; fill=&quot;#34695b&quot; opacity=&quot;.08&quot;/&gt;
+    &lt;rect x=&quot;72&quot; y=&quot;95&quot; width=&quot;520&quot; height=&quot;520&quot; fill=&quot;url(#grid)&quot; stroke=&quot;#c6ccc6&quot; stroke-width=&quot;2&quot;/&gt;
+    &lt;path d=&quot;M72 355H592&quot; stroke=&quot;#75827c&quot; stroke-width=&quot;1.5&quot; stroke-dasharray=&quot;9 9&quot;/&gt;
+    &lt;text x=&quot;72&quot; y=&quot;65&quot; fill=&quot;#75827c&quot; font-size=&quot;25&quot;&gt;对方半区&lt;/text&gt;&lt;text x=&quot;72&quot; y=&quot;659&quot; fill=&quot;#75827c&quot; font-size=&quot;25&quot;&gt;我方半区&lt;/text&gt;
+    &lt;rect x=&quot;174&quot; y=&quot;268&quot; width=&quot;99&quot; height=&quot;214&quot; fill=&quot;#34695b&quot; opacity=&quot;.09&quot;/&gt;
+    &lt;path d=&quot;M174 268V482 M273 268V482&quot; stroke=&quot;#34695b&quot; stroke-width=&quot;1.5&quot; stroke-dasharray=&quot;6 7&quot;/&gt;
+    &lt;g fill=&quot;#34695b&quot;&gt;&lt;rect x=&quot;193&quot; y=&quot;326&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;rect x=&quot;215&quot; y=&quot;333&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;rect x=&quot;238&quot; y=&quot;326&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;/g&gt;
+    &lt;g fill=&quot;#657d95&quot;&gt;&lt;rect x=&quot;373&quot; y=&quot;326&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;rect x=&quot;395&quot; y=&quot;333&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;rect x=&quot;418&quot; y=&quot;326&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;/g&gt;
+    &lt;ellipse cx=&quot;404&quot; cy=&quot;333&quot; rx=&quot;66&quot; ry=&quot;52&quot; fill=&quot;none&quot; stroke=&quot;#657d95&quot; stroke-width=&quot;1.4&quot; stroke-dasharray=&quot;5 7&quot;/&gt;
+    &lt;path d=&quot;M330 476Q405 440 402 386&quot; fill=&quot;none&quot; stroke=&quot;#657d95&quot; stroke-width=&quot;2.5&quot; stroke-dasharray=&quot;8 8&quot; opacity=&quot;.65&quot;/&gt;
+    &lt;path d=&quot;M490 230Q434 250 414 277&quot; fill=&quot;none&quot; stroke=&quot;#657d95&quot; stroke-width=&quot;2.5&quot; stroke-dasharray=&quot;8 8&quot;/&gt;
+    &lt;path d=&quot;M299 488H144V248Q144 231 163 231H205Q223 231 223 251V301&quot; fill=&quot;none&quot; stroke=&quot;#34695b&quot; stroke-width=&quot;3.8&quot; marker-end=&quot;url(#tip)&quot;/&gt;
+    &lt;path d=&quot;M224 365V442&quot; fill=&quot;none&quot; stroke=&quot;#34695b&quot; stroke-width=&quot;3.8&quot; marker-end=&quot;url(#tip)&quot;/&gt;
+    &lt;g&gt;&lt;circle cx=&quot;319&quot; cy=&quot;488&quot; r=&quot;22&quot; fill=&quot;#34695b&quot;/&gt;&lt;path d=&quot;M310 496l9-23 9 23-9-6z&quot; fill=&quot;#fff&quot;/&gt;&lt;circle cx=&quot;319&quot; cy=&quot;488&quot; r=&quot;33&quot; fill=&quot;none&quot; stroke=&quot;#34695b&quot; opacity=&quot;.3&quot; stroke-width=&quot;1.5&quot;/&gt;&lt;/g&gt;
+    &lt;g&gt;&lt;circle cx=&quot;496&quot; cy=&quot;226&quot; r=&quot;20&quot; fill=&quot;#657d95&quot;/&gt;&lt;path d=&quot;M487 223l21-9-8 21-2-10z&quot; fill=&quot;#fff&quot;/&gt;&lt;/g&gt;
+    &lt;text x=&quot;350&quot; y=&quot;509&quot; fill=&quot;#303a39&quot; font-size=&quot;27&quot;&gt;我方&lt;/text&gt;&lt;text x=&quot;458&quot; y=&quot;179&quot; fill=&quot;#657d95&quot; font-size=&quot;27&quot;&gt;对手&lt;/text&gt;
+    &lt;path d=&quot;M430 296L619 264H685&quot; stroke=&quot;#657d95&quot; stroke-width=&quot;1.5&quot; fill=&quot;none&quot;/&gt;&lt;circle cx=&quot;430&quot; cy=&quot;296&quot; r=&quot;4&quot; fill=&quot;#657d95&quot;/&gt;
+    &lt;text x=&quot;665&quot; y=&quot;228&quot; fill=&quot;#303a39&quot; font-size=&quot;32&quot; font-weight=&quot;600&quot;&gt;目标 A&lt;/text&gt;&lt;text x=&quot;665&quot; y=&quot;304&quot; fill=&quot;#75827c&quot; font-size=&quot;27&quot;&gt;双方接近&lt;/text&gt;&lt;text x=&quot;665&quot; y=&quot;345&quot; fill=&quot;#75827c&quot; font-size=&quot;27&quot;&gt;争夺风险较高&lt;/text&gt;
+    &lt;path d=&quot;M267 448L620 473H685&quot; stroke=&quot;#34695b&quot; stroke-width=&quot;1.5&quot; fill=&quot;none&quot;/&gt;&lt;circle cx=&quot;267&quot; cy=&quot;448&quot; r=&quot;4&quot; fill=&quot;#34695b&quot;/&gt;
+    &lt;text x=&quot;665&quot; y=&quot;435&quot; fill=&quot;#34695b&quot; font-size=&quot;32&quot; font-weight=&quot;600&quot;&gt;目标 B&lt;/text&gt;&lt;text x=&quot;665&quot; y=&quot;513&quot; fill=&quot;#75827c&quot; font-size=&quot;27&quot;&gt;可独立完成推送&lt;/text&gt;&lt;text x=&quot;665&quot; y=&quot;554&quot; fill=&quot;#75827c&quot; font-size=&quot;27&quot;&gt;优先重新评估&lt;/text&gt;
+    &lt;/svg&gt;&lt;/div&gt;&lt;/div&gt;&lt;/section&gt;&lt;/main&gt;&lt;/div&gt;&lt;script&gt;const stage=document.querySelector(&#x27;.deck-stage&#x27;);function fit(){let s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform=`translate(${(innerWidth-1920*s)/2}px,${(innerHeight-1080*s)/2}px) scale(${s})`;}addEventListener(&#x27;resize&#x27;,fit);fit();&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;"></iframe><iframe title="视觉方向 B" class="" srcdoc="&lt;!DOCTYPE html&gt;&lt;html lang=&quot;zh-CN&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot;&gt;&lt;title&gt;中盘策略&lt;/title&gt;&lt;style&gt;/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   Include this ENTIRE file in every presentation.
+   Slides are authored at 1920×1080 and scaled as a whole.
+   =========================================== */
+
+/* 1. Lock the browser viewport */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 2. Full-window deck viewport */
+.deck-viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 3. Fixed 16:9 design canvas.
+   JavaScript sets transform: translate(...) scale(...). */
+.deck-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--slide-bg, #fff);
+}
+
+/* 4. Slides stack inside the fixed stage.
+   Content must be laid out at 1920×1080, not reflowed per device. */
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--slide-bg, #fff);
+}
+
+.slide.active,
+.slide.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+/* 5. Keep media inside authored slide bounds */
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* 6. Presentation chrome stays outside the slide design system */
+.deck-controls {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* 7. Print one fixed-size slide per page */
+@media print {
+    html,
+    body {
+        width: 1920px;
+        height: auto;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-viewport {
+        position: static;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-stage {
+        position: static;
+        width: auto;
+        height: auto;
+        transform: none !important;
+        background: none;
+    }
+
+    .slide {
+        position: relative;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: 1920px;
+        height: 1080px;
+        break-after: page;
+        page-break-after: always;
+    }
+
+    .slide:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+
+    .deck-controls {
+        display: none !important;
+    }
+}
+
+/* 8. Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+}
+
+*{box-sizing:border-box}body{font-family:&quot;Microsoft YaHei&quot;,&quot;PingFang SC&quot;,sans-serif;color:var(--ink)}
+.slide{padding:78px 90px;background:var(--slide-bg);color:var(--ink)}h1,h2,h3,p{margin:0}h1{font-size:65px;line-height:1.4;font-weight:600;letter-spacing:-1px}p{font-size:30px;line-height:1.75}svg{width:100%;height:100%;font-family:inherit} .slide.active{visibility:visible;opacity:1}
+
+:root{--stage-bg:#1c2644;--slide-bg:#1c2644;--ink:#f0ece3;--muted:#a1aaba;--accent:#c8a870}
+.slide{background-image:linear-gradient(#ffffff025 1px,transparent 1px)}.b-title{position:absolute;left:95px;top:146px;width:640px;font-family:&quot;Noto Serif CJK SC&quot;,&quot;Source Han Serif SC&quot;,&quot;SimSun&quot;,serif;font-size:86px;line-height:1.5;font-weight:500}.b-title span{color:var(--accent)}.b-lead{position:absolute;top:460px;left:102px;width:570px;font-size:33px;line-height:1.85;color:#bfc4cc}.b-bottom{position:absolute;top:677px;left:102px;width:558px;border-top:1px solid #778197;padding-top:28px}.b-bottom div{padding:17px 0;display:flex;justify-content:space-between;font-size:30px}.b-bottom strong{color:#c8a870;font-weight:500}.b-map{position:absolute;right:25px;top:140px;width:1140px;height:843px}
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;deck-viewport&quot;&gt;&lt;main class=&quot;deck-stage&quot;&gt;&lt;section class=&quot;slide active&quot;&gt;&lt;h1 class=&quot;b-title&quot;&gt;目标选择与&lt;br&gt;&lt;span&gt;对手干扰处理&lt;/span&gt;&lt;/h1&gt;&lt;p class=&quot;b-lead&quot;&gt;比较完整推送的留存收益，&lt;br&gt;让每一次改道都有明确依据。&lt;/p&gt;&lt;div class=&quot;b-bottom&quot;&gt;&lt;div&gt;&lt;span&gt;接触时间接近&lt;/span&gt;&lt;strong&gt;切换目标&lt;/strong&gt;&lt;/div&gt;&lt;div&gt;&lt;span&gt;对手已经推走&lt;/span&gt;&lt;strong&gt;等待释放后回收&lt;/strong&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;b-map&quot;&gt;&lt;svg viewBox=&quot;0 0 1000 740&quot; role=&quot;img&quot; aria-label=&quot;中盘目标比较示意：放弃有争夺风险的目标 A，转向目标 B。路径仅为策略示意。&quot;&gt;
+    &lt;defs&gt;&lt;pattern id=&quot;grid&quot; width=&quot;52&quot; height=&quot;52&quot; patternUnits=&quot;userSpaceOnUse&quot;&gt;&lt;path d=&quot;M52 0H0V52&quot; fill=&quot;none&quot; stroke=&quot;#5a6677&quot; stroke-width=&quot;.6&quot; opacity=&quot;.45&quot;/&gt;&lt;/pattern&gt;&lt;marker id=&quot;tip&quot; markerWidth=&quot;8&quot; markerHeight=&quot;8&quot; refX=&quot;7&quot; refY=&quot;4&quot; orient=&quot;auto&quot;&gt;&lt;path d=&quot;M1 1L7 4L1 7&quot; fill=&quot;none&quot; stroke=&quot;#c8a870&quot; stroke-width=&quot;1.5&quot;/&gt;&lt;/marker&gt;&lt;/defs&gt;
+    &lt;rect x=&quot;72&quot; y=&quot;95&quot; width=&quot;520&quot; height=&quot;260&quot; fill=&quot;#829cb2&quot; opacity=&quot;.07&quot;/&gt;&lt;rect x=&quot;72&quot; y=&quot;355&quot; width=&quot;520&quot; height=&quot;260&quot; fill=&quot;#c8a870&quot; opacity=&quot;.08&quot;/&gt;
+    &lt;rect x=&quot;72&quot; y=&quot;95&quot; width=&quot;520&quot; height=&quot;520&quot; fill=&quot;url(#grid)&quot; stroke=&quot;#5a6677&quot; stroke-width=&quot;2&quot;/&gt;
+    &lt;path d=&quot;M72 355H592&quot; stroke=&quot;#9daaa9&quot; stroke-width=&quot;1.5&quot; stroke-dasharray=&quot;9 9&quot;/&gt;
+    &lt;text x=&quot;72&quot; y=&quot;65&quot; fill=&quot;#9daaa9&quot; font-size=&quot;25&quot;&gt;对方半区&lt;/text&gt;&lt;text x=&quot;72&quot; y=&quot;659&quot; fill=&quot;#9daaa9&quot; font-size=&quot;25&quot;&gt;我方半区&lt;/text&gt;
+    &lt;rect x=&quot;174&quot; y=&quot;268&quot; width=&quot;99&quot; height=&quot;214&quot; fill=&quot;#c8a870&quot; opacity=&quot;.09&quot;/&gt;
+    &lt;path d=&quot;M174 268V482 M273 268V482&quot; stroke=&quot;#c8a870&quot; stroke-width=&quot;1.5&quot; stroke-dasharray=&quot;6 7&quot;/&gt;
+    &lt;g fill=&quot;#c8a870&quot;&gt;&lt;rect x=&quot;193&quot; y=&quot;326&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;rect x=&quot;215&quot; y=&quot;333&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;rect x=&quot;238&quot; y=&quot;326&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;/g&gt;
+    &lt;g fill=&quot;#829cb2&quot;&gt;&lt;rect x=&quot;373&quot; y=&quot;326&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;rect x=&quot;395&quot; y=&quot;333&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;rect x=&quot;418&quot; y=&quot;326&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;/g&gt;
+    &lt;ellipse cx=&quot;404&quot; cy=&quot;333&quot; rx=&quot;66&quot; ry=&quot;52&quot; fill=&quot;none&quot; stroke=&quot;#829cb2&quot; stroke-width=&quot;1.4&quot; stroke-dasharray=&quot;5 7&quot;/&gt;
+    &lt;path d=&quot;M330 476Q405 440 402 386&quot; fill=&quot;none&quot; stroke=&quot;#829cb2&quot; stroke-width=&quot;2.5&quot; stroke-dasharray=&quot;8 8&quot; opacity=&quot;.65&quot;/&gt;
+    &lt;path d=&quot;M490 230Q434 250 414 277&quot; fill=&quot;none&quot; stroke=&quot;#829cb2&quot; stroke-width=&quot;2.5&quot; stroke-dasharray=&quot;8 8&quot;/&gt;
+    &lt;path d=&quot;M299 488H144V248Q144 231 163 231H205Q223 231 223 251V301&quot; fill=&quot;none&quot; stroke=&quot;#c8a870&quot; stroke-width=&quot;3.8&quot; marker-end=&quot;url(#tip)&quot;/&gt;
+    &lt;path d=&quot;M224 365V442&quot; fill=&quot;none&quot; stroke=&quot;#c8a870&quot; stroke-width=&quot;3.8&quot; marker-end=&quot;url(#tip)&quot;/&gt;
+    &lt;g&gt;&lt;circle cx=&quot;319&quot; cy=&quot;488&quot; r=&quot;22&quot; fill=&quot;#c8a870&quot;/&gt;&lt;path d=&quot;M310 496l9-23 9 23-9-6z&quot; fill=&quot;#1c2644&quot;/&gt;&lt;circle cx=&quot;319&quot; cy=&quot;488&quot; r=&quot;33&quot; fill=&quot;none&quot; stroke=&quot;#c8a870&quot; opacity=&quot;.3&quot; stroke-width=&quot;1.5&quot;/&gt;&lt;/g&gt;
+    &lt;g&gt;&lt;circle cx=&quot;496&quot; cy=&quot;226&quot; r=&quot;20&quot; fill=&quot;#829cb2&quot;/&gt;&lt;path d=&quot;M487 223l21-9-8 21-2-10z&quot; fill=&quot;#1c2644&quot;/&gt;&lt;/g&gt;
+    &lt;text x=&quot;350&quot; y=&quot;509&quot; fill=&quot;#e4e6dc&quot; font-size=&quot;27&quot;&gt;我方&lt;/text&gt;&lt;text x=&quot;458&quot; y=&quot;179&quot; fill=&quot;#829cb2&quot; font-size=&quot;27&quot;&gt;对手&lt;/text&gt;
+    &lt;path d=&quot;M430 296L619 264H685&quot; stroke=&quot;#829cb2&quot; stroke-width=&quot;1.5&quot; fill=&quot;none&quot;/&gt;&lt;circle cx=&quot;430&quot; cy=&quot;296&quot; r=&quot;4&quot; fill=&quot;#829cb2&quot;/&gt;
+    &lt;text x=&quot;665&quot; y=&quot;228&quot; fill=&quot;#e4e6dc&quot; font-size=&quot;32&quot; font-weight=&quot;600&quot;&gt;目标 A&lt;/text&gt;&lt;text x=&quot;665&quot; y=&quot;304&quot; fill=&quot;#9daaa9&quot; font-size=&quot;27&quot;&gt;双方接近&lt;/text&gt;&lt;text x=&quot;665&quot; y=&quot;345&quot; fill=&quot;#9daaa9&quot; font-size=&quot;27&quot;&gt;争夺风险较高&lt;/text&gt;
+    &lt;path d=&quot;M267 448L620 473H685&quot; stroke=&quot;#c8a870&quot; stroke-width=&quot;1.5&quot; fill=&quot;none&quot;/&gt;&lt;circle cx=&quot;267&quot; cy=&quot;448&quot; r=&quot;4&quot; fill=&quot;#c8a870&quot;/&gt;
+    &lt;text x=&quot;665&quot; y=&quot;435&quot; fill=&quot;#c8a870&quot; font-size=&quot;32&quot; font-weight=&quot;600&quot;&gt;目标 B&lt;/text&gt;&lt;text x=&quot;665&quot; y=&quot;513&quot; fill=&quot;#9daaa9&quot; font-size=&quot;27&quot;&gt;可独立完成推送&lt;/text&gt;&lt;text x=&quot;665&quot; y=&quot;554&quot; fill=&quot;#9daaa9&quot; font-size=&quot;27&quot;&gt;优先重新评估&lt;/text&gt;
+    &lt;/svg&gt;&lt;/div&gt;&lt;/section&gt;&lt;/main&gt;&lt;/div&gt;&lt;script&gt;const stage=document.querySelector(&#x27;.deck-stage&#x27;);function fit(){let s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform=`translate(${(innerWidth-1920*s)/2}px,${(innerHeight-1080*s)/2}px) scale(${s})`;}addEventListener(&#x27;resize&#x27;,fit);fit();&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;"></iframe><iframe title="视觉方向 C" class="" srcdoc="&lt;!DOCTYPE html&gt;&lt;html lang=&quot;zh-CN&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot;&gt;&lt;title&gt;中盘策略&lt;/title&gt;&lt;style&gt;/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   Include this ENTIRE file in every presentation.
+   Slides are authored at 1920×1080 and scaled as a whole.
+   =========================================== */
+
+/* 1. Lock the browser viewport */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 2. Full-window deck viewport */
+.deck-viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 3. Fixed 16:9 design canvas.
+   JavaScript sets transform: translate(...) scale(...). */
+.deck-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--slide-bg, #fff);
+}
+
+/* 4. Slides stack inside the fixed stage.
+   Content must be laid out at 1920×1080, not reflowed per device. */
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--slide-bg, #fff);
+}
+
+.slide.active,
+.slide.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+/* 5. Keep media inside authored slide bounds */
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* 6. Presentation chrome stays outside the slide design system */
+.deck-controls {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* 7. Print one fixed-size slide per page */
+@media print {
+    html,
+    body {
+        width: 1920px;
+        height: auto;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-viewport {
+        position: static;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-stage {
+        position: static;
+        width: auto;
+        height: auto;
+        transform: none !important;
+        background: none;
+    }
+
+    .slide {
+        position: relative;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: 1920px;
+        height: 1080px;
+        break-after: page;
+        page-break-after: always;
+    }
+
+    .slide:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+
+    .deck-controls {
+        display: none !important;
+    }
+}
+
+/* 8. Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+}
+
+*{box-sizing:border-box}body{font-family:&quot;Microsoft YaHei&quot;,&quot;PingFang SC&quot;,sans-serif;color:var(--ink)}
+.slide{padding:78px 90px;background:var(--slide-bg);color:var(--ink)}h1,h2,h3,p{margin:0}h1{font-size:65px;line-height:1.4;font-weight:600;letter-spacing:-1px}p{font-size:30px;line-height:1.75}svg{width:100%;height:100%;font-family:inherit} .slide.active{visibility:visible;opacity:1}
+
+:root{--stage-bg:#e9edef;--slide-bg:#fff;--ink:#263c4d;--muted:#657a87;--accent:#23445c}
+h1{font-size:71px;font-weight:600}.c-sub{font-size:36px;color:#657a87;margin-top:19px}.c-grid{display:grid;grid-template-columns:745px 1fr;gap:69px;margin-top:36px}.c-map{height:679px;border-top:2px solid #23445c;padding-top:23px}.c-map svg{transform:scale(1.02);transform-origin:center}.c-logic{padding-top:33px;border-top:2px solid #23445c}.c-logic svg{height:648px}.c-conclusion{position:absolute;left:90px;bottom:65px;right:90px;border-top:1px solid #d1dbe0;padding-top:27px;font-size:31px;color:#526976}
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;deck-viewport&quot;&gt;&lt;main class=&quot;deck-stage&quot;&gt;&lt;section class=&quot;slide active&quot;&gt;&lt;h1&gt;中盘策略&lt;/h1&gt;&lt;p class=&quot;c-sub&quot;&gt;目标筛选与动态重规划&lt;/p&gt;&lt;div class=&quot;c-grid&quot;&gt;&lt;div class=&quot;c-map&quot;&gt;&lt;svg viewBox=&quot;0 0 1000 740&quot; role=&quot;img&quot; aria-label=&quot;中盘目标比较示意：放弃有争夺风险的目标 A，转向目标 B。路径仅为策略示意。&quot;&gt;
+    &lt;defs&gt;&lt;pattern id=&quot;grid&quot; width=&quot;52&quot; height=&quot;52&quot; patternUnits=&quot;userSpaceOnUse&quot;&gt;&lt;path d=&quot;M52 0H0V52&quot; fill=&quot;none&quot; stroke=&quot;#c6ccc6&quot; stroke-width=&quot;.6&quot; opacity=&quot;.45&quot;/&gt;&lt;/pattern&gt;&lt;marker id=&quot;tip&quot; markerWidth=&quot;8&quot; markerHeight=&quot;8&quot; refX=&quot;7&quot; refY=&quot;4&quot; orient=&quot;auto&quot;&gt;&lt;path d=&quot;M1 1L7 4L1 7&quot; fill=&quot;none&quot; stroke=&quot;#34695b&quot; stroke-width=&quot;1.5&quot;/&gt;&lt;/marker&gt;&lt;/defs&gt;
+    &lt;rect x=&quot;72&quot; y=&quot;95&quot; width=&quot;520&quot; height=&quot;260&quot; fill=&quot;#657d95&quot; opacity=&quot;.07&quot;/&gt;&lt;rect x=&quot;72&quot; y=&quot;355&quot; width=&quot;520&quot; height=&quot;260&quot; fill=&quot;#34695b&quot; opacity=&quot;.08&quot;/&gt;
+    &lt;rect x=&quot;72&quot; y=&quot;95&quot; width=&quot;520&quot; height=&quot;520&quot; fill=&quot;url(#grid)&quot; stroke=&quot;#c6ccc6&quot; stroke-width=&quot;2&quot;/&gt;
+    &lt;path d=&quot;M72 355H592&quot; stroke=&quot;#75827c&quot; stroke-width=&quot;1.5&quot; stroke-dasharray=&quot;9 9&quot;/&gt;
+    &lt;text x=&quot;72&quot; y=&quot;65&quot; fill=&quot;#75827c&quot; font-size=&quot;25&quot;&gt;对方半区&lt;/text&gt;&lt;text x=&quot;72&quot; y=&quot;659&quot; fill=&quot;#75827c&quot; font-size=&quot;25&quot;&gt;我方半区&lt;/text&gt;
+    &lt;rect x=&quot;174&quot; y=&quot;268&quot; width=&quot;99&quot; height=&quot;214&quot; fill=&quot;#34695b&quot; opacity=&quot;.09&quot;/&gt;
+    &lt;path d=&quot;M174 268V482 M273 268V482&quot; stroke=&quot;#34695b&quot; stroke-width=&quot;1.5&quot; stroke-dasharray=&quot;6 7&quot;/&gt;
+    &lt;g fill=&quot;#34695b&quot;&gt;&lt;rect x=&quot;193&quot; y=&quot;326&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;rect x=&quot;215&quot; y=&quot;333&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;rect x=&quot;238&quot; y=&quot;326&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;/g&gt;
+    &lt;g fill=&quot;#657d95&quot;&gt;&lt;rect x=&quot;373&quot; y=&quot;326&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;rect x=&quot;395&quot; y=&quot;333&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;rect x=&quot;418&quot; y=&quot;326&quot; width=&quot;14&quot; height=&quot;14&quot;/&gt;&lt;/g&gt;
+    &lt;ellipse cx=&quot;404&quot; cy=&quot;333&quot; rx=&quot;66&quot; ry=&quot;52&quot; fill=&quot;none&quot; stroke=&quot;#657d95&quot; stroke-width=&quot;1.4&quot; stroke-dasharray=&quot;5 7&quot;/&gt;
+    &lt;path d=&quot;M330 476Q405 440 402 386&quot; fill=&quot;none&quot; stroke=&quot;#657d95&quot; stroke-width=&quot;2.5&quot; stroke-dasharray=&quot;8 8&quot; opacity=&quot;.65&quot;/&gt;
+    &lt;path d=&quot;M490 230Q434 250 414 277&quot; fill=&quot;none&quot; stroke=&quot;#657d95&quot; stroke-width=&quot;2.5&quot; stroke-dasharray=&quot;8 8&quot;/&gt;
+    &lt;path d=&quot;M299 488H144V248Q144 231 163 231H205Q223 231 223 251V301&quot; fill=&quot;none&quot; stroke=&quot;#34695b&quot; stroke-width=&quot;3.8&quot; marker-end=&quot;url(#tip)&quot;/&gt;
+    &lt;path d=&quot;M224 365V442&quot; fill=&quot;none&quot; stroke=&quot;#34695b&quot; stroke-width=&quot;3.8&quot; marker-end=&quot;url(#tip)&quot;/&gt;
+    &lt;g&gt;&lt;circle cx=&quot;319&quot; cy=&quot;488&quot; r=&quot;22&quot; fill=&quot;#34695b&quot;/&gt;&lt;path d=&quot;M310 496l9-23 9 23-9-6z&quot; fill=&quot;#fff&quot;/&gt;&lt;circle cx=&quot;319&quot; cy=&quot;488&quot; r=&quot;33&quot; fill=&quot;none&quot; stroke=&quot;#34695b&quot; opacity=&quot;.3&quot; stroke-width=&quot;1.5&quot;/&gt;&lt;/g&gt;
+    &lt;g&gt;&lt;circle cx=&quot;496&quot; cy=&quot;226&quot; r=&quot;20&quot; fill=&quot;#657d95&quot;/&gt;&lt;path d=&quot;M487 223l21-9-8 21-2-10z&quot; fill=&quot;#fff&quot;/&gt;&lt;/g&gt;
+    &lt;text x=&quot;350&quot; y=&quot;509&quot; fill=&quot;#303a39&quot; font-size=&quot;27&quot;&gt;我方&lt;/text&gt;&lt;text x=&quot;458&quot; y=&quot;179&quot; fill=&quot;#657d95&quot; font-size=&quot;27&quot;&gt;对手&lt;/text&gt;
+    &lt;path d=&quot;M430 296L619 264H685&quot; stroke=&quot;#657d95&quot; stroke-width=&quot;1.5&quot; fill=&quot;none&quot;/&gt;&lt;circle cx=&quot;430&quot; cy=&quot;296&quot; r=&quot;4&quot; fill=&quot;#657d95&quot;/&gt;
+    &lt;text x=&quot;665&quot; y=&quot;228&quot; fill=&quot;#303a39&quot; font-size=&quot;32&quot; font-weight=&quot;600&quot;&gt;目标 A&lt;/text&gt;&lt;text x=&quot;665&quot; y=&quot;304&quot; fill=&quot;#75827c&quot; font-size=&quot;27&quot;&gt;双方接近&lt;/text&gt;&lt;text x=&quot;665&quot; y=&quot;345&quot; fill=&quot;#75827c&quot; font-size=&quot;27&quot;&gt;争夺风险较高&lt;/text&gt;
+    &lt;path d=&quot;M267 448L620 473H685&quot; stroke=&quot;#34695b&quot; stroke-width=&quot;1.5&quot; fill=&quot;none&quot;/&gt;&lt;circle cx=&quot;267&quot; cy=&quot;448&quot; r=&quot;4&quot; fill=&quot;#34695b&quot;/&gt;
+    &lt;text x=&quot;665&quot; y=&quot;435&quot; fill=&quot;#34695b&quot; font-size=&quot;32&quot; font-weight=&quot;600&quot;&gt;目标 B&lt;/text&gt;&lt;text x=&quot;665&quot; y=&quot;513&quot; fill=&quot;#75827c&quot; font-size=&quot;27&quot;&gt;可独立完成推送&lt;/text&gt;&lt;text x=&quot;665&quot; y=&quot;554&quot; fill=&quot;#75827c&quot; font-size=&quot;27&quot;&gt;优先重新评估&lt;/text&gt;
+    &lt;/svg&gt;&lt;/div&gt;&lt;div class=&quot;c-logic&quot;&gt;&lt;svg viewBox=&quot;0 0 850 620&quot; role=&quot;img&quot; aria-label=&quot;目标选择决策流程&quot;&gt;
+&lt;g fill=&quot;none&quot; stroke=&quot;#a8b5bd&quot; stroke-width=&quot;2&quot;&gt;&lt;path d=&quot;M390 80v65M390 229v62M160 291h468M160 291v55M390 291v55M628 291v55&quot;/&gt;&lt;/g&gt;
+&lt;rect x=&quot;106&quot; y=&quot;6&quot; width=&quot;568&quot; height=&quot;78&quot; fill=&quot;#eff3f5&quot;/&gt;&lt;text x=&quot;390&quot; y=&quot;56&quot; text-anchor=&quot;middle&quot; font-size=&quot;29&quot; fill=&quot;#273a4c&quot;&gt;路径可达，目标宽度在推板覆盖范围内&lt;/text&gt;
+&lt;rect x=&quot;151&quot; y=&quot;145&quot; width=&quot;478&quot; height=&quot;84&quot; fill=&quot;#23445c&quot;/&gt;&lt;text x=&quot;390&quot; y=&quot;198&quot; text-anchor=&quot;middle&quot; font-size=&quot;32&quot; fill=&quot;#fff&quot;&gt;比较我方与对手的预计接触时间&lt;/text&gt;
+&lt;g font-size=&quot;27&quot; fill=&quot;#4e6474&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;160&quot; y=&quot;385&quot;&gt;我方明显先到&lt;/text&gt;&lt;text x=&quot;390&quot; y=&quot;385&quot;&gt;双方时间接近&lt;/text&gt;&lt;text x=&quot;648&quot; y=&quot;385&quot;&gt;对手已开始推送&lt;/text&gt;&lt;/g&gt;
+&lt;g stroke=&quot;#a8b5bd&quot; stroke-width=&quot;2&quot;&gt;&lt;path d=&quot;M160 411v40M390 411v40M648 411v40&quot;/&gt;&lt;/g&gt;
+&lt;g fill=&quot;#edf2f2&quot;&gt;&lt;rect x=&quot;57&quot; y=&quot;451&quot; width=&quot;205&quot; height=&quot;85&quot;/&gt;&lt;rect x=&quot;288&quot; y=&quot;451&quot; width=&quot;205&quot; height=&quot;85&quot;/&gt;&lt;rect x=&quot;539&quot; y=&quot;451&quot; width=&quot;226&quot; height=&quot;85&quot;/&gt;&lt;/g&gt;
+&lt;g font-size=&quot;33&quot; fill=&quot;#23445c&quot; text-anchor=&quot;middle&quot;&gt;&lt;text x=&quot;160&quot; y=&quot;505&quot;&gt;继续获取&lt;/text&gt;&lt;text x=&quot;390&quot; y=&quot;505&quot;&gt;换一个目标&lt;/text&gt;&lt;text x=&quot;651&quot; y=&quot;505&quot;&gt;准备落点回收&lt;/text&gt;&lt;/g&gt;&lt;/svg&gt;&lt;/div&gt;&lt;/div&gt;&lt;p class=&quot;c-conclusion&quot;&gt;对已安全留在我方深区的方块不重复处理，将时间留给新的有效推送。&lt;/p&gt;&lt;/section&gt;&lt;/main&gt;&lt;/div&gt;&lt;script&gt;const stage=document.querySelector(&#x27;.deck-stage&#x27;);function fit(){let s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform=`translate(${(innerWidth-1920*s)/2}px,${(innerHeight-1080*s)/2}px) scale(${s})`;}addEventListener(&#x27;resize&#x27;,fit);fit();&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;"></iframe><script>function show(n){document.querySelectorAll('iframe').forEach((e,i)=>e.classList.toggle('active',i===n));document.querySelectorAll('button').forEach((e,i)=>{e.classList.toggle('active',i===n);e.setAttribute('aria-pressed',i===n);});}document.addEventListener('keydown',e=>{if(['1','2','3'].includes(e.key))show(Number(e.key)-1);});</script></body></html>

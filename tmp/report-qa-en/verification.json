@@ -1,0 +1,69 @@
+{
+  "count": 11,
+  "errors": [],
+  "bounds": [
+    {
+      "slide": 1,
+      "title": "Block-Pushing Robot CompetitionDesign Progress & Strategy",
+      "overflow": []
+    },
+    {
+      "slide": 2,
+      "title": "Match objective: more blocks in our half",
+      "overflow": []
+    },
+    {
+      "slide": 3,
+      "title": "System architecture: PC planning, onboard control",
+      "overflow": []
+    },
+    {
+      "slide": 4,
+      "title": "Current progress: design outlined, hardware pending",
+      "overflow": []
+    },
+    {
+      "slide": 5,
+      "title": "Strategy framework: retained blocks per cycle",
+      "overflow": []
+    },
+    {
+      "slide": 6,
+      "title": "Opening: first transfer from the starting pose",
+      "overflow": []
+    },
+    {
+      "slide": 7,
+      "title": "Midgame: choosing the more valuable target",
+      "overflow": []
+    },
+    {
+      "slide": 8,
+      "title": "Endgame: target choice within the time remaining",
+      "overflow": []
+    },
+    {
+      "slide": 9,
+      "title": "Implementation plan: one reliable push cycle first",
+      "overflow": []
+    },
+    {
+      "slide": 10,
+      "title": "Team roles: parallel work, shared system testing",
+      "overflow": []
+    },
+    {
+      "slide": 11,
+      "title": "Next milestone: a working, testable prototype",
+      "overflow": []
+    }
+  ],
+  "phoneRatio": 1.7777777777777777,
+  "checks": [
+    "keyboard navigation",
+    "notes toggle",
+    "editing and persistence",
+    "export invoked",
+    "phone 16:9 stage"
+  ]
+}

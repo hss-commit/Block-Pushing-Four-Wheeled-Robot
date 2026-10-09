@@ -1,0 +1,69 @@
+{
+  "count": 11,
+  "errors": [],
+  "bounds": [
+    {
+      "slide": 1,
+      "title": "推块机器人方案与策略",
+      "overflow": []
+    },
+    {
+      "slide": 2,
+      "title": "把方块推入我方，并保留到比赛结束。",
+      "overflow": []
+    },
+    {
+      "slide": 3,
+      "title": "场外决策，车上执行。",
+      "overflow": []
+    },
+    {
+      "slide": 4,
+      "title": "已形成方案，下一步验证可行性。",
+      "overflow": []
+    },
+    {
+      "slide": 5,
+      "title": "每一轮，争取更多有效留存。",
+      "overflow": []
+    },
+    {
+      "slide": 6,
+      "title": "开局：直接推送，完成第一轮获取。",
+      "overflow": []
+    },
+    {
+      "slide": 7,
+      "title": "中盘：跟随局面，选择收益更高的动作。",
+      "overflow": []
+    },
+    {
+      "slide": 8,
+      "title": "终盘：只做来得及完成的推送。",
+      "overflow": []
+    },
+    {
+      "slide": 9,
+      "title": "先跑通单次推送，再增加策略。",
+      "overflow": []
+    },
+    {
+      "slide": 10,
+      "title": "两人并行开发，在整机联调汇合。",
+      "overflow": []
+    },
+    {
+      "slide": 11,
+      "title": "下一次汇报，用运行结果验证方案。",
+      "overflow": []
+    }
+  ],
+  "phoneRatio": 1.7777777777777777,
+  "checks": [
+    "keyboard navigation",
+    "notes toggle",
+    "editing and persistence",
+    "export invoked",
+    "phone 16:9 stage"
+  ]
+}

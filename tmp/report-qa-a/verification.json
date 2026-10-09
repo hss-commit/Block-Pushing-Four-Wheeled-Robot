@@ -1,0 +1,69 @@
+{
+  "count": 11,
+  "errors": [],
+  "bounds": [
+    {
+      "slide": 1,
+      "title": "机器人推块比赛阶段方案与策略",
+      "overflow": []
+    },
+    {
+      "slide": 2,
+      "title": "比赛任务：让更多方块留在我方半区",
+      "overflow": []
+    },
+    {
+      "slide": 3,
+      "title": "总体方案：场外决策，车上闭环执行",
+      "overflow": []
+    },
+    {
+      "slide": 4,
+      "title": "当前进展：设计思路已形成，硬件仍在调研",
+      "overflow": []
+    },
+    {
+      "slide": 5,
+      "title": "策略框架：围绕终场留存分配每轮时间",
+      "overflow": []
+    },
+    {
+      "slide": 6,
+      "title": "开局策略：利用初始位置完成首轮转移",
+      "overflow": []
+    },
+    {
+      "slide": 7,
+      "title": "中盘决策：优先选择收益更高的目标",
+      "overflow": []
+    },
+    {
+      "slide": 8,
+      "title": "终盘策略：以剩余时间约束目标选择",
+      "overflow": []
+    },
+    {
+      "slide": 9,
+      "title": "实施计划：先稳定单次循环，再增加策略",
+      "overflow": []
+    },
+    {
+      "slide": 10,
+      "title": "两人分工：独立开发，共同完成整机验证",
+      "overflow": []
+    },
+    {
+      "slide": 11,
+      "title": "下一阶段交付：从方案转入原型验证",
+      "overflow": []
+    }
+  ],
+  "phoneRatio": 1.7777777777777777,
+  "checks": [
+    "keyboard navigation",
+    "notes toggle",
+    "editing and persistence",
+    "export invoked",
+    "phone 16:9 stage"
+  ]
+}

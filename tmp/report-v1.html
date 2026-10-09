@@ -1,0 +1,334 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>机器人推块比赛 · 阶段工作汇报</title><style>/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   Include this ENTIRE file in every presentation.
+   Slides are authored at 1920×1080 and scaled as a whole.
+   =========================================== */
+
+/* 1. Lock the browser viewport */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 2. Full-window deck viewport */
+.deck-viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 3. Fixed 16:9 design canvas.
+   JavaScript sets transform: translate(...) scale(...). */
+.deck-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--slide-bg, #fff);
+}
+
+/* 4. Slides stack inside the fixed stage.
+   Content must be laid out at 1920×1080, not reflowed per device. */
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--slide-bg, #fff);
+}
+
+.slide.active,
+.slide.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+/* 5. Keep media inside authored slide bounds */
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* 6. Presentation chrome stays outside the slide design system */
+.deck-controls {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* 7. Print one fixed-size slide per page */
+@media print {
+    html,
+    body {
+        width: 1920px;
+        height: auto;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-viewport {
+        position: static;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-stage {
+        position: static;
+        width: auto;
+        height: auto;
+        transform: none !important;
+        background: none;
+    }
+
+    .slide {
+        position: relative;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: 1920px;
+        height: 1080px;
+        break-after: page;
+        page-break-after: always;
+    }
+
+    .slide:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+
+    .deck-controls {
+        display: none !important;
+    }
+}
+
+/* 8. Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+}
+
+/* === THEME AND FIXED CANVAS === */
+:root{--stage-bg:#111c1b;--slide-bg:#f3f0e7;--ink:#193d38;--muted:#677974;--accent:#d9653e;--line:#c8d2c8;--mint:#d3edb7}
+*{box-sizing:border-box}body{font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",sans-serif;color:var(--ink)}
+.slide{color:var(--ink);padding:66px 96px 65px;background-image:linear-gradient(90deg,transparent 95px,#244e3e09 96px,transparent 97px);transition:opacity .25s ease}
+.slide.dark{--slide-bg:#153d37;--ink:#f1f0e2;--muted:#a8c2b8;--line:#527369;background-color:var(--slide-bg);background-image:linear-gradient(#ffffff04 1px,transparent 1px),linear-gradient(90deg,#ffffff04 1px,transparent 1px);background-size:48px 48px}
+header,footer{display:flex;align-items:center;justify-content:space-between}header{height:38px;font-size:23px;letter-spacing:1px}.eyebrow{font-weight:700;color:var(--accent)}.dark .eyebrow{color:var(--mint)}.chapter{color:var(--muted)}
+h2{font-size:63px;line-height:1.3;letter-spacing:-2px;margin:40px 0 40px;font-weight:750}h3{font-size:33px;line-height:1.4;margin:0 0 16px}p{font-size:29px;line-height:1.7;margin:0 0 22px}em{font-style:normal;color:var(--accent)}.dark em{color:var(--mint)}
+.content{height:716px;position:relative}.subtitle{margin-top:-18px}.muted{color:var(--muted)}.small{font-size:23px}.caption{font-size:24px;line-height:1.55;color:var(--muted);margin-top:34px}footer{position:absolute;bottom:39px;left:96px;right:96px;border-top:1px solid var(--line);padding-top:17px;font-size:19px;letter-spacing:2px;color:var(--muted)}.speaker-notes{display:none}
+/* === TITLE, DIAGRAMS AND EDITORIAL LAYOUT === */
+.slide:first-child h2{font-size:88px;margin-top:74px;line-height:1.3}.slide:first-child .content{height:500px}.hero{display:grid;grid-template-columns:1fr 790px;gap:65px}.hero-field{position:absolute;width:740px;right:0;top:-266px}.lead{font-size:39px;line-height:1.6;margin-top:0}.hero-rule{width:110px;height:6px;background:var(--mint);margin:30px 0}.hero-meta{font-size:28px}.hero .muted{font-size:24px}.split{display:grid;grid-template-columns:1fr 1fr;gap:78px}.field-split{grid-template-columns:760px 1fr;margin-top:-15px}.field-split svg{height:670px}.task-copy{padding-top:34px}.statement{font-size:42px;line-height:1.5;font-weight:700}.stats{display:flex;gap:85px;margin:30px 0}.stats strong{font-size:72px;color:var(--accent);line-height:1}.stats strong span{font-size:28px;margin-left:8px}.stats p{font-size:24px;margin:14px 0}.clean{list-style:none;margin:0;padding:0}.clean li{font-size:28px;line-height:1.65;margin-bottom:18px;padding-left:23px;position:relative}.clean li:before{content:'';position:absolute;left:0;top:18px;width:7px;height:7px;background:var(--accent)}
+/* === PROGRESS AND ARCHITECTURE === */
+.progress-list{padding-top:8px}.progress-list>div{display:grid;grid-template-columns:150px 460px 1fr;gap:28px;align-items:start;border-top:1px solid var(--line);padding:30px 0}.progress-list h3{font-size:31px;margin:3px 0}.progress-list p{font-size:27px;margin:0}.status{font-size:22px;display:inline-block;width:120px;text-align:center;padding:8px 0;border:1px solid}.done{color:#326653;background:#e1e8d5}.current{color:#b95730;background:#f1e0cf}.pending{color:#6b7973;background:#e6e7df}.bottom-line{border-left:5px solid var(--accent);font-size:29px;line-height:1.65;padding:10px 0 10px 27px;margin-top:30px}
+.arch{display:grid;grid-template-columns:1fr 50px 1fr 50px 1fr 50px 1fr;align-items:center;margin-top:90px}.arch-node{border-top:4px solid var(--mint);padding:25px 20px 25px 24px;background:#ffffff07;min-height:259px}.arch-node>span{font-size:23px;color:var(--mint);display:block;margin-bottom:20px}.arch-node h3{font-size:34px}.arch-node p{font-size:26px;margin:0}.connector{text-align:center;font-size:37px;color:var(--mint)}.feedback{display:flex;justify-content:flex-end;gap:100px;font-size:23px;color:var(--mint);padding:26px 25px;border-bottom:1px solid var(--line)}.two-notes{display:grid;grid-template-columns:1fr 1fr;gap:90px;margin-top:48px}.two-notes p{color:var(--muted);font-size:28px}
+/* === HARDWARE, VISION AND STRATEGY === */
+.hardware{padding-top:20px;grid-template-columns:660px 1fr;gap:85px}.label{font-size:23px;letter-spacing:2px;color:var(--accent);display:block;margin-bottom:28px}.large{font-size:50px;line-height:1.6;margin-bottom:28px}.hardware-details>div{border-top:1px solid var(--line);padding:22px 0 10px 94px;position:relative}.hardware-details>div>span{position:absolute;left:0;top:27px;color:var(--accent);font-size:24px}.hardware-details h3{font-size:30px;margin-bottom:10px}.hardware-details p{font-size:26px;line-height:1.6}.hardware+.bottom-line{font-size:26px;margin-top:20px}
+.vision-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:34px;padding-top:28px}.vision-flow>div{border-top:2px solid var(--line);padding-top:28px}.vision-flow b{font-size:70px;color:var(--mint);font-weight:400}.vision-flow h3{margin-top:18px}.vision-flow p{font-size:27px;color:var(--muted)}.target-row{display:grid;grid-template-columns:repeat(3,1fr);gap:50px;margin-top:48px;border-top:1px solid var(--line);padding-top:30px}.target-row strong{font-size:58px;font-weight:500;color:var(--mint)}.target-row p{font-size:25px;margin-top:10px}
+.strategy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:52px;padding-top:28px}.strategy-grid article{border-top:4px solid var(--accent);padding-top:25px}.strategy-grid article>span{font-size:23px;color:var(--muted);letter-spacing:2px}.strategy-grid h3{font-size:40px;margin-top:20px}.strategy-grid p{font-size:29px}.strategy-grid small{font-size:23px;color:var(--muted)}.mini-track,.mini-choice,.mini-time{height:104px;display:flex;align-items:center;gap:19px;font-size:30px;color:var(--accent);font-weight:700}.mini-track i{width:25px;height:25px;background:var(--accent)}.mini-track b{margin-left:40px;font-size:60px}.action-loop{display:flex;justify-content:space-between;align-items:center;gap:13px;margin-top:65px;padding:28px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:28px}
+/* === TABLES, ROADMAP AND TEAM === */
+table{border-collapse:collapse;width:100%;font-size:27px;line-height:1.55}.risk-table th{text-align:left;background:#e2e6d9;font-size:24px;color:var(--muted);padding:22px}.risk-table td{padding:29px 22px;vertical-align:top;border-bottom:1px solid var(--line)}.risk-table td:first-child{font-weight:700;width:26%}.risk-table td:nth-child(2){width:30%}.risk-table td:last-child{color:#566c62}.risk-table+.bottom-line{font-size:26px}
+.roadmap{display:grid;grid-template-columns:repeat(4,1fr);gap:44px;padding-top:65px}.roadmap>div{border-top:2px solid var(--line);padding-top:32px}.milestone{display:block;font-size:73px;font-weight:300;color:var(--mint);margin-bottom:35px}.roadmap h3{font-size:32px}.roadmap p{font-size:26px;line-height:1.85;color:var(--muted);min-height:190px}.roadmap b{display:block;font-size:23px;font-weight:500;border-top:1px solid var(--line);padding-top:22px;line-height:1.7}.roadmap+.caption{margin-top:58px}
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:90px}.team-grid article{position:relative;border-top:3px solid var(--ink);padding-top:26px}.person-mark{position:absolute;right:20px;top:22px;font-size:94px;line-height:1;color:#bacbb6;font-weight:300}.team-grid h3{font-size:40px;margin:0}.role{font-size:27px;color:var(--accent);margin-top:8px;margin-bottom:30px}.team-grid .clean li{font-size:27px;margin-bottom:18px}.deliver{border-top:1px solid var(--line);padding-top:23px;margin-top:30px}.deliver b{font-size:23px;color:var(--muted)}.deliver p{font-size:26px;margin-top:8px}.shared{font-size:28px;padding:25px;background:#e1e7d6;margin-top:25px}.acceptance{padding-top:20px}.interface-row,.check-row{border-top:1px solid var(--line);padding:21px 0}.interface-row b,.check-row b{font-size:28px}.interface-row p,.check-row p{font-size:26px;color:var(--muted);margin:10px 0 0}.acceptance+.caption{margin-top:30px}
+/* === CLOSING AND PRESENTATION CONTROLS === */
+.closing-line{font-size:47px;line-height:1.6;margin-bottom:40px}.closing-columns{display:grid;grid-template-columns:repeat(3,1fr);gap:85px}.closing-columns>div{border-top:1px solid var(--line);padding-top:20px}.closing-columns span{font-size:24px;color:var(--mint)}.closing-columns h3{margin-top:14px}.closing-columns p{font-size:27px;color:var(--muted)}.budget{display:flex;gap:55px;align-items:baseline;border-top:1px solid var(--line);padding-top:20px;margin-top:28px;font-size:25px}.budget b{color:var(--mint)}.budget small{font-size:21px;color:var(--muted)}.sources{font-size:19px;color:var(--muted);line-height:1.7;margin-top:30px}
+.deck-controls{bottom:9px;display:flex;gap:5px;align-items:center;padding:5px 10px;border:1px solid #ffffff22;border-radius:9px;background:#0e2424e8;color:#ecf0e4;opacity:0;transition:opacity .2s;white-space:nowrap}.deck-controls:hover,.deck-controls:focus-within,body.controls-show .deck-controls{opacity:1}.deck-controls button{font:inherit;font-size:13px;color:inherit;border:0;border-radius:5px;background:transparent;cursor:pointer;padding:8px 11px}.deck-controls button:hover{background:#ffffff22}.deck-controls output{font-size:12px;min-width:47px;text-align:center}.progress{position:fixed;left:0;bottom:0;width:100%;height:3px;background:#ffffff10;z-index:900}.progress span{display:block;height:100%;background:#d3edb7;transition:width .2s}.notes-panel{position:fixed;right:22px;bottom:68px;width:min(570px,90vw);max-height:65vh;overflow:auto;z-index:1005;background:#f4f0e4;color:#193d38;padding:28px;box-shadow:0 10px 70px #0008;border:1px solid #b7c7b6;border-radius:7px}.notes-panel[hidden]{display:none}.notes-panel h3{font-size:19px;margin:0 0 12px}.notes-panel p{font-size:17px;line-height:1.85;margin:0}.notes-panel button{float:right;border:0;background:transparent;font-size:23px;cursor:pointer}.hint{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:1010;color:#fff;background:#132e2de8;padding:9px 16px;border-radius:6px;font-size:13px;pointer-events:none;opacity:0;transition:opacity .2s}.hint.show{opacity:1}body.editing [data-edit]{outline:2px dashed #d9653e80;outline-offset:6px;cursor:text}button:focus-visible{outline:2px solid #d3edb7;outline-offset:2px}
+@media print{@page{size:1920px 1080px;margin:0}.deck-controls,.progress,.notes-panel,.hint{display:none!important}.slide{-webkit-print-color-adjust:exact;print-color-adjust:exact}.slide [data-edit]{outline:0!important}}
+</style></head><body><div class="deck-viewport"><main class="deck-stage" id="deckStage"><section class="slide dark" aria-label="第 1 页：机器人推块比赛<em>阶段工作汇报</em>">
+      <header><span class="eyebrow">01 / PROJECT REVIEW</span><span class="chapter">机电设计 · 阶段汇报</span></header>
+      <h2 data-edit>机器人推块比赛<br><em>阶段工作汇报</em></h2>
+      <div class="content">
+<div class="hero"><div><p class="lead" data-edit>总体方案已形成，<br>下一步进入硬件核验与原型搭建。</p>
+<div class="hero-rule"></div><p class="hero-meta" data-edit>当前工作 · 后续计划 · 两人分工</p>
+<p class="muted" data-edit>成员 A / 成员 B<br>2026 年 9 月 28 日</p></div><div class="hero-field"><svg viewBox="0 0 720 680" role="img" aria-label="场地俯视示意：我方小车从对方半区，将中线附近方块向下推入我方半区。方块数量仅为示意。">
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#e97143" stroke-width="2"/></marker></defs>
+<path d="M100 45H620 M100 33V57 M620 33V57" stroke="currentColor" opacity=".5"/><text x="360" y="30" text-anchor="middle" fill="currentColor" font-size="23">1.2 m</text>
+<rect x="100" y="75" width="520" height="520" rx="5" fill="#224e79" stroke="#a3c5c0" stroke-width="4"/>
+<path d="M103 335H617V592H103Z" fill="#cdb967"/>
+<path d="M100 335H620" stroke="white" stroke-width="3" stroke-dasharray="12 10"/>
+<text x="127" y="119" fill="#e7f2f0" font-size="25">对方半区</text><text x="127" y="564" fill="#183e3a" font-size="25">我方半区</text>
+<g fill="#f3e9d2" stroke="#db6945" stroke-width="3"><rect x="146" y="314" width="20" height="20"/><rect x="211" y="314" width="20" height="20"/><rect x="276" y="314" width="20" height="20"/><rect x="341" y="314" width="20" height="20"/><rect x="406" y="314" width="20" height="20"/><rect x="471" y="314" width="20" height="20"/><rect x="536" y="314" width="20" height="20"/></g>
+<g stroke="#dbf1dc" stroke-width="4"><rect x="303" y="178" width="112" height="94" rx="12" fill="#153c38"/><rect x="289" y="192" width="16" height="27" fill="#101e1e"/><rect x="289" y="235" width="16" height="27" fill="#101e1e"/><rect x="413" y="192" width="16" height="27" fill="#101e1e"/><rect x="413" y="235" width="16" height="27" fill="#101e1e"/><path d="M319 270L285 292 M399 270L433 292 M261 279V296H457V279" fill="none"/></g>
+<rect x="338" y="205" width="43" height="43" fill="#eee9dc"/><path d="M344 211h11v11h-11z M366 211h9v9h-9z M356 224h12v14h-12z M344 234h8v8h-8z" fill="#153c38"/>
+<path d="M360 357V478" stroke="#e97143" stroke-width="8" marker-end="url(#arrow)"/>
+<text x="397" y="437" fill="#193c36" font-size="26">推送方向</text><text x="360" y="643" text-anchor="middle" fill="currentColor" font-size="22">布局示意 · 数量与比例不代表最终实物</text></svg></div></div></div>
+      <footer><span>机器人推块比赛</span><span>01 / 12</span></footer>
+      <aside class="speaker-notes">建议用时 25 秒。今天汇报三个方面：目前已经完成的方案研究、下一阶段的实施计划，以及两名成员的建议分工。目前资料能够确认的是方案和硬件选型进展，采购、装配和实测尚未确认。</aside>
+    </section><section class="slide " aria-label="第 2 页：比赛目标决定设计重点">
+      <header><span class="eyebrow">02 / TASK</span><span class="chapter">机电设计 · 阶段汇报</span></header>
+      <h2 data-edit>比赛目标决定设计重点</h2>
+      <div class="content">
+<div class="split field-split"><div><svg viewBox="0 0 720 680" role="img" aria-label="场地俯视示意：我方小车从对方半区，将中线附近方块向下推入我方半区。方块数量仅为示意。">
+<defs><marker id="arrow2" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#e97143" stroke-width="2"/></marker></defs>
+<path d="M100 45H620 M100 33V57 M620 33V57" stroke="currentColor" opacity=".5"/><text x="360" y="30" text-anchor="middle" fill="currentColor" font-size="23">1.2 m</text>
+<rect x="100" y="75" width="520" height="520" rx="5" fill="#224e79" stroke="#a3c5c0" stroke-width="4"/>
+<path d="M103 335H617V592H103Z" fill="#cdb967"/>
+<path d="M100 335H620" stroke="white" stroke-width="3" stroke-dasharray="12 10"/>
+<text x="127" y="119" fill="#e7f2f0" font-size="25">对方半区</text><text x="127" y="564" fill="#183e3a" font-size="25">我方半区</text>
+<g fill="#f3e9d2" stroke="#db6945" stroke-width="3"><rect x="146" y="314" width="20" height="20"/><rect x="211" y="314" width="20" height="20"/><rect x="276" y="314" width="20" height="20"/><rect x="341" y="314" width="20" height="20"/><rect x="406" y="314" width="20" height="20"/><rect x="471" y="314" width="20" height="20"/><rect x="536" y="314" width="20" height="20"/></g>
+<g stroke="#dbf1dc" stroke-width="4"><rect x="303" y="178" width="112" height="94" rx="12" fill="#153c38"/><rect x="289" y="192" width="16" height="27" fill="#101e1e"/><rect x="289" y="235" width="16" height="27" fill="#101e1e"/><rect x="413" y="192" width="16" height="27" fill="#101e1e"/><rect x="413" y="235" width="16" height="27" fill="#101e1e"/><path d="M319 270L285 292 M399 270L433 292 M261 279V296H457V279" fill="none"/></g>
+<rect x="338" y="205" width="43" height="43" fill="#eee9dc"/><path d="M344 211h11v11h-11z M366 211h9v9h-9z M356 224h12v14h-12z M344 234h8v8h-8z" fill="#153c38"/>
+<path d="M360 357V478" stroke="#e97143" stroke-width="8" marker-end="url(#arrow2)"/>
+<text x="397" y="437" fill="#193c36" font-size="26">推送方向</text><text x="360" y="643" text-anchor="middle" fill="currentColor" font-size="22">布局示意 · 数量与比例不代表最终实物</text></svg></div><div class="task-copy">
+<p class="statement" data-edit>把尽可能多的方块<br>推入并保留在我方半区。</p>
+<div class="stats"><div><strong>&lt; 90<span>s</span></strong><p>单场无人干预</p></div><div><strong>2<span>cm</span></strong><p>方块边长约值</p></div></div>
+<ul class="clean"><li data-edit>允许场外摄像头、电脑与无线连接。</li><li data-edit>允许越过中线，开局已朝向我方。</li><li data-edit>底盘面积 &lt; 150 cm²；最长边 &lt; 40 cm。</li></ul>
+<p class="small muted" data-edit>尺寸限制按当前规则理解；推板是否计入尺寸仍待确认。</p></div></div></div>
+      <footer><span>机器人推块比赛</span><span>02 / 12</span></footer>
+      <aside class="speaker-notes">建议用时 35 秒。场地为 1.2 米见方，方块在中线附近排列。我们的小车开局在对方半区，而且已经朝向我方，因此可以直接完成第一轮推送。我们关注的是终场留存的方块数。推板是否纳入面积和最长边限制，需要在加工前向老师确认。</aside>
+    </section><section class="slide " aria-label="第 3 页：已完成方案论证，正在收敛硬件组合">
+      <header><span class="eyebrow">03 / PROGRESS</span><span class="chapter">机电设计 · 阶段汇报</span></header>
+      <h2 data-edit>已完成方案论证，正在收敛硬件组合</h2>
+      <div class="content">
+<div class="progress-list">
+<div><span class="status done">已完成</span><h3 data-edit>比赛需求与总体方案</h3><p data-edit>形成 V3 方案，明确外部视觉、车载闭环、浅 U 形推板和三阶段策略。</p></div>
+<div><span class="status done">已完成</span><h3 data-edit>底盘调研与路线比较</h3><p data-edit>形成 6 版筛选资料，对比尺寸、可复用控制、机械安装与资料完整性。</p></div>
+<div><span class="status current">进行中</span><h3 data-edit>模块选型与电气核验</h3><p data-edit>考察四轮双驱底盘及两台 MG310 编码器电机，核对驱动、电源和信号接口。</p></div>
+<div><span class="status pending">待开展</span><h3 data-edit>采购、装配与实物验证</h3><p data-edit>现有记录尚未确认已购、已搭建或已完成测试；性能指标仍为验收目标。</p></div>
+</div><div class="bottom-line" data-edit>当前成果：把整体想法转化为可分模块实施、可逐项验收的技术方案。</div></div>
+      <footer><span>机器人推块比赛</span><span>03 / 12</span></footer>
+      <aside class="speaker-notes">建议用时 45 秒。前期成果主要是需求梳理和设计论证。我们形成了 V3 总体方案和六轮底盘筛选，逐步发现完全匹配要求的开源整车不容易直接复用，因此转向按模块组合。当前硬件还在核验阶段，不能把设计中的指标当成已经实现的结果。</aside>
+    </section><section class="slide dark" aria-label="第 4 页：场外电脑做判断，小车稳定执行">
+      <header><span class="eyebrow">04 / ARCHITECTURE</span><span class="chapter">机电设计 · 阶段汇报</span></header>
+      <h2 data-edit>场外电脑做判断，小车稳定执行</h2>
+      <div class="content">
+<div class="arch">
+<div class="arch-node camera"><span>01</span><h3>顶置摄像头</h3><p>1080p / 30 fps<br>覆盖整个比赛场地</p></div><b class="connector">→</b>
+<div class="arch-node"><span>02</span><h3>场外电脑</h3><p>方块与位姿识别<br>目标选择、路径与动作</p></div><b class="connector">→</b>
+<div class="arch-node"><span>03</span><h3>ESP32</h3><p>接收无线速度指令<br>轮速闭环、失联停车</p></div><b class="connector">→</b>
+<div class="arch-node"><span>04</span><h3>驱动与机构</h3><p>左右电机独立控制<br>推板完成推送和释放</p></div>
+</div><div class="feedback"><span>编码器反馈至 ESP32</span><span>轮速与状态回传至电脑</span></div>
+<div class="two-notes"><div><h3 data-edit>控制接口已明确</h3><p data-edit>电脑发送线速度 v、角速度 ω，<br>车端转换为左右轮目标速度。</p></div><div><h3 data-edit>机械与算法共同约束</h3><p data-edit>规划需考虑推板总宽、前伸距离，<br>以及转弯时扫过的区域。</p></div></div></div>
+      <footer><span>机器人推块比赛</span><span>04 / 12</span></footer>
+      <aside class="speaker-notes">建议用时 40 秒。系统分成四个部分。摄像头提供全场画面，电脑识别方块和机器人位置，决定接下来去哪里和如何推送。ESP32 接收速度指令，通过编码器稳定左右轮速度。这样两个人可以分别开发硬件控制与视觉策略，并在统一接口上联调。</aside>
+    </section><section class="slide " aria-label="第 5 页：当前采用模块选型，优先验证现有底盘候选">
+      <header><span class="eyebrow">05 / HARDWARE</span><span class="chapter">机电设计 · 阶段汇报</span></header>
+      <h2 data-edit>当前采用模块选型，优先验证现有底盘候选</h2>
+      <div class="content">
+<div class="split hardware"><div><span class="label">当前候选组合</span><h3 class="large" data-edit>四轮双驱底盘<br>+ 两台 MG310<br>+ ESP32</h3><p data-edit>电机参数据此前沟通：7.4 V，<br>每台堵转电流 2 A，均带编码器。</p><p class="muted small" data-edit>底盘面积据组内确认满足限制；<br>装轮外廓、推板安装后尺寸仍需复核。</p></div>
+<div class="hardware-details"><div><span>结构</span><h3 data-edit>浅 U 形可拆推板</h3><p data-edit>初步宽 34～36 cm、高约 3 cm、离地约 1 mm；支撑臂承担推块载荷。</p></div><div><span>控制</span><h3 data-edit>双侧编码器与轮速闭环</h3><p data-edit>左右电机可独立调速和换向，顶部预留 AprilTag 平整安装面。</p></div><div><span>待核</span><h3 data-edit>驱动余量与编码器电平</h3><p data-edit>TB6612 模块需核实持续负载能力；“3.3–5 V”尚不能确认信号可直连。</p></div></div></div>
+<div class="bottom-line" data-edit>开源项目继续作为结构与控制参考；当前尚未作出整套硬件已通过验证的结论。</div></div>
+      <footer><span>机器人推块比赛</span><span>05 / 12</span></footer>
+      <aside class="speaker-notes">建议用时 45 秒。最新路线是在模块层面选型，当前考察的底盘全车只有两台 MG310 电机，每侧一台。已有购买意向，但没有确认已采购。重点是推板载荷能否可靠传到底盘、电机驱动能否承受推块工况，以及编码器 A/B 输出是否适配 ESP32。这里的参数来自已有沟通记录。</aside>
+    </section><section class="slide dark" aria-label="第 6 页：视觉路线已确定，先完成可测量的原型">
+      <header><span class="eyebrow">06 / VISION</span><span class="chapter">机电设计 · 阶段汇报</span></header>
+      <h2 data-edit>视觉路线已确定，先完成可测量的原型</h2>
+      <div class="content">
+<div class="vision-flow"><div><b>1</b><h3>采集与标定</h3><p>顶置画面<br>畸变校正、四角标定</p></div><div><b>2</b><h3>透视展开</h3><p>统一场地坐标<br>便于测量位置与距离</p></div><div><b>3</b><h3>目标识别</h3><p>AprilTag 识别小车<br>HSV 分割单色方块</p></div><div><b>4</b><h3>稳定输出</h3><p>轮廓过滤、多帧确认<br>输出位姿和方块列表</p></div></div>
+<div class="target-row"><div><strong>&lt; 1 cm</strong><p>场地坐标误差目标</p></div><div><strong>约 95%</strong><p>方块召回率目标</p></div><div><strong>≤ 150 ms</strong><p>全链路延迟预算</p></div></div>
+<p class="caption" data-edit>上述数值为 V3 的阶段目标，尚无实测结果。先完成静态图片、实时画面和场地坐标测试，再接入小车。</p></div>
+      <footer><span>机器人推块比赛</span><span>06 / 12</span></footer>
+      <aside class="speaker-notes">建议用时 40 秒。方块是单一颜色且与场地颜色不同，因此第一版采用 OpenCV 的 HSV 分割和轮廓检测。机器人通过顶部 AprilTag 获取位置与朝向。接下来先用真实画面完成独立视觉测试，再验证坐标误差、召回率与延迟是否达到目标。</aside>
+    </section><section class="slide " aria-label="第 7 页：围绕终场留存，分阶段完成推送">
+      <header><span class="eyebrow">07 / STRATEGY</span><span class="chapter">机电设计 · 阶段汇报</span></header>
+      <h2 data-edit>围绕终场留存，分阶段完成推送</h2>
+      <div class="content">
+<div class="strategy-grid"><article><span>OPENING</span><h3 data-edit>开局直接推</h3><p data-edit>利用初始位置和朝向，<br>先推正前方连续方块。</p><div class="mini-track"><i></i><i></i><i></i><b>↓</b></div><small>先完成第一轮有效转移</small></article><article><span>MIDGAME</span><h3 data-edit>中盘动态选择</h3><p data-edit>结合方块分布与对手动作，<br>选择获取、推深或回收。</p><div class="mini-choice">获取 / 保护 / 回收</div><small>把完整动作耗时计入收益</small></article><article><span>ENDGAME</span><h3 data-edit>终盘快速入场</h3><p data-edit>只处理剩余时间内<br>能够推入我方的方块。</p><div class="mini-time">剩余约 10–15 s</div><small>切换时机需按实测耗时标定</small></article></div>
+<div class="action-loop"><span>选择捕获走廊</span>→<span>绕到目标后方</span>→<span>对准并推送</span>→<span>短退释放</span>→<span>返回下一目标</span></div>
+<p class="caption" data-edit>当前为策略设计。实现顺序：先跑通单次循环，再加入中盘攻防与终盘切换。</p></div>
+      <footer><span>机器人推块比赛</span><span>07 / 12</span></footer>
+      <aside class="speaker-notes">建议用时 45 秒。开局直接推送，避免浪费初始优势。中盘根据位置和收益选择新的方块，或者保护近中线方块、回收对手刚推走的方块。终盘只选择来得及完成的任务。实际开发时先实现单次完整循环，再加入对手判断和复杂策略。</aside>
+    </section><section class="slide " aria-label="第 8 页：下一步先解决四个会影响落地的问题">
+      <header><span class="eyebrow">08 / RISKS</span><span class="chapter">机电设计 · 阶段汇报</span></header>
+      <h2 data-edit>下一步先解决四个会影响落地的问题</h2>
+      <div class="content">
+<table class="risk-table"><thead><tr><th>待解决问题</th><th>对项目的影响</th><th>下一步处理</th></tr></thead><tbody>
+<tr><td>推板尺寸与计分规则</td><td>影响推板加工、路径宽度和释放动作</td><td>向老师核实推板是否计入尺寸，以及压线、板内方块如何计分</td></tr>
+<tr><td>驱动持续电流余量</td><td>推块卡滞时可能过热或触发保护</td><td>测正常推送电流与温升，核对驱动额定值，必要时更换驱动</td></tr>
+<tr><td>电源与编码器接口</td><td>影响稳定供电与 ESP32 信号兼容</td><td>核实稳压输出、共地和 A/B 信号电平，再完成接线</td></tr>
+<tr><td>宽推板与四轮转向</td><td>可能出现偏航、刮地或转弯阻力大</td><td>验证承力、重心、满载转向和漏块情况，调整机构与速度</td></tr>
+</tbody></table><div class="bottom-line" data-edit>先核验关键参数，再冻结采购清单；通过实测决定是否调整驱动或结构。</div></div>
+      <footer><span>机器人推块比赛</span><span>08 / 12</span></footer>
+      <aside class="speaker-notes">建议用时 40 秒。风险目前集中在规则、电气和机械三个方面。TB6612 每路对应一台电机，仍需核对持续负载余量。“3.3 到 5 伏”可能只是编码器供电范围，必须确认输出信号电平。宽推板和四轮结构也要测试转弯阻力、偏航和刮地。这里是已经识别到的验证任务，不是已经发生的故障。</aside>
+    </section><section class="slide dark" aria-label="第 9 页：按四个里程碑推进，硬件与视觉并行">
+      <header><span class="eyebrow">09 / ROADMAP</span><span class="chapter">机电设计 · 阶段汇报</span></header>
+      <h2 data-edit>按四个里程碑推进，硬件与视觉并行</h2>
+      <div class="content">
+<div class="roadmap"><div><span class="milestone">M1</span><h3>参数与接口确定</h3><p>规则核实、关键件核验<br>采购清单与接线图<br>坐标和通信接口</p><b>出口：清单可采购，接口可对接</b></div>
+<div><span class="milestone">M2</span><h3>双线原型开发</h3><p><strong>A：</strong>装配、电机与无线闭环<br><strong>B：</strong>标定、识别与坐标输出<br>各自保留测试记录</p><b>出口：小车可控，目标可识别</b></div>
+<div><span class="milestone">M3</span><h3>共同联调推块</h3><p>自动到点与朝向对准<br>推板安装、单轮推送<br>连续循环与异常停车</p><b>出口：至少连续三次自动推送</b></div>
+<div><span class="milestone">M4</span><h3>模拟比赛优化</h3><p>阶段切换与对手干扰<br>漏块、留存与耗时统计<br>按测试结果调整参数</p><b>出口：完成接近 90 s 模拟赛</b></div></div>
+<p class="caption" data-edit>建议安排：M1 完成后，机械电控与视觉同步推进；M3、M4 共同完成。具体日期根据到货与课程节点确定。</p></div>
+      <footer><span>机器人推块比赛</span><span>09 / 12</span></footer>
+      <aside class="speaker-notes">建议用时 45 秒。计划以验收结果推进。第一步把关键参数、采购清单和接口明确下来。随后两个人并行开发，成员 A 负责底盘，成员 B 负责视觉。基础模块通过独立测试后，再一起完成到点、对准和连续推送，最后进入模拟对抗。当前没有截止日期，所以这里没有编造具体周次。</aside>
+    </section><section class="slide " aria-label="第 10 页：两人各有主责，共同承担整机结果">
+      <header><span class="eyebrow">10 / TEAM</span><span class="chapter">机电设计 · 阶段汇报</span></header>
+      <h2 data-edit>两人各有主责，共同承担整机结果</h2>
+      <div class="content">
+<div class="team-grid"><article><div class="person-mark">A</div><h3 data-edit>成员 A</h3><p class="role" data-edit>机械结构与底层控制</p><ul class="clean"><li data-edit>底盘、电机、驱动与电源核验</li><li data-edit>推板设计、加工安装与承力测试</li><li data-edit>ESP32 编码器采集和轮速闭环</li><li data-edit>无线指令执行、失联停车与状态上报</li></ul><div class="deliver"><b>主要交付</b><p data-edit>可控底盘、接线图、物料清单、控制程序</p></div></article>
+<article><div class="person-mark">B</div><h3 data-edit>成员 B</h3><p class="role" data-edit>视觉识别与上层策略</p><ul class="clean"><li data-edit>摄像头安装方案与场地坐标标定</li><li data-edit>AprilTag 位姿与方块识别</li><li data-edit>捕获走廊、目标选择与动作状态机</li><li data-edit>运动指令发送、视觉异常处理与日志</li></ul><div class="deliver"><b>主要交付</b><p data-edit>视觉原型、策略程序、标定配置、运行记录</p></div></article></div>
+<div class="shared" data-edit>共同负责：规则确认、接口约定、整机联调、模拟比赛、数据分析与汇报。</div></div>
+      <footer><span>机器人推块比赛</span><span>10 / 12</span></footer>
+      <aside class="speaker-notes">建议用时 45 秒。这是两人小组的建议分工，姓名暂用 A 和 B。A 负责从机械到电控的完整执行链路，B 负责从摄像头到策略指令的完整判断链路。两个人共同定义接口、开展联调和复盘，并各自保留操作文档，使另一位成员能够复现自己的模块。</aside>
+    </section><section class="slide " aria-label="第 11 页：用共同接口和可复现测试完成交接">
+      <header><span class="eyebrow">11 / ACCEPTANCE</span><span class="chapter">机电设计 · 阶段汇报</span></header>
+      <h2 data-edit>用共同接口和可复现测试完成交接</h2>
+      <div class="content">
+<div class="split acceptance"><div><span class="label">建议先约定的接口</span><div class="interface-row"><b>电脑 → 小车</b><p data-edit>线速度 v、角速度 ω、指令序号 / 时间信息</p></div><div class="interface-row"><b>小车 → 电脑</b><p data-edit>左右轮速、运行状态、电池信息</p></div><div class="interface-row"><b>视觉 → 策略</b><p data-edit>机器人 x / y / θ、方块坐标与置信状态</p></div><p class="small muted" data-edit>统一坐标原点、正方向、单位、数据频率与过期处理。</p></div>
+<div><span class="label">阶段验收目标</span><div class="check-row"><b>基础控制</b><p>电机可独立正反转，编码器方向正确</p></div><div class="check-row"><b>定位与对准</b><p>场地坐标误差 &lt; 1 cm，朝向误差 &lt; 5°</p></div><div class="check-row"><b>异常停车</b><p>无线中断 &gt; 0.3 s；视觉丢失 &gt; 0.5 s</p></div><div class="check-row"><b>整机循环</b><p>连续三次自动推送，并记录漏块与耗时</p></div></div></div>
+<p class="caption" data-edit>停车阈值采用项目当前安全约定，实际响应需测试。上述内容是拟采用的交接和验收标准。</p></div>
+      <footer><span>机器人推块比赛</span><span>11 / 12</span></footer>
+      <aside class="speaker-notes">建议用时 40 秒。分工能否顺利衔接，取决于接口是否提前说清楚。坐标原点、速度单位、角度方向和指令过期规则都要一致。交接时，除了看到小车能动或画面能识别，还要有可复现的测试记录，尤其要验证通信和视觉异常时的停车行为。</aside>
+    </section><section class="slide dark" aria-label="第 12 页：下一次汇报，展示第一版可运行原型">
+      <header><span class="eyebrow">12 / NEXT STEP</span><span class="chapter">机电设计 · 阶段汇报</span></header>
+      <h2 data-edit>下一次汇报，展示第一版可运行原型</h2>
+      <div class="content">
+<div class="closing"><p class="closing-line" data-edit>近期重点：完成硬件核验，<br><em>并行启动底盘控制与视觉原型。</em></p>
+<div class="closing-columns"><div><span>01</span><h3>确定硬件</h3><p data-edit>确认规则与关键参数，<br>形成最终物料和接线清单。</p></div><div><span>02</span><h3>完成演示</h3><p data-edit>无线速度控制演示，<br>实时定位与方块识别演示。</p></div><div><span>03</span><h3>留下证据</h3><p data-edit>记录误差、延迟、耗时，<br>据此决定后续调参与修改。</p></div></div>
+<div class="budget"><span>设计预算目标 <b>约 500 元</b></span><span>预算上限 <b>1000 元</b></span><small>按现有方案；实际费用待采购清单核算。</small></div>
+<p class="sources">依据：项目 README 最新记录（2026-09-24）、机器人推块比赛方案 V3、底盘筛选 V1–V6。<br>硬件采用最新模块选型方向；分工和里程碑为本次汇报建议，实物进展尚未确认。</p></div></div>
+      <footer><span>机器人推块比赛</span><span>12 / 12</span></footer>
+      <aside class="speaker-notes">建议用时 35 秒。下一阶段要把方案落实成可运行模块。我们希望下一次展示无线控制的小车和实时视觉输出，并附上测试数据。在完成这些基础验证后，再进入完整推块循环与模拟赛。预算目标仍为约五百元，上限一千元，实际支出需要等最终清单确定后核算。</aside>
+    </section></main></div>
+<nav class="deck-controls" aria-label="演示控制"><button id="prev" title="上一页（←）">←</button><output id="pageCount" aria-live="polite"></output><button id="next" title="下一页（→）">→</button><button id="fullscreen">全屏 F</button><button id="notesButton" aria-expanded="false">讲稿 N</button><button id="editButton">编辑文字</button><button id="saveButton">保存 HTML</button></nav>
+<div class="progress" aria-hidden="true"><span id="bar"></span></div><div class="hint" id="hint"></div>
+<aside class="notes-panel" id="notes" hidden aria-label="讲稿"><button id="closeNotes" aria-label="关闭讲稿">×</button><h3 id="noteTitle"></h3><p id="noteText"></p></aside>
+<script>
+/* === NAVIGATION, STAGE SCALING AND SPEAKER NOTES === */
+const $=s=>document.querySelector(s);
+class SlidePresentation{
+ constructor(){this.slides=[...document.querySelectorAll('.slide')];this.current=0;this.editing=false;this.wheelAt=0;this.stage=$('#deckStage');this.scale();window.addEventListener('resize',()=>this.scale());this.bind();this.show(Number(location.hash.slice(1))-1||0);}
+ scale(){const s=Math.min(innerWidth/1920,innerHeight/1080);this.stage.style.transform=`translate(${(innerWidth-1920*s)/2}px, ${(innerHeight-1080*s)/2}px) scale(${s})`;}
+ show(i){this.current=Math.max(0,Math.min(i,this.slides.length-1));this.slides.forEach((s,n)=>{s.classList.toggle('active',n===this.current);s.classList.toggle('visible',n===this.current);s.setAttribute('aria-hidden',n!==this.current);s.inert=n!==this.current;});$('#pageCount').textContent=`${this.current+1} / ${this.slides.length}`;$('#bar').style.width=`${(this.current+1)/this.slides.length*100}%`;$('#noteTitle').textContent=`第 ${this.current+1} 页 · 讲稿`;$('#noteText').textContent=this.slides[this.current].querySelector('.speaker-notes').textContent;$('#prev').disabled=this.current===0;$('#next').disabled=this.current===this.slides.length-1;history.replaceState(null,'','#'+(this.current+1));}
+ notes(){const p=$('#notes');p.hidden=!p.hidden;$('#notesButton').setAttribute('aria-expanded',String(!p.hidden));}
+ async fullscreen(){try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{hint('此预览窗口不支持全屏，请在浏览器中打开文件。');}}
+ bind(){document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();download();return;}if(e.key==='Escape'){if(this.editing)toggleEdit();$('#notes').hidden=true;return;}if(e.target.isContentEditable)return;const forward=['ArrowRight','ArrowDown','PageDown',' '],back=['ArrowLeft','ArrowUp','PageUp'];if(forward.includes(e.key)){e.preventDefault();this.show(this.current+1);}if(back.includes(e.key)){e.preventDefault();this.show(this.current-1);}if(e.key==='Home')this.show(0);if(e.key==='End')this.show(this.slides.length-1);if(e.key.toLowerCase()==='n')this.notes();if(e.key.toLowerCase()==='f')this.fullscreen();if(e.key.toLowerCase()==='e')toggleEdit();});
+ document.addEventListener('wheel',e=>{if(this.editing||e.target.closest('.notes-panel')||Math.abs(e.deltaY)<25)return;if(Date.now()-this.wheelAt>650){this.show(this.current+Math.sign(e.deltaY));this.wheelAt=Date.now();}},{passive:true});let touch=null;this.stage.addEventListener('touchstart',e=>touch=[e.touches[0].clientX,e.touches[0].clientY],{passive:true});this.stage.addEventListener('touchend',e=>{if(!touch||this.editing)return;const dx=e.changedTouches[0].clientX-touch[0],dy=e.changedTouches[0].clientY-touch[1];if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy))this.show(this.current-Math.sign(dx));touch=null;},{passive:true});$('#prev').onclick=()=>this.show(this.current-1);$('#next').onclick=()=>this.show(this.current+1);$('#notesButton').onclick=()=>this.notes();$('#closeNotes').onclick=()=>this.notes();$('#fullscreen').onclick=()=>this.fullscreen();}
+}
+/* === LOCAL TEXT EDITING AND SELF-CONTAINED EXPORT === */
+const editable=[...document.querySelectorAll('[data-edit]')],storageKey='robot-report-20260928-v1';
+try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(Array.isArray(saved))saved.forEach((v,i)=>{if(editable[i]&&typeof v==='string')editable[i].innerHTML=v;});}catch{}
+const deck=new SlidePresentation();
+function hint(t){$('#hint').textContent=t;$('#hint').classList.add('show');clearTimeout(window.hintTimer);window.hintTimer=setTimeout(()=>$('#hint').classList.remove('show'),3500);}
+function persist(){try{localStorage.setItem(storageKey,JSON.stringify(editable.map(e=>e.innerHTML)));}catch{hint('浏览器未允许本地保存；请使用“保存 HTML”下载修改后的文件。');}}
+function toggleEdit(){deck.editing=!deck.editing;document.body.classList.toggle('editing',deck.editing);editable.forEach(e=>e.setAttribute('contenteditable',deck.editing?'plaintext-only':'false'));$('#editButton').textContent=deck.editing?'结束编辑':'编辑文字';if(!deck.editing){persist();document.activeElement?.blur();}else hint('可编辑虚线框中的文字；Esc 结束，Ctrl+S 保存 HTML。');}
+editable.forEach(e=>e.addEventListener('input',persist));$('#editButton').onclick=toggleEdit;
+function download(){persist();const copy=document.documentElement.cloneNode(true);copy.querySelector('body').classList.remove('editing','controls-show');copy.querySelectorAll('[contenteditable]').forEach(e=>e.removeAttribute('contenteditable'));copy.querySelector('#notes').hidden=true;copy.querySelector('#hint').classList.remove('show');copy.querySelector('#editButton').textContent='编辑文字';const url=URL.createObjectURL(new Blob(['<!DOCTYPE html>\n'+copy.outerHTML],{type:'text/html;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='机器人推块比赛_阶段汇报.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);hint('已保存 HTML，修改后的文字会随文件一起保留。');}
+$('#saveButton').onclick=download;
+let hideControls;document.addEventListener('pointermove',()=>{document.body.classList.add('controls-show');clearTimeout(hideControls);hideControls=setTimeout(()=>document.body.classList.remove('controls-show'),2300);});
+document.body.classList.add('controls-show');setTimeout(()=>document.body.classList.remove('controls-show'),5000);
+hint('← → 翻页 · F 全屏 · N 讲稿 · E 编辑文字');
+</script></body></html>
