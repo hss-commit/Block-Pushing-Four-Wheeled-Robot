@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "OpenCV photo recognition",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "program": "${workspaceFolder}\\vision\\photo_vision.py",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Robot strategy - live simulation",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "program": "${workspaceFolder}\\strategy\\demo.py",
+      "console": "integratedTerminal"
+    }
+  ]
+}
