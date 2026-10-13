@@ -1,0 +1,28 @@
+# 电脑与 ESP32 通信、模拟运动及里程计
+
+此阶段只用 USB 线连接 ESP32。固件在 `control/esp32`，电脑串口程序是 `control/serial_link.py`。**当前固件不会操作任何电机引脚；`DRIVE` 只保存目标轮速并返回 `SIM_ONLY`。** 上电、`STOP` 和 300 ms 未收到新 `DRIVE` 指令时，目标轮速为零。
+
+## 使用
+
+1. 在 VS Code/PlatformIO 中打开 `control/esp32`，编译并上传到 ESP32-WROOM-32。
+2. 在项目根目录安装电脑端唯一依赖：`.\.venv\Scripts\python.exe -m pip install -r control\requirements.txt`。
+3. 关闭 PlatformIO 串口监视器，在项目根目录运行：`.\.venv\Scripts\python.exe control\serial_link.py --port COM3`。如果设备管理器显示的端口不是 COM3，替换端口名。串口波特率为 115200。
+4. 需要自动检查时运行：`.\.venv\Scripts\python.exe control\serial_link.py --port COM3 --check`。检查会用演示几何参数重置里程计、注入一圈模拟计数，再检查速度指令超时归零。
+
+交互命令：
+
+```text
+ping                 # 查看连接，返回 PONG ... SIM_ONLY
+drive 100 100        # 模拟左右轮目标速度，单位 mm/s；不驱动电机
+status               # 查看目标速度、模拟计数及里程计位姿
+stop                 # 立即清零目标速度
+geom 40 100          # 示例：轮径 40 mm、左右轮中心距 100 mm；重置里程计
+ticks 1560 1560      # 注入左右各一圈模拟计数，再运行 status
+quit                 # 发送 STOP 并退出
+```
+
+`geom 40 100` **只是演示数值**；轮距尚未实测，实际轮径也未确认。ESP32 重启后需重新设置几何参数。`ticks` 是人工注入数据，不能证明编码器接线或真实行驶距离正确。里程计采用 1560 计数/输出轴圈的标称值，计算左右轮路程与 `(x, y, 朝向)`；以后需根据实测校准计数、轮径和轮距。坐标起点为设置几何参数时的车体位置，x 指向车头，角度为弧度。
+
+通信协议是按行发送的 ASCII 文本：`PING 序号`、`DRIVE 序号 左轮mm/s 右轮mm/s`、`STOP 序号`、`GEOM 序号 轮径mm 轮距mm`、`SIMTICKS 序号 左增量 右增量`、`STATUS 序号`。回复保留序号；状态行格式为 `STATUS 序号 SIM_ONLY 左目标 右目标 左计数 右计数 x_mm y_mm heading_rad`。电脑程序只接受同序号回复，超时或错误会报告；退出时尝试发送 `STOP`。
+
+后续接驱动板与编码器时，需把真实计数送入里程计，并按驱动板实际协议实现目标轮速输出和失联停车。当前 `DRIVE` 的收到回执表示“指令已解析”，不表示车辆已经运动。
