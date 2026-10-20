@@ -1,0 +1,1533 @@
+[
+  {
+    "text": [
+      {
+        "x": 90,
+        "y": 72,
+        "width": 512.296875,
+        "text": "Block-pushing robot · Progress report 02",
+        "st": {
+          "size": 20,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 24
+        }
+      },
+      {
+        "x": 90,
+        "y": 114,
+        "width": 683.578125,
+        "text": "One camera. One planner.",
+        "st": {
+          "size": 62,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 68.2
+        }
+      },
+      {
+        "x": 90,
+        "y": 182.1875,
+        "width": 514.921875,
+        "text": "One pushing robot.",
+        "st": {
+          "size": 62,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 68.2
+        }
+      },
+      {
+        "x": 90,
+        "y": 281.375,
+        "width": 971.296875,
+        "text": "Overhead vision guides a differential-drive robot with a shallow U-shaped pusher.",
+        "st": {
+          "size": 27,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 37.8
+        }
+      },
+      {
+        "x": 90,
+        "y": 413.171875,
+        "width": 116.625,
+        "text": "Observe",
+        "st": {
+          "size": 31,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 38.75
+        }
+      },
+      {
+        "x": 90,
+        "y": 470.921875,
+        "width": 316.96875,
+        "text": "Overhead camera + OpenCV",
+        "st": {
+          "size": 25,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 37.5
+        }
+      },
+      {
+        "x": 90,
+        "y": 508.421875,
+        "width": 308.046875,
+        "text": "Locate the robot and blocks",
+        "st": {
+          "size": 25,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 37.5
+        }
+      },
+      {
+        "x": 536.390625,
+        "y": 450.671875,
+        "width": 34.515625,
+        "text": "→",
+        "st": {
+          "size": 40,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 48
+        }
+      },
+      {
+        "x": 582.65625,
+        "y": 413.171875,
+        "width": 96.53125,
+        "text": "Decide",
+        "st": {
+          "size": 31,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 38.75
+        }
+      },
+      {
+        "x": 582.65625,
+        "y": 470.921875,
+        "width": 213.640625,
+        "text": "Offboard computer",
+        "st": {
+          "size": 25,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 37.5
+        }
+      },
+      {
+        "x": 582.65625,
+        "y": 508.421875,
+        "width": 360.421875,
+        "text": "Select targets and pushing paths",
+        "st": {
+          "size": 25,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 37.5
+        }
+      },
+      {
+        "x": 1029.0625,
+        "y": 450.671875,
+        "width": 34.515625,
+        "text": "→",
+        "st": {
+          "size": 40,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 48
+        }
+      },
+      {
+        "x": 1075.328125,
+        "y": 413.171875,
+        "width": 79.125,
+        "text": "Move",
+        "st": {
+          "size": 31,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 38.75
+        }
+      },
+      {
+        "x": 1075.328125,
+        "y": 470.921875,
+        "width": 249.078125,
+        "text": "ESP32 + AT8236 driver",
+        "st": {
+          "size": 25,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 37.5
+        }
+      },
+      {
+        "x": 1075.328125,
+        "y": 508.421875,
+        "width": 222.640625,
+        "text": "520 encoder motors",
+        "st": {
+          "size": 25,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 37.5
+        }
+      },
+      {
+        "x": 90,
+        "y": 639.171875,
+        "width": 88.609375,
+        "text": "STRATEGY",
+        "st": {
+          "size": 19,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 28.5
+        }
+      },
+      {
+        "x": 90,
+        "y": 676.671875,
+        "width": 629,
+        "text": "Opening push → adaptive midgame → quick final pushes",
+        "st": {
+          "size": 25,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 37.5
+        }
+      },
+      {
+        "x": 1102.796875,
+        "y": 639.171875,
+        "width": 144,
+        "text": "CURRENT STAGE",
+        "st": {
+          "size": 19,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 28.5
+        }
+      },
+      {
+        "x": 1102.796875,
+        "y": 676.671875,
+        "width": 407.203125,
+        "text": "Module testing → system integration",
+        "st": {
+          "size": 25,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 37.5
+        }
+      },
+      {
+        "x": 90,
+        "y": 810,
+        "width": 744.78125,
+        "text": "Planned architecture; the complete autonomous loop is still to be integrated.",
+        "st": {
+          "size": 22,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 26.4
+        }
+      }
+    ],
+    "rules": [
+      {
+        "left": 90,
+        "top": 387.171875,
+        "width": 434.65625,
+        "height": 3,
+        "color": "#3f7159"
+      },
+      {
+        "left": 582.65625,
+        "top": 387.171875,
+        "width": 434.671875,
+        "height": 3,
+        "color": "#3f7159"
+      },
+      {
+        "left": 1075.328125,
+        "top": 387.171875,
+        "width": 434.65625,
+        "height": 3,
+        "color": "#3f7159"
+      },
+      {
+        "left": 90,
+        "top": 613.171875,
+        "width": 1420,
+        "height": 1,
+        "color": "#cdd2c8"
+      }
+    ],
+    "tables": [],
+    "notes": "我们的总体方案保持不变：顶置摄像头采集场地信息，电脑用 OpenCV 识别机器人和方块，并完成目标选择，再通过无线连接向 ESP32 发送运动指令。车端采用 AT8236 驱动模块和 520 编码器电机，前端使用浅 U 形推板。策略分为开局、中盘、终盘三个阶段。这次汇报的重点是从模块验证走向系统联调。图中是目标架构，完整的实车闭环还没有接通。"
+  },
+  {
+    "text": [
+      {
+        "x": 90,
+        "y": 72,
+        "width": 218.1875,
+        "text": "Current progress",
+        "st": {
+          "size": 20,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 24
+        }
+      },
+      {
+        "x": 90,
+        "y": 114,
+        "width": 579.0625,
+        "text": "The robot now moves",
+        "st": {
+          "size": 62,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 68.2
+        }
+      },
+      {
+        "x": 90,
+        "y": 182.1875,
+        "width": 610.984375,
+        "text": "under PC serial control.",
+        "st": {
+          "size": 62,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 68.2
+        }
+      },
+      {
+        "x": 90,
+        "y": 741.765625,
+        "width": 760.59375,
+        "text": "Next step: make these modules work together on the robot.",
+        "st": {
+          "size": 28,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 33.6
+        }
+      },
+      {
+        "x": 90,
+        "y": 810,
+        "width": 614.578125,
+        "text": "Updated with confirmed movement progress: 19 October 2026.",
+        "st": {
+          "size": 22,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 26.4
+        }
+      }
+    ],
+    "rules": [
+      {
+        "left": 90,
+        "top": 343.515625,
+        "width": 210,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 300,
+        "top": 343.515625,
+        "width": 760,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 1060,
+        "top": 343.515625,
+        "width": 450,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 90,
+        "top": 426.265625,
+        "width": 210,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 300,
+        "top": 426.265625,
+        "width": 760,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 1060,
+        "top": 426.265625,
+        "width": 450,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 90,
+        "top": 509.015625,
+        "width": 210,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 300,
+        "top": 509.015625,
+        "width": 760,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 1060,
+        "top": 509.015625,
+        "width": 450,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 90,
+        "top": 625.515625,
+        "width": 210,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 300,
+        "top": 625.515625,
+        "width": 760,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 1060,
+        "top": 625.515625,
+        "width": 450,
+        "height": 1,
+        "color": "#cdd2c8"
+      }
+    ],
+    "tables": [
+      {
+        "box": {
+          "left": 90,
+          "top": 303.375,
+          "width": 1420,
+          "height": 404.390625
+        },
+        "rows": [
+          {
+            "height": 40.140625,
+            "cells": [
+              {
+                "box": {
+                  "left": 90,
+                  "top": 303.375,
+                  "width": 210,
+                  "height": 40.140625
+                },
+                "text": "Module",
+                "st": {
+                  "size": 19,
+                  "bold": false,
+                  "color": "#69746c",
+                  "lineHeight": 25.65
+                },
+                "padding": 0
+              },
+              {
+                "box": {
+                  "left": 300,
+                  "top": 303.375,
+                  "width": 760,
+                  "height": 40.140625
+                },
+                "text": "Evidence so far",
+                "st": {
+                  "size": 19,
+                  "bold": false,
+                  "color": "#69746c",
+                  "lineHeight": 25.65
+                },
+                "padding": 0
+              },
+              {
+                "box": {
+                  "left": 1060,
+                  "top": 303.375,
+                  "width": 450,
+                  "height": 40.140625
+                },
+                "text": "Status",
+                "st": {
+                  "size": 19,
+                  "bold": false,
+                  "color": "#69746c",
+                  "lineHeight": 25.65
+                },
+                "padding": 0
+              }
+            ]
+          },
+          {
+            "height": 82.75,
+            "cells": [
+              {
+                "box": {
+                  "left": 90,
+                  "top": 343.515625,
+                  "width": 210,
+                  "height": 82.75
+                },
+                "text": "Motion control",
+                "st": {
+                  "size": 25,
+                  "bold": true,
+                  "color": "#243b34",
+                  "lineHeight": 33.75
+                },
+                "padding": 0
+              },
+              {
+                "box": {
+                  "left": 300,
+                  "top": 343.515625,
+                  "width": 760,
+                  "height": 82.75
+                },
+                "text": "PC serial control: forward, reverse, left and right.",
+                "st": {
+                  "size": 25,
+                  "bold": false,
+                  "color": "#243b34",
+                  "lineHeight": 33.75
+                },
+                "padding": 35
+              },
+              {
+                "box": {
+                  "left": 1060,
+                  "top": 343.515625,
+                  "width": 450,
+                  "height": 82.75
+                },
+                "text": "Basic movement achieved",
+                "st": {
+                  "size": 20,
+                  "bold": false,
+                  "color": "#3f7159",
+                  "lineHeight": 27
+                },
+                "padding": 0
+              }
+            ]
+          },
+          {
+            "height": 82.75,
+            "cells": [
+              {
+                "box": {
+                  "left": 90,
+                  "top": 426.265625,
+                  "width": 210,
+                  "height": 82.75
+                },
+                "text": "Wireless",
+                "st": {
+                  "size": 25,
+                  "bold": true,
+                  "color": "#243b34",
+                  "lineHeight": 33.75
+                },
+                "padding": 0
+              },
+              {
+                "box": {
+                  "left": 300,
+                  "top": 426.265625,
+                  "width": 760,
+                  "height": 82.75
+                },
+                "text": "Phone-based Wi-Fi control code prepared.",
+                "st": {
+                  "size": 25,
+                  "bold": false,
+                  "color": "#243b34",
+                  "lineHeight": 33.75
+                },
+                "padding": 35
+              },
+              {
+                "box": {
+                  "left": 1060,
+                  "top": 426.265625,
+                  "width": 450,
+                  "height": 82.75
+                },
+                "text": "Hardware test pending",
+                "st": {
+                  "size": 20,
+                  "bold": false,
+                  "color": "#936239",
+                  "lineHeight": 27
+                },
+                "padding": 0
+              }
+            ]
+          },
+          {
+            "height": 116.5,
+            "cells": [
+              {
+                "box": {
+                  "left": 90,
+                  "top": 509.015625,
+                  "width": 210,
+                  "height": 116.5
+                },
+                "text": "Vision",
+                "st": {
+                  "size": 25,
+                  "bold": true,
+                  "color": "#243b34",
+                  "lineHeight": 33.75
+                },
+                "padding": 0
+              },
+              {
+                "box": {
+                  "left": 300,
+                  "top": 509.015625,
+                  "width": 760,
+                  "height": 116.5
+                },
+                "text": "Photo-processing prototype; real empty-field perspective correction.",
+                "st": {
+                  "size": 25,
+                  "bold": false,
+                  "color": "#243b34",
+                  "lineHeight": 33.75
+                },
+                "padding": 35
+              },
+              {
+                "box": {
+                  "left": 1060,
+                  "top": 509.015625,
+                  "width": 450,
+                  "height": 116.5
+                },
+                "text": "Static prototype",
+                "st": {
+                  "size": 20,
+                  "bold": false,
+                  "color": "#3f7159",
+                  "lineHeight": 27
+                },
+                "padding": 0
+              }
+            ]
+          },
+          {
+            "height": 82.25,
+            "cells": [
+              {
+                "box": {
+                  "left": 90,
+                  "top": 625.515625,
+                  "width": 210,
+                  "height": 82.25
+                },
+                "text": "Strategy",
+                "st": {
+                  "size": 25,
+                  "bold": true,
+                  "color": "#243b34",
+                  "lineHeight": 33.75
+                },
+                "padding": 0
+              },
+              {
+                "box": {
+                  "left": 300,
+                  "top": 625.515625,
+                  "width": 760,
+                  "height": 82.25
+                },
+                "text": "Three-stage planner shared with a continuous 2D simulation.",
+                "st": {
+                  "size": 25,
+                  "bold": false,
+                  "color": "#243b34",
+                  "lineHeight": 33.75
+                },
+                "padding": 35
+              },
+              {
+                "box": {
+                  "left": 1060,
+                  "top": 625.515625,
+                  "width": 450,
+                  "height": 82.25
+                },
+                "text": "Software prototype",
+                "st": {
+                  "size": 20,
+                  "bold": false,
+                  "color": "#3f7159",
+                  "lineHeight": 27
+                },
+                "padding": 0
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "notes": "相比第一次汇报，现在硬件已经确定，ESP32 已完成烧录，小车已经能连接电脑串口，通过电脑指令实现前进、后退、左转和右转。这是已经实现的实物进展；重复动作的稳定性仍需继续验证。手机 Wi-Fi 遥控程序已经写好，尚未确认烧录和实测。视觉已具备静态照片处理功能，实际验证过的是空场地的透视展开，还没有完成实拍方块识别验收。策略已做成前中后期共享原型，并有连续二维演示。这些成果说明各模块已有基础，但还没有自主推块实车成果。运动进度已按 10 月 19 日最新反馈更新。"
+  },
+  {
+    "text": [
+      {
+        "x": 90,
+        "y": 72,
+        "width": 311.796875,
+        "text": "What still needs to work",
+        "st": {
+          "size": 20,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 24
+        }
+      },
+      {
+        "x": 90,
+        "y": 114,
+        "width": 1045.21875,
+        "text": "Four gaps before autonomous pushing.",
+        "st": {
+          "size": 62,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 68.2
+        }
+      },
+      {
+        "x": 90,
+        "y": 260.1875,
+        "width": 31.265625,
+        "text": "01",
+        "st": {
+          "size": 29,
+          "bold": false,
+          "color": "#3f7159",
+          "lineHeight": 34.8
+        }
+      },
+      {
+        "x": 185,
+        "y": 258.1875,
+        "width": 229.015625,
+        "text": "Chassis footprint",
+        "st": {
+          "size": 30,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 37.5
+        }
+      },
+      {
+        "x": 580,
+        "y": 261.1875,
+        "width": 527.03125,
+        "text": "The current robot may exceed the area limit.",
+        "st": {
+          "size": 27,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39.15
+        }
+      },
+      {
+        "x": 580,
+        "y": 300.328125,
+        "width": 517.75,
+        "text": "Redesign the chassis for a smaller footprint.",
+        "st": {
+          "size": 27,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39.15
+        }
+      },
+      {
+        "x": 90,
+        "y": 385.46875,
+        "width": 31.265625,
+        "text": "02",
+        "st": {
+          "size": 29,
+          "bold": false,
+          "color": "#3f7159",
+          "lineHeight": 34.8
+        }
+      },
+      {
+        "x": 185,
+        "y": 383.46875,
+        "width": 261.53125,
+        "text": "Reliable movement",
+        "st": {
+          "size": 30,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 37.5
+        }
+      },
+      {
+        "x": 580,
+        "y": 386.46875,
+        "width": 552.65625,
+        "text": "Check command reliability over repeated runs.",
+        "st": {
+          "size": 27,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39.15
+        }
+      },
+      {
+        "x": 580,
+        "y": 425.609375,
+        "width": 480.015625,
+        "text": "Verify turning and stopping consistently.",
+        "st": {
+          "size": 27,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39.15
+        }
+      },
+      {
+        "x": 90,
+        "y": 510.75,
+        "width": 31.265625,
+        "text": "03",
+        "st": {
+          "size": 29,
+          "bold": false,
+          "color": "#3f7159",
+          "lineHeight": 34.8
+        }
+      },
+      {
+        "x": 185,
+        "y": 508.75,
+        "width": 216.5625,
+        "text": "Live localization",
+        "st": {
+          "size": 30,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 37.5
+        }
+      },
+      {
+        "x": 580,
+        "y": 511.75,
+        "width": 545.75,
+        "text": "Connect the camera, AprilTag pose estimation",
+        "st": {
+          "size": 27,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39.15
+        }
+      },
+      {
+        "x": 580,
+        "y": 550.890625,
+        "width": 303.84375,
+        "text": "and stable block tracking.",
+        "st": {
+          "size": 27,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39.15
+        }
+      },
+      {
+        "x": 90,
+        "y": 636.03125,
+        "width": 31.265625,
+        "text": "04",
+        "st": {
+          "size": 29,
+          "bold": false,
+          "color": "#3f7159",
+          "lineHeight": 34.8
+        }
+      },
+      {
+        "x": 185,
+        "y": 634.03125,
+        "width": 282.875,
+        "text": "Integrated execution",
+        "st": {
+          "size": 30,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 37.5
+        }
+      },
+      {
+        "x": 580,
+        "y": 637.03125,
+        "width": 402.28125,
+        "text": "Fix the four known planner issues;",
+        "st": {
+          "size": 27,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39.15
+        }
+      },
+      {
+        "x": 580,
+        "y": 676.171875,
+        "width": 562.03125,
+        "text": "connect decisions to real motion and feedback.",
+        "st": {
+          "size": 27,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39.15
+        }
+      },
+      {
+        "x": 90,
+        "y": 810,
+        "width": 762.34375,
+        "text": "Priority: measure the complete robot footprint and redesign the chassis layout.",
+        "st": {
+          "size": 22,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 26.4
+        }
+      }
+    ],
+    "rules": [
+      {
+        "left": 90,
+        "top": 236.1875,
+        "width": 1420,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 90,
+        "top": 361.46875,
+        "width": 1420,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 90,
+        "top": 486.75,
+        "width": 1420,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 90,
+        "top": 612.03125,
+        "width": 1420,
+        "height": 1,
+        "color": "#cdd2c8"
+      }
+    ],
+    "tables": [],
+    "notes": "目前主要有四个缺口。首先也是比较重要的一项：当前小车面积可能超过比赛要求，需要实测整车占地并重新设计底盘，调整部件布局。第二，已有电脑串口控制的基本移动能力，接下来需要继续验证重复动作、转向和停车的可靠性。第三，接入实时摄像头、AprilTag 位姿和方块跟踪。第四，修复已有策略问题，并接入真实运动执行和反馈。策略审查已复现四项问题：推板边缘障碍漏检、远块拖累近块、首选路线失败后缺少次选回退，以及过期反馈影响阶段。"
+  },
+  {
+    "text": [
+      {
+        "x": 90,
+        "y": 72,
+        "width": 433.1875,
+        "text": "Next plan · in order of dependency",
+        "st": {
+          "size": 20,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 24
+        }
+      },
+      {
+        "x": 90,
+        "y": 114,
+        "width": 889.46875,
+        "text": "Resize the chassis. Then integrate.",
+        "st": {
+          "size": 62,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 68.2
+        }
+      },
+      {
+        "x": 90,
+        "y": 284.1875,
+        "width": 337.25,
+        "text": "01 / CHASSIS & CONTROL",
+        "st": {
+          "size": 29,
+          "bold": false,
+          "color": "#3f7159",
+          "lineHeight": 34.8
+        }
+      },
+      {
+        "x": 90,
+        "y": 342.1875,
+        "width": 272.8125,
+        "text": "Rework the chassis",
+        "st": {
+          "size": 32,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 40
+        }
+      },
+      {
+        "x": 90,
+        "y": 406.1875,
+        "width": 392.890625,
+        "text": "Measure and reduce the footprint.",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39
+        }
+      },
+      {
+        "x": 90,
+        "y": 445.1875,
+        "width": 316.109375,
+        "text": "Compare replacement tires.",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39
+        }
+      },
+      {
+        "x": 90,
+        "y": 484.1875,
+        "width": 385,
+        "text": "Test wireless control and pushing.",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39
+        }
+      },
+      {
+        "x": 90,
+        "y": 572.1875,
+        "width": 147.6875,
+        "text": "EXIT CONDITION",
+        "st": {
+          "size": 19,
+          "bold": false,
+          "color": "#3f7159",
+          "lineHeight": 26.6
+        }
+      },
+      {
+        "x": 90,
+        "y": 607.78125,
+        "width": 415.21875,
+        "text": "Meet the area limit and push one block",
+        "st": {
+          "size": 24,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 33.6
+        }
+      },
+      {
+        "x": 90,
+        "y": 641.375,
+        "width": 195.46875,
+        "text": "by remote control.",
+        "st": {
+          "size": 24,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 33.6
+        }
+      },
+      {
+        "x": 578,
+        "y": 284.1875,
+        "width": 191.828125,
+        "text": "02 / FEEDBACK",
+        "st": {
+          "size": 29,
+          "bold": false,
+          "color": "#3f7159",
+          "lineHeight": 34.8
+        }
+      },
+      {
+        "x": 578,
+        "y": 342.1875,
+        "width": 322.921875,
+        "text": "Connect real feedback",
+        "st": {
+          "size": 32,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 40
+        }
+      },
+      {
+        "x": 578,
+        "y": 406.1875,
+        "width": 274.40625,
+        "text": "Read encoder feedback.",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39
+        }
+      },
+      {
+        "x": 578,
+        "y": 445.1875,
+        "width": 271.453125,
+        "text": "Calibrate wheel motion.",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39
+        }
+      },
+      {
+        "x": 578,
+        "y": 484.1875,
+        "width": 443.453125,
+        "text": "Validate live robot and block positions.",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39
+        }
+      },
+      {
+        "x": 578,
+        "y": 572.1875,
+        "width": 147.6875,
+        "text": "EXIT CONDITION",
+        "st": {
+          "size": 19,
+          "bold": false,
+          "color": "#3f7159",
+          "lineHeight": 26.6
+        }
+      },
+      {
+        "x": 578,
+        "y": 607.78125,
+        "width": 345.90625,
+        "text": "Reach and stop at a target point.",
+        "st": {
+          "size": 24,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 33.6
+        }
+      },
+      {
+        "x": 1066,
+        "y": 284.1875,
+        "width": 217.859375,
+        "text": "03 / AUTONOMY",
+        "st": {
+          "size": 29,
+          "bold": false,
+          "color": "#3f7159",
+          "lineHeight": 34.8
+        }
+      },
+      {
+        "x": 1066,
+        "y": 342.1875,
+        "width": 334.265625,
+        "text": "Close the pushing loop",
+        "st": {
+          "size": 32,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 40
+        }
+      },
+      {
+        "x": 1066,
+        "y": 406.1875,
+        "width": 220.1875,
+        "text": "Fix planner defects.",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39
+        }
+      },
+      {
+        "x": 1066,
+        "y": 445.1875,
+        "width": 294.9375,
+        "text": "Connect vision to motion.",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39
+        }
+      },
+      {
+        "x": 1066,
+        "y": 484.1875,
+        "width": 372.609375,
+        "text": "Tune in repeated mock matches.",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 39
+        }
+      },
+      {
+        "x": 1066,
+        "y": 572.1875,
+        "width": 147.6875,
+        "text": "EXIT CONDITION",
+        "st": {
+          "size": 19,
+          "bold": false,
+          "color": "#3f7159",
+          "lineHeight": 26.6
+        }
+      },
+      {
+        "x": 1066,
+        "y": 607.78125,
+        "width": 395.65625,
+        "text": "Detect, approach and push one block",
+        "st": {
+          "size": 24,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 33.6
+        }
+      },
+      {
+        "x": 1066,
+        "y": 641.375,
+        "width": 156.765625,
+        "text": "autonomously.",
+        "st": {
+          "size": 24,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 33.6
+        }
+      },
+      {
+        "x": 90,
+        "y": 810,
+        "width": 741.140625,
+        "text": "Compare tire size and grip; recalibrate wheel motion if the tires are replaced.",
+        "st": {
+          "size": 22,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 26.4
+        }
+      }
+    ],
+    "rules": [
+      {
+        "left": 90,
+        "top": 256.1875,
+        "width": 444,
+        "height": 3,
+        "color": "#3f7159"
+      },
+      {
+        "left": 90,
+        "top": 551.1875,
+        "width": 444,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 578,
+        "top": 256.1875,
+        "width": 444,
+        "height": 3,
+        "color": "#3f7159"
+      },
+      {
+        "left": 578,
+        "top": 551.1875,
+        "width": 444,
+        "height": 1,
+        "color": "#cdd2c8"
+      },
+      {
+        "left": 1066,
+        "top": 256.1875,
+        "width": 444,
+        "height": 3,
+        "color": "#3f7159"
+      },
+      {
+        "left": 1066,
+        "top": 551.1875,
+        "width": 444,
+        "height": 1,
+        "color": "#cdd2c8"
+      }
+    ],
+    "tables": [],
+    "notes": "后续按依赖关系分三步。先调整底盘与控制：实测整车占地，重新设计更紧凑的底盘，同时加入更换轮胎的备选方案，对比轮胎尺寸和抓地表现，是否更换由测试结果决定。保留已经实现的电脑串口移动能力，再测试无线指令和推板，先人工遥控推走一个方块。再做反馈：接真实编码器，标定轮径和轮距，并完成实时视觉定位，验收能否到达目标点并停车。最后接自主策略，实现识别、接近、推送的完整流程，再通过模拟比赛调参。若更换轮胎，需要重新标定轮径及运动参数；不在没有实测依据的情况下承诺具体完成日期。"
+  },
+  {
+    "text": [
+      {
+        "x": 90,
+        "y": 72,
+        "width": 249.390625,
+        "text": "Immediate milestone",
+        "st": {
+          "size": 20,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 24
+        }
+      },
+      {
+        "x": 90,
+        "y": 114,
+        "width": 928.6875,
+        "text": "A small, measurable physical result.",
+        "st": {
+          "size": 62,
+          "bold": true,
+          "color": "#243b34",
+          "lineHeight": 68.2
+        }
+      },
+      {
+        "x": 90,
+        "y": 235.1875,
+        "width": 700.078125,
+        "text": "Fit within the area limit.",
+        "st": {
+          "size": 73,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 83.22
+        }
+      },
+      {
+        "x": 90,
+        "y": 318.40625,
+        "width": 604.3125,
+        "text": "Push one real block.",
+        "st": {
+          "size": 73,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 83.22
+        }
+      },
+      {
+        "x": 90,
+        "y": 495.625,
+        "width": 182.6875,
+        "text": "PROPOSED CHECK 01",
+        "st": {
+          "size": 19,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 27.55
+        }
+      },
+      {
+        "x": 90,
+        "y": 537.171875,
+        "width": 348.453125,
+        "text": "Measure the redesigned robot",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 37.7
+        }
+      },
+      {
+        "x": 90,
+        "y": 574.859375,
+        "width": 245.9375,
+        "text": "against the area limit.",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 37.7
+        }
+      },
+      {
+        "x": 579.328125,
+        "y": 495.625,
+        "width": 182.6875,
+        "text": "PROPOSED CHECK 02",
+        "st": {
+          "size": 19,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 27.55
+        }
+      },
+      {
+        "x": 579.328125,
+        "y": 537.171875,
+        "width": 282.59375,
+        "text": "Repeat moves and turns;",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 37.7
+        }
+      },
+      {
+        "x": 579.328125,
+        "y": 574.859375,
+        "width": 266.578125,
+        "text": "verify stopping reliably.",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 37.7
+        }
+      },
+      {
+        "x": 1068.671875,
+        "y": 495.625,
+        "width": 182.6875,
+        "text": "PROPOSED CHECK 03",
+        "st": {
+          "size": 19,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 27.55
+        }
+      },
+      {
+        "x": 1068.671875,
+        "y": 537.171875,
+        "width": 214.6875,
+        "text": "Record a complete",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 37.7
+        }
+      },
+      {
+        "x": 1068.671875,
+        "y": 574.859375,
+        "width": 278.125,
+        "text": "remote-controlled push.",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#243b34",
+          "lineHeight": 37.7
+        }
+      },
+      {
+        "x": 90,
+        "y": 661.546875,
+        "width": 614.265625,
+        "text": "Then extend the same task to autonomous operation.",
+        "st": {
+          "size": 26,
+          "bold": false,
+          "color": "#69746c",
+          "lineHeight": 31.2
+        }
+      }
+    ],
+    "rules": [
+      {
+        "left": 90,
+        "top": 468.625,
+        "width": 1420,
+        "height": 1,
+        "color": "#cdd2c8"
+      }
+    ],
+    "tables": [],
+    "notes": "近期里程碑尽量小而明确：重新设计底盘，使整车面积满足要求，再稳定遥控并推走一个真实方块。建议验收包括测量改版后的整车占地，反复验证前后移动、转向、停车和失联停车，最后录制一次完整遥控推块。底盘缩小和轮胎更换均属于接下来要验证的工作，并非已经完成。目前独立 USB 工程中的模拟里程计和超时归零检查，不代表这些能力已经接入真实电机或 Wi-Fi 工程。完成这一里程碑后，再把同一任务扩展为自主完成。"
+  },
+  {
+    "text": [],
+    "rules": [],
+    "tables": [],
+    "notes": "空白页，可按需补充内容。"
+  },
+  {
+    "text": [],
+    "rules": [],
+    "tables": [],
+    "notes": "空白页，可按需补充内容。"
+  },
+  {
+    "text": [],
+    "rules": [],
+    "tables": [],
+    "notes": "空白页，可按需补充内容。"
+  }
+]

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Block-Pushing Robot · Progress Report 02</title>
+<style>
+:root{--paper:#f5f4ee;--ink:#243b34;--muted:#69746c;--line:#cdd2c8;--accent:#3f7159;--warm:#936239}
+*{box-sizing:border-box}body{margin:0;background:#dcded6;color:var(--ink);font-family:"Segoe UI","Microsoft YaHei",sans-serif;overflow:hidden}#viewport{position:fixed;inset:0}#stage{position:absolute;width:1600px;height:900px;transform-origin:top left;background:var(--paper)}
+.slide{position:absolute;inset:0;padding:72px 90px;visibility:hidden;background:var(--paper)}.slide.active{visibility:visible}.kicker{font-size:20px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:0 0 23px}h1,h2,h3,p{margin:0}h1,h2{font-size:62px;line-height:1.1;font-weight:600;letter-spacing:-1.8px}h3{font-size:31px;line-height:1.25;font-weight:600}.lead{font-size:27px;color:var(--muted);line-height:1.4;margin-top:23px}.flow{display:grid;grid-template-columns:1fr 58px 1fr 58px 1fr;align-items:center;margin-top:68px}.node{border-top:3px solid var(--accent);padding-top:25px;min-height:180px}.node p{font-size:25px;color:var(--muted);line-height:1.5;margin-top:15px}.arrow{text-align:center;font-size:40px;color:var(--muted)}.band{border-top:1px solid var(--line);margin-top:46px;padding-top:24px;display:flex;justify-content:space-between;gap:40px}.band p{font-size:25px;line-height:1.5}.band strong{display:block;font-size:19px;color:var(--muted);font-weight:500;margin-bottom:8px}.bottom{position:absolute;bottom:60px;left:90px;right:90px;font-size:22px;color:var(--muted)}table{border-collapse:collapse;width:100%;margin-top:45px;font-size:25px;line-height:1.35}th{text-align:left;font-size:19px;font-weight:500;color:var(--muted);padding:0 0 14px}td{border-top:1px solid var(--line);padding:24px 0;vertical-align:top}td:first-child{width:210px;font-weight:600}td:nth-child(2){width:760px;padding-right:35px}.status{display:inline-block;font-size:20px;color:var(--accent)}.status.pending{color:var(--warm)}.statement{font-size:28px;margin-top:34px;font-weight:600}.rows{margin-top:46px}.row{display:grid;grid-template-columns:70px 370px 1fr;gap:25px;border-top:1px solid var(--line);padding:23px 0}.number{font-size:29px;color:var(--accent)}.row p{font-size:27px;line-height:1.45;color:var(--muted)}.row h3{font-size:30px}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:44px;margin-top:66px}.step{border-top:3px solid var(--accent);padding-top:25px}.step h3{margin-top:22px;font-size:32px}.step p{font-size:26px;line-height:1.5;color:var(--muted);margin-top:20px}.outcome{font-size:24px;line-height:1.4;border-top:1px solid var(--line);padding-top:20px;margin-top:30px}.outcome strong{display:block;color:var(--accent);font-size:19px;margin-bottom:9px;font-weight:500}.milestone{font-size:73px;line-height:1.14;letter-spacing:-2px;max-width:1160px;margin-top:52px}.checks{display:flex;gap:48px;margin-top:60px;padding-top:26px;border-top:1px solid var(--line)}.checks div{flex:1;font-size:26px;line-height:1.45}.checks span{display:block;font-size:19px;color:var(--muted);margin-bottom:13px}.next{margin-top:50px;font-size:26px;color:var(--muted)}
+nav{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:9px;padding:7px 12px;border:1px solid #c4cabf;border-radius:8px;background:#f5f4eef2;color:var(--muted);z-index:10;font-size:13px}button{font:inherit;border:0;background:transparent;color:var(--ink);cursor:pointer;padding:6px 10px;border-radius:4px}button:hover{background:#e3e6dc}button:focus-visible{outline:2px solid var(--accent)}#notes{display:none;position:fixed;bottom:68px;left:50%;transform:translateX(-50%);width:min(850px,92vw);max-height:45vh;overflow:auto;background:#fffef9;border:1px solid var(--line);padding:24px 28px;z-index:20;font-size:18px;line-height:1.8;box-shadow:0 8px 30px #243b3420}#notes.open{display:block}#notes h3{font-size:19px;margin-bottom:8px}#notes .source{font-size:14px;color:var(--muted);margin-top:12px}
+@media print{@page{size:1600px 900px;margin:0}body{background:white;overflow:visible}#viewport{position:static}#stage{position:static;transform:none!important;width:1600px;height:auto}.slide{position:relative;visibility:visible;width:1600px;height:900px;break-after:page;page-break-after:always}.slide:last-child{break-after:auto}nav,#notes{display:none!important}}
+</style>
+</head>
+<body>
+<main id="viewport"><div id="stage">
+<section class="slide active" aria-label="1. Approach">
+<p class="kicker">Block-pushing robot · Progress report 02</p>
+<h1>One camera. One planner.<br>One pushing robot.</h1>
+<p class="lead">Overhead vision guides a differential-drive robot with a shallow U-shaped pusher.</p>
+<div class="flow">
+<div class="node"><h3>Observe</h3><p>Overhead camera + OpenCV<br>Locate the robot and blocks</p></div><div class="arrow" aria-hidden="true">→</div>
+<div class="node"><h3>Decide</h3><p>Offboard computer<br>Select targets and pushing paths</p></div><div class="arrow" aria-hidden="true">→</div>
+<div class="node"><h3>Move</h3><p>ESP32 + AT8236 driver<br>520 encoder motors</p></div>
+</div>
+<div class="band"><p><strong>STRATEGY</strong>Opening push → adaptive midgame → quick final pushes</p><p><strong>CURRENT STAGE</strong>Module testing → system integration</p></div>
+<p class="bottom">Planned architecture; the complete autonomous loop is still to be integrated.</p>
+</section>
+<section class="slide" aria-label="2. Progress">
+<p class="kicker">Current progress</p><h2>The robot now moves<br>under PC serial control.</h2>
+<table><thead><tr><th>Module</th><th>Evidence so far</th><th>Status</th></tr></thead><tbody>
+<tr><td>Motion control</td><td>PC serial control: forward, reverse, left and right.</td><td><span class="status">Basic movement achieved</span></td></tr>
+<tr><td>Wireless</td><td>Phone-based Wi-Fi control code prepared.</td><td><span class="status pending">Hardware test pending</span></td></tr>
+<tr><td>Vision</td><td>Photo-processing prototype; real empty-field perspective correction.</td><td><span class="status">Static prototype</span></td></tr>
+<tr><td>Strategy</td><td>Three-stage planner shared with a continuous 2D simulation.</td><td><span class="status">Software prototype</span></td></tr>
+</tbody></table>
+<p class="statement">Next step: make these modules work together on the robot.</p>
+<p class="bottom">Updated with confirmed movement progress: 19 October 2026.</p>
+</section>
+<section class="slide" aria-label="3. Integration gaps">
+<p class="kicker">What still needs to work</p><h2>Four gaps before autonomous pushing.</h2>
+<div class="rows">
+<div class="row"><span class="number">01</span><h3>Chassis footprint</h3><p>The current robot may exceed the area limit.<br>Redesign the chassis for a smaller footprint.</p></div>
+<div class="row"><span class="number">02</span><h3>Reliable movement</h3><p>Check command reliability over repeated runs.<br>Verify turning and stopping consistently.</p></div>
+<div class="row"><span class="number">03</span><h3>Live localization</h3><p>Connect the camera, AprilTag pose estimation<br>and stable block tracking.</p></div>
+<div class="row"><span class="number">04</span><h3>Integrated execution</h3><p>Fix the four known planner issues;<br>connect decisions to real motion and feedback.</p></div>
+</div>
+<p class="bottom">Priority: measure the complete robot footprint and redesign the chassis layout.</p>
+</section>
+<section class="slide" aria-label="4. Plan">
+<p class="kicker">Next plan · in order of dependency</p><h2>Resize the chassis. Then integrate.</h2>
+<div class="steps">
+<div class="step"><span class="number">01 / CHASSIS &amp; CONTROL</span><h3>Rework the chassis</h3><p>Measure and reduce the footprint.<br>Compare replacement tires.<br>Test wireless control and pushing.</p><div class="outcome"><strong>EXIT CONDITION</strong>Meet the area limit and push one block by remote control.</div></div>
+<div class="step"><span class="number">02 / FEEDBACK</span><h3>Connect real feedback</h3><p>Read encoder feedback.<br>Calibrate wheel motion.<br>Validate live robot and block positions.</p><div class="outcome"><strong>EXIT CONDITION</strong>Reach and stop at a target point.</div></div>
+<div class="step"><span class="number">03 / AUTONOMY</span><h3>Close the pushing loop</h3><p>Fix planner defects.<br>Connect vision to motion.<br>Tune in repeated mock matches.</p><div class="outcome"><strong>EXIT CONDITION</strong>Detect, approach and push one block autonomously.</div></div>
+</div>
+<p class="bottom">Compare tire size and grip; recalibrate wheel motion if the tires are replaced.</p>
+</section>
+<section class="slide" aria-label="5. Milestone">
+<p class="kicker">Immediate milestone</p><h2>A small, measurable physical result.</h2>
+<p class="milestone">Fit within the area limit.<br>Push one real block.</p>
+<div class="checks"><div><span>PROPOSED CHECK 01</span>Measure the redesigned robot<br>against the area limit.</div><div><span>PROPOSED CHECK 02</span>Repeat moves and turns;<br>verify stopping reliably.</div><div><span>PROPOSED CHECK 03</span>Record a complete<br>remote-controlled push.</div></div>
+<p class="next">Then extend the same task to autonomous operation.</p>
+</section>
+<section class="slide" aria-label="6. Blank page"></section>
+<section class="slide" aria-label="7. Blank page"></section>
+<section class="slide" aria-label="8. Blank page"></section>
+</div></main>
+<nav aria-label="Presentation controls"><button id="prev" aria-label="Previous slide">←</button><span id="counter" aria-live="polite">1 / 8</span><button id="next" aria-label="Next slide">→</button><button id="noteButton" aria-expanded="false" aria-controls="notes">讲稿 N</button><button id="fullscreen">全屏 F</button></nav>
+<aside id="notes" aria-label="中文讲稿"><h3>中文讲稿</h3><p id="noteText"></p><p class="source">依据：用户最新进度补充（2026-10-19）、README、视觉与策略说明及测试工程。正文为英文，约 3–4 分钟；方向键翻页，N 显示讲稿，F 全屏。</p></aside>
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const notes=[
+'我们的总体方案保持不变：顶置摄像头采集场地信息，电脑用 OpenCV 识别机器人和方块，并完成目标选择，再通过无线连接向 ESP32 发送运动指令。车端采用 AT8236 驱动模块和 520 编码器电机，前端使用浅 U 形推板。策略分为开局、中盘、终盘三个阶段。这次汇报的重点是从模块验证走向系统联调。图中是目标架构，完整的实车闭环还没有接通。',
+'相比第一次汇报，现在硬件已经确定，ESP32 已完成烧录，小车已经能连接电脑串口，通过电脑指令实现前进、后退、左转和右转。这是已经实现的实物进展；重复动作的稳定性仍需继续验证。手机 Wi-Fi 遥控程序已经写好，尚未确认烧录和实测。视觉已具备静态照片处理功能，实际验证过的是空场地的透视展开，还没有完成实拍方块识别验收。策略已做成前中后期共享原型，并有连续二维演示。这些成果说明各模块已有基础，但还没有自主推块实车成果。运动进度已按 10 月 19 日最新反馈更新。',
+'目前主要有四个缺口。首先也是比较重要的一项：当前小车面积可能超过比赛要求，需要实测整车占地并重新设计底盘，调整部件布局。第二，已有电脑串口控制的基本移动能力，接下来需要继续验证重复动作、转向和停车的可靠性。第三，接入实时摄像头、AprilTag 位姿和方块跟踪。第四，修复已有策略问题，并接入真实运动执行和反馈。策略审查已复现四项问题：推板边缘障碍漏检、远块拖累近块、首选路线失败后缺少次选回退，以及过期反馈影响阶段。',
+'后续按依赖关系分三步。先调整底盘与控制：实测整车占地，重新设计更紧凑的底盘，同时加入更换轮胎的备选方案，对比轮胎尺寸和抓地表现，是否更换由测试结果决定。保留已经实现的电脑串口移动能力，再测试无线指令和推板，先人工遥控推走一个方块。再做反馈：接真实编码器，标定轮径和轮距，并完成实时视觉定位，验收能否到达目标点并停车。最后接自主策略，实现识别、接近、推送的完整流程，再通过模拟比赛调参。若更换轮胎，需要重新标定轮径及运动参数；不在没有实测依据的情况下承诺具体完成日期。',
+'近期里程碑尽量小而明确：重新设计底盘，使整车面积满足要求，再稳定遥控并推走一个真实方块。建议验收包括测量改版后的整车占地，反复验证前后移动、转向、停车和失联停车，最后录制一次完整遥控推块。底盘缩小和轮胎更换均属于接下来要验证的工作，并非已经完成。目前独立 USB 工程中的模拟里程计和超时归零检查，不代表这些能力已经接入真实电机或 Wi-Fi 工程。完成这一里程碑后，再把同一任务扩展为自主完成。'
+,'空白页，可按需补充内容。','空白页，可按需补充内容。','空白页，可按需补充内容。'
+];
+let current=0;
+function resize(){const scale=Math.min(innerWidth/1600,innerHeight/900);document.getElementById('stage').style.transform=`translate(${(innerWidth-1600*scale)/2}px,${(innerHeight-900*scale)/2}px) scale(${scale})`;}
+function show(index){current=Math.max(0,Math.min(slides.length-1,index));slides.forEach((s,i)=>{s.classList.toggle('active',i===current);s.setAttribute('aria-hidden',String(i!==current));});document.getElementById('counter').textContent=`${current+1} / ${slides.length}`;document.getElementById('noteText').textContent=notes[current];}
+function toggleNotes(){const open=document.getElementById('notes').classList.toggle('open');document.getElementById('noteButton').setAttribute('aria-expanded',String(open));}
+async function fullscreen(){try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{}}
+document.getElementById('prev').onclick=()=>show(current-1);document.getElementById('next').onclick=()=>show(current+1);document.getElementById('noteButton').onclick=toggleNotes;document.getElementById('fullscreen').onclick=fullscreen;
+addEventListener('resize',resize);addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();show(current+1);}else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();show(current-1);}else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);else if(e.key.toLowerCase()==='n')toggleNotes();else if(e.key.toLowerCase()==='f')fullscreen();else if(e.key==='Escape'){document.getElementById('notes').classList.remove('open');document.getElementById('noteButton').setAttribute('aria-expanded','false');}});
+resize();show(0);
+</script></body></html>

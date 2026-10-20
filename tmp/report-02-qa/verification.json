@@ -1,0 +1,13 @@
+{
+  "slides": 5,
+  "errors": [],
+  "overflow": [],
+  "checks": [
+    "all slides captured",
+    "keyboard navigation",
+    "button navigation",
+    "Chinese notes",
+    "mobile aspect ratio",
+    "print visibility"
+  ]
+}
