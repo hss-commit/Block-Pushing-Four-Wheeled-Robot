@@ -3,11 +3,16 @@
 import argparse
 import json
 import subprocess
+import sys
 from datetime import datetime
 from pathlib import Path
 
 import cv2
 import numpy as np
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from strategy.scene_priority import rank_scene, priority_markdown
+from vision.robot_vision import detect_robot, draw_robot, exclude_robot_regions
 
 FIELD_MM = 1200
 SIZE = 1200
@@ -211,7 +216,7 @@ def classify_regions(regions, field):
     return regions
 
 
-def annotated(image, regions, field=None, calibrated=True, details=False):
+def annotated(image, regions, field=None, calibrated=True, details=False, priority=None):
     result = image.copy()
     if field is not None:
         if field["valid"]:
@@ -227,12 +232,23 @@ def annotated(image, regions, field=None, calibrated=True, details=False):
         cv2.putText(result, summary, (15, 58), cv2.FONT_HERSHEY_SIMPLEX,
                     0.65, (0, 255, 0), 2, cv2.LINE_AA)
     label_boxes = []
+    if priority is not None:
+        status = "SCENE PRIORITY | NO ROBOT POSE | " + ("CALIBRATED" if calibrated else "UNCALIBRATED")
+        cv2.putText(result, status, (15, 84), cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6, (255, 180, 0), 2, cv2.LINE_AA)
     for index, region in enumerate(regions, 1):
         x, y, width, height = region["bbox_px"]
-        cv2.rectangle(result, (x, y), (x + width - 1, y + height - 1), (0, 255, 0), 2)
+        colour = (255, 100, 255) if region.get("priority") == 1 else (0, 255, 0)
+        cv2.rectangle(result, (x, y), (x + width - 1, y + height - 1), colour, 2)
         label = f'{index}: ({region["x_mm"]:.0f}, {region["y_mm"]:.0f}) mm' if calibrated and details else str(index)
         if "half" in region:
             label += ' ' + {"yellow": "Y", "blue": "B", "on_line": "LINE", "unknown": "?"}[region["half"]]
+        if "priority" in region:
+            label = f"P{region['priority']}/" + label
+        if region.get("count_uncertain"):
+            label += " GROUP?"
+        if region.get("priority_deferred"):
+            label += " REVIEW"
         if "direction_arrow_px" in region:
             origin, destination = np.asarray(region["direction_arrow_px"])
             delta = destination - origin
@@ -241,9 +257,9 @@ def annotated(image, regions, field=None, calibrated=True, details=False):
             cv2.arrowedLine(result, start, end, (0, 255, 255), 2, cv2.LINE_AA, tipLength=0.3)
         text_width = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 1)[0][0]
         label_x = max(0, min(x, image.shape[1] - text_width - 5))
-        label_y = max(82, y - 8)
+        label_y = max(110 if priority is not None else 82, y - 8)
         for offset in (0, 22, -22, 44, -44, 66, -66):
-            candidate_y = min(image.shape[0] - 5, max(82, label_y + offset))
+            candidate_y = min(image.shape[0] - 5, max(110 if priority is not None else 82, label_y + offset))
             box = (label_x, candidate_y - 18, label_x + text_width, candidate_y + 4)
             if not any(box[0] < b[2] and box[2] > b[0] and box[1] < b[3] and box[3] > b[1]
                        for b in label_boxes):
@@ -312,10 +328,11 @@ def select_corners(image):
 
 def inspect_photo(image, corners, source, capture=None):
     live = capture is not None
-    name = "2 - Click block | D: coordinates | S: save | R: recalibrate | Esc: quit"
+    name = "2 - Click block | W: wheels | D: coordinates | S: save | R: recalibrate | Esc: quit"
     controls = "Mask and HSV controls"
     sample = None
     details = False
+    wheels_enabled = True
     field = detect_midline(image)
     print("中线检测:", field["reason"], "；本次目标区：黄色")
 
@@ -335,6 +352,7 @@ def inspect_photo(image, corners, source, capture=None):
     for label, (value, maximum) in sliders.items():
         cv2.createTrackbar(label, controls, value, maximum, lambda value: None)
     previous = None
+    priority = rank_scene([], field, calibrated=True)
     mask, regions, result = np.zeros((SIZE, SIZE), np.uint8), [], annotated(image, [], field)
     try:
         while True:
@@ -347,16 +365,21 @@ def inspect_photo(image, corners, source, capture=None):
                 image = rectify(frame, corners)
                 field = detect_midline(image)
             values = [cv2.getTrackbarPos(label, controls) for label in sliders]
-            state = (tuple(sample or []), *values, details)
+            state = (tuple(sample or []), *values, details, wheels_enabled)
             if live or state != previous:
+                robot = detect_robot(image) if wheels_enabled else {
+                    "detected": False, "heading_valid": False, "reason": "WHEELS OFF (W)"}
                 if sample is not None:
                     mask, regions = segment(image, sample, *values, field=field)
+                    regions = exclude_robot_regions(regions, robot)
                     classify_regions(regions, field)
-                    result = annotated(image, regions, field, details=details)
+                    priority = rank_scene(regions, field, calibrated=True)
+                    result = annotated(image, regions, field, details=details, priority=priority)
                     if not live:
                         print(f"识别到 {len(regions)} 个同色区域（相连方块可能合并）。")
                 else:
                     result = annotated(image, [], field)
+                draw_robot(result, robot, calibrated=True, field_mm=FIELD_MM)
                 cv2.imshow(name, cv2.resize(result, (PREVIEW, PREVIEW)))
                 cv2.imshow(controls, cv2.resize(mask, (420, 420), interpolation=cv2.INTER_NEAREST))
                 previous = state
@@ -367,7 +390,9 @@ def inspect_photo(image, corners, source, capture=None):
                 return True
             if key in (ord("d"), ord("D")):
                 details = not details
-            if key in (ord("s"), ord("S")) and sample is not None:
+            if key in (ord("w"), ord("W")):
+                wheels_enabled = not wheels_enabled
+            if key in (ord("s"), ord("S")):
                 folder = OUTPUT / datetime.now().strftime("%Y%m%d-%H%M%S-%f")
                 folder.mkdir(parents=True)
                 write_png(folder / "detected.png", result)
@@ -380,11 +405,15 @@ def inspect_photo(image, corners, source, capture=None):
                           "thresholds": dict(zip(sliders, values)), "regions": regions,
                           "field": field, "target_colour": "yellow",
                           "segmentation": "seeded-colour-v2",
+                          "priority": priority,
+                          "robot": robot,
+                          "robot_coordinates_note": "Ground-plane estimate; wheel height/perspective not compensated. No motor output.",
                           "direction_is_not_a_path_or_motor_command": True}
                 if live:
                     report["captured_at"] = datetime.now().isoformat(timespec="milliseconds")
                     report["corners_in_frame_px"] = report.pop("corners_in_photo_px")
                 (folder / "result.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+                (folder / "priority.md").write_text(priority_markdown(priority), encoding="utf-8")
                 print("已保存到:", folder)
     finally:
         cv2.destroyAllWindows()
@@ -394,6 +423,7 @@ def inspect_camera(index):
     """Preview a Windows webcam, then reuse the calibrated photo controls."""
     name = "Camera | N: next | P: previous | Enter: select corners | Esc: quit"
     capture = None
+    wheels_enabled = True
     try:
         while True:
             if capture is None:
@@ -403,16 +433,34 @@ def inspect_camera(index):
             if ok and frame is not None:
                 scale = min(1100 / frame.shape[1], 720 / frame.shape[0], 1)
                 preview = cv2.resize(frame, None, fx=scale, fy=scale)
+                if wheels_enabled:
+                    draw_robot(preview, detect_robot(preview))
             else:
                 preview = np.zeros((360, 800, 3), np.uint8)
                 cv2.putText(preview, "No video. Check DroidCam, or press N / P.",
                             (15, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-            cv2.putText(preview, f"Camera {index} | N/P: switch | Enter: calibrate",
-                        (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 255, 0), 2)
+            cv2.putText(preview, f"Camera {index} | N/P: switch | W: wheels | S: save",
+                        (10, 25), cv2.FONT_HERSHEY_SIMPLEX, min(.65,preview.shape[1]/900), (0, 255, 0), 1)
+            cv2.putText(preview, "Enter: calibrate field | Esc: quit",
+                        (10, 48), cv2.FONT_HERSHEY_SIMPLEX, min(.6,preview.shape[1]/900), (0, 255, 0), 1)
             cv2.imshow(name, preview)
             key = cv2.waitKey(30) & 0xFF
             if key == 27 or cv2.getWindowProperty(name, cv2.WND_PROP_VISIBLE) < 1:
                 return
+            if key in (ord("w"), ord("W")):
+                wheels_enabled = not wheels_enabled
+            if key in (ord("s"), ord("S")) and ok and frame is not None:
+                folder = OUTPUT / datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+                folder.mkdir(parents=True)
+                robot = detect_robot(frame) if wheels_enabled else {
+                    "detected": False, "heading_valid": False, "reason": "WHEELS OFF (W)"}
+                result = frame.copy()
+                draw_robot(result, robot)
+                write_png(folder / "source.png", frame)
+                write_png(folder / "robot.png", result)
+                (folder / "robot.json").write_text(json.dumps({"robot": robot, "calibrated": False,
+                    "captured_at": datetime.now().isoformat(timespec="milliseconds")}, ensure_ascii=False, indent=2),encoding="utf-8")
+                print("已保存小车定位:", folder)
             if key in (ord("n"), ord("N"), ord("p"), ord("P")):
                 index = max(0, index + (1 if key in (ord("n"), ord("N")) else -1))
                 capture.release()
@@ -433,7 +481,7 @@ def inspect_camera(index):
         cv2.destroyAllWindows()
 
 
-def process_batch(paths, sample, output):
+def process_batch(paths, sample, output, h_tol=10, min_area=150):
     """Reproducible non-GUI photo check, using pixel coordinates only."""
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
@@ -444,30 +492,33 @@ def process_batch(paths, sample, output):
         if scale < 1:
             image = cv2.resize(image, None, fx=scale, fy=scale)
         field = detect_midline(image)
-        mask, regions = segment(image, sample, field=field)
+        mask, regions = segment(image, sample, h_tol=h_tol, min_area=min_area, field=field)
         # segment's millimetres assume a rectified 1200-square image.
         for region in regions:
             region.pop("x_mm")
             region.pop("y_mm")
         classify_regions(regions, field)
-        result = annotated(image, regions, field, calibrated=False)
+        priority = rank_scene(regions, field, calibrated=False)
+        result = annotated(image, regions, field, calibrated=False, priority=priority)
         folder = output / f"photo-{index}"
         folder.mkdir(exist_ok=True)
         write_png(folder / "detected.png", result)
         write_png(folder / "mask.png", mask)
         report = {"source": str(Path(path).resolve()), "processing_scale": scale,
                   "coordinate_unit": "processing image pixels", "calibrated": False,
-                  "sample_hsv": sample, "thresholds": {"h_tol": 10, "s_tol": 70, "v_tol": 90, "min_area": 150},
+                  "sample_hsv": sample, "thresholds": {"h_tol": h_tol, "s_tol": 70, "v_tol": 90, "min_area": min_area},
                   "field": field, "regions": regions,
+                  "priority": priority,
                   "direction_is_not_a_path_or_motor_command": True}
         (folder / "result.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        (folder / "priority.md").write_text(priority_markdown(priority), encoding="utf-8")
         reports.append(report)
         panel = np.full((760, 960, 3), 245, np.uint8)
         ratio = min(940 / result.shape[1], 680 / result.shape[0])
         thumb = cv2.resize(result, None, fx=ratio, fy=ratio)
         th, tw = thumb.shape[:2]
         panel[65:65+th, (960-tw)//2:(960-tw)//2+tw] = thumb
-        cv2.putText(panel, f"Photo {index}: {len(regions)} blocks | line: {field['valid']}",
+        cv2.putText(panel, f"Photo {index}: {len(regions)} regions | {len(priority['groups'])} priority groups",
                     (20, 35), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (20, 20, 20), 2)
         panels.append(panel)
         counts = {half: sum(r["half"] == half for r in regions) for half in ("yellow", "blue", "on_line", "unknown")}
@@ -477,19 +528,191 @@ def process_batch(paths, sample, output):
         rows.append(np.hstack([panels[i], panels[i+1] if i+1 < len(panels) else np.full_like(panels[i], 245)]))
     write_png(output / "overview.png", np.vstack(rows))
     (output / "result.json").write_text(json.dumps(reports, ensure_ascii=False, indent=2), encoding="utf-8")
+    summary = ["# 图片推送候选优先级", "", "每张独立排序；未校正且缺少小车位姿，不能作为实际执行顺序。", ""]
+    for index, report in enumerate(reports, 1):
+        summary += [f"## 图片 {index}：{Path(report['source']).name}", "", priority_markdown(report["priority"])]
+    (output / "priority-summary.md").write_text("\n".join(summary), encoding="utf-8")
     print("Results:", output.resolve())
+
+
+def process_video(path, sample, output, h_tol=10, min_area=150):
+    """Offline per-frame detection/priority preview, without tracking or sound."""
+    output = Path(output)
+    output.mkdir(parents=True, exist_ok=True)
+    capture = cv2.VideoCapture(str(path))
+    writer = None
+    reports, samples = [], []
+    try:
+        if not capture.isOpened():
+            raise ValueError("无法打开视频文件。")
+        fps = capture.get(cv2.CAP_PROP_FPS)
+        if not np.isfinite(fps) or fps <= 0:
+            raise ValueError("视频帧率无效，无法保持原播放速度。")
+        size = None
+        while True:
+            ok, frame = capture.read()
+            if not ok or frame is None:
+                break
+            index = len(reports)
+            if size is None:
+                size = (frame.shape[1], frame.shape[0])
+                writer = cv2.VideoWriter(str(output / "annotated.mp4"),
+                                         cv2.VideoWriter_fourcc(*"mp4v"), fps, size)
+                if not writer.isOpened():
+                    raise ValueError("视频编码器不可用，无法保存识别视频。")
+            if (frame.shape[1], frame.shape[0]) != size:
+                raise ValueError("视频帧尺寸发生变化。")
+            field = detect_midline(frame)
+            mask, regions = segment(frame, sample, h_tol=h_tol, min_area=min_area, field=field)
+            for region in regions:
+                region.pop("x_mm")
+                region.pop("y_mm")
+            classify_regions(regions, field)
+            priority = rank_scene(regions, field, calibrated=False)
+            result = annotated(frame, regions, field, calibrated=False, priority=priority)
+            cv2.putText(result, f"Frame {index} | {index/fps:.2f}s | REGIONS: {len(regions)}",
+                        (15,112), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255,255,255), 2, cv2.LINE_AA)
+            writer.write(result)
+            counts = {half: sum(r["half"] == half for r in regions)
+                      for half in ("yellow", "blue", "on_line", "unknown")}
+            reports.append({"frame": index, "time_s": index/fps, "counts": counts,
+                            "regions": regions, "field": field, "priority": priority})
+            if index % max(1, round(fps)) == 0:
+                write_png(output / f"frame-{index:05d}.png", result)
+                write_png(output / f"mask-{index:05d}.png", mask)
+                ratio = min(420/result.shape[1],700/result.shape[0])
+                samples.append(cv2.resize(result,None,fx=ratio,fy=ratio))
+        if not reports:
+            raise ValueError("视频没有可读取的帧。")
+    finally:
+        capture.release()
+        if writer is not None:
+            writer.release()
+    totals = [sum(r["counts"].values()) for r in reports]
+    report = {"source": str(Path(path).resolve()), "fps": fps, "frame_size_wh": size,
+              "decoded_frames": len(reports), "duration_s": len(reports)/fps,
+              "coordinate_unit": "image pixels", "calibrated": False,
+              "sample_hsv": sample, "thresholds": {"h_tol": h_tol, "s_tol": 70, "v_tol": 90, "min_area": min_area},
+              "audio_preserved": False, "tracking": False, "executable": False,
+              "region_count_min": min(totals), "region_count_max": max(totals),
+              "frames": reports}
+    (output / "result.json").write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding="utf-8")
+    if samples:
+        write_png(output / "overview.png", np.hstack(samples[:8]))
+    print(f"视频完成：{len(reports)} 帧，区域数量 {min(totals)}~{max(totals)}，输出：{output.resolve()}")
+
+
+def rank_saved_results(source, output):
+    """Rank recorded detections without re-segmenting annotated images."""
+    source, output = Path(source).resolve(), Path(output).resolve()
+    if source == output or source in output.parents:
+        raise ValueError("排序输出目录必须独立于输入结果目录。")
+    reports = json.loads((source / "result.json").read_text(encoding="utf-8"))
+    if not isinstance(reports, list):
+        raise ValueError("--rank-results 需要批量识别结果目录。")
+    output.mkdir(parents=True, exist_ok=True)
+    panels, summary = [], ["# 已保存图片的候选推送排序", "", "根据原检测坐标排序；未重新分割图片。", ""]
+    for index, report in enumerate(reports, 1):
+        priority = rank_scene(report["regions"], report["field"], calibrated=report.get("calibrated", False))
+        report["priority"] = priority
+        report["ranking_basis"] = "saved_detection_regions_without_resegmentation"
+        image = read_photo(source / f"photo-{index}" / "detected.png")
+        scale = min(1000 / image.shape[1], 850 / image.shape[0], 1)
+        image = cv2.resize(image, None, fx=scale, fy=scale)
+        canvas = np.full((max(image.shape[0], 650), image.shape[1]+370, 3), 245, np.uint8)
+        canvas[:image.shape[0], :image.shape[1]] = image
+        cv2.rectangle(canvas, (0, 0), (image.shape[1], 65), (35, 35, 35), -1)
+        cv2.putText(canvas, f"Photo {index}: SCENE PRIORITY / NO ROBOT POSE", (10, 25),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(canvas, "Projected image geometry; calibration required", (10, 48),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 220, 255), 1, cv2.LINE_AA)
+        for region in report["regions"]:
+            if "priority" not in region and not region.get("priority_deferred"):
+                continue
+            x, y, w, h = [round(v*scale) for v in region["bbox_px"]]
+            colour = (0, 150, 255) if region.get("priority_deferred") else (255, 80, 255) if region["priority"] == 1 else (255, 220, 0)
+            cv2.rectangle(canvas, (x-3,y-3), (x+w+3,y+h+3), colour, 2)
+            label = "REVIEW" if region.get("priority_deferred") else f"P{region['priority']}" + (" ?" if region["count_uncertain"] else "")
+            cv2.putText(canvas, label,
+                        (x, min(image.shape[0]-5,y+h+16)), cv2.FONT_HERSHEY_SIMPLEX, 0.55, colour, 2)
+        left = image.shape[1]+15
+        cv2.putText(canvas, "TARGET: YELLOW", (left, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (20,20,20), 2)
+        for row, group in enumerate(priority["groups"]):
+            y = 70 + row*83
+            ids = ",".join(map(str, group["region_ids"]))
+            cv2.putText(canvas, f"P{group['rank']}: region {ids}", (left,y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (60,20,90), 1)
+            cv2.putText(canvas, f"score {group['score']:.2f} | {group['region_count']} region(s)",
+                        (left,y+22), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (40,40,40), 1)
+            note = "CHECK GEOMETRY" if group["geometry_risk"] else "GROUP COUNT UNKNOWN" if group["count_uncertain"] else "RECHECK AFTER PUSH"
+            cv2.putText(canvas, note, (left,y+44), cv2.FONT_HERSHEY_SIMPLEX, 0.43, (0,70,180), 1)
+        if not priority["groups"]:
+            cv2.putText(canvas, "NO RANKABLE CANDIDATE", (left,75), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0,70,180), 1)
+        if priority["deferred"]:
+            y = min(canvas.shape[0]-60, 85+len(priority["groups"])*83)
+            cv2.putText(canvas, "ORANGE: REVIEW / NO CLEAR LANE", (left,y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0,90,190), 1)
+        folder = output / f"photo-{index}"
+        folder.mkdir(exist_ok=True)
+        write_png(folder / "ranked.png", canvas)
+        (folder / "result.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        (folder / "priority.md").write_text(priority_markdown(priority), encoding="utf-8")
+        summary += [f"## 图片 {index}：{Path(report['source']).name}", "", priority_markdown(priority)]
+        panel = np.full((650, 1000, 3), 245, np.uint8)
+        ratio = min(1000/canvas.shape[1],650/canvas.shape[0])
+        thumb = cv2.resize(canvas,None,fx=ratio,fy=ratio)
+        panel[:thumb.shape[0], :thumb.shape[1]] = thumb
+        panels.append(panel)
+        print(f"Photo {index}: " + str([(g['rank'],g['region_ids'],g['score'],g['geometry_risk']) for g in priority['groups']]))
+    if panels:
+        if len(panels)%2:
+            panels.append(np.full_like(panels[0],245))
+        write_png(output / "overview.png", np.vstack([np.hstack(panels[i:i+2]) for i in range(0,len(panels),2)]))
+    (output / "result.json").write_text(json.dumps(reports, ensure_ascii=False, indent=2), encoding="utf-8")
+    (output / "priority-summary.md").write_text("\n".join(summary), encoding="utf-8")
+    print("Priority results:", output)
 
 
 def main():
     parser = argparse.ArgumentParser(description="OpenCV 手机照片识别：标定四角，点击取色，S 保存。")
     parser.add_argument("image", nargs="?", help="JPG/PNG 文件路径；留空则弹出选择窗口")
     parser.add_argument("--demo", action="store_true", help="用合成演示图练习操作")
+    parser.add_argument("--robot-photo", action="store_true", help="仅检查照片中的四红轮小车，无窗口，配合照片路径和 --output")
     parser.add_argument("--camera", nargs="?", const=0, type=int, metavar="INDEX",
                         help="实时摄像头识别，默认编号 0；预览时 N/P 切换摄像头")
     parser.add_argument("--batch", nargs="+", metavar="PHOTO", help="无窗口批量检查：检测中线、分区及朝黄色区的方向")
+    parser.add_argument("--video", metavar="FILE", help="逐帧识别视频并导出标注视频和优先级 JSON，无音轨")
+    parser.add_argument("--rank-results", metavar="FOLDER", help="对已保存的批量检测结果增加候选推送优先级")
     parser.add_argument("--sample-hsv", nargs=3, type=int, default=[3, 196, 148], help="批量模式的方块取色 H S V")
-    parser.add_argument("--output", default=str(OUTPUT / "midline-batch"), help="批量结果目录")
+    parser.add_argument("--h-tol", type=int, default=10, help="照片批量/视频色相容差，0~90")
+    parser.add_argument("--min-area", type=int, default=150, help="照片批量/视频最小区域像素面积")
+    parser.add_argument("--output", help="批量结果目录")
     args = parser.parse_args()
+    if args.robot_photo:
+        if not args.image or args.demo or args.camera is not None or args.batch or args.video or args.rank_results:
+            parser.error("--robot-photo 需提供照片路径，不能与其他输入模式同用")
+        image = read_photo(args.image)
+        robot = detect_robot(image)
+        folder = Path(args.output) if args.output else OUTPUT / "robot-photo"
+        folder.mkdir(parents=True, exist_ok=True)
+        draw_robot(image, robot)
+        write_png(folder / "robot.png", image)
+        (folder / "robot.json").write_text(json.dumps({"source":str(Path(args.image).resolve()),
+            "calibrated":False,"robot":robot},ensure_ascii=False,indent=2),encoding="utf-8")
+        print("小车定位:", robot["reason"], "；结果:", folder.resolve())
+        return
+    if args.video or args.batch:
+        if not (0 <= args.sample_hsv[0] <= 179 and all(0 <= v <= 255 for v in args.sample_hsv[1:])
+                and 0 <= args.h_tol <= 90 and args.min_area >= 1):
+            parser.error("HSV: H=0..179、S/V=0..255；色相容差=0..90；最小面积>=1")
+    if args.video:
+        if args.image or args.demo or args.batch or args.rank_results or args.camera is not None:
+            parser.error("--video 不能与其他输入模式同用")
+        process_video(args.video,args.sample_hsv,args.output or OUTPUT/"video",args.h_tol,args.min_area)
+        return
+    if args.rank_results:
+        if args.image or args.demo or args.batch or args.camera is not None:
+            parser.error("--rank-results 不能与其他输入模式同用")
+        rank_saved_results(args.rank_results, args.output or OUTPUT / "scene-priority")
+        return
     if args.camera is not None:
         if args.camera < 0 or args.image or args.demo or args.batch:
             parser.error("--camera 需要非负编号，不能与照片、--demo 或 --batch 同用")
@@ -498,7 +721,7 @@ def main():
     if args.batch:
         if not (0 <= args.sample_hsv[0] <= 179 and all(0 <= v <= 255 for v in args.sample_hsv[1:])):
             parser.error("HSV must be H=0..179, S/V=0..255")
-        process_batch(args.batch, args.sample_hsv, args.output)
+        process_batch(args.batch, args.sample_hsv, args.output or OUTPUT / "midline-batch", args.h_tol, args.min_area)
         return
     if args.demo:
         image, source = demo_image(), "synthetic-demo"

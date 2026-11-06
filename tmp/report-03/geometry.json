@@ -1,0 +1,707 @@
+[
+  {
+    "items": [
+      {
+        "text": "PROJECT PROGRESS · 03",
+        "x": 90,
+        "y": 72,
+        "w": 1420,
+        "h": 27,
+        "size": 20,
+        "line": 24,
+        "bold": false,
+        "color": "rgb(105, 116, 108)",
+        "kicker": true
+      },
+      {
+        "text": "Block-Pushing\nRobot",
+        "x": 90,
+        "y": 152,
+        "w": 1420,
+        "h": 255.234375,
+        "size": 108,
+        "line": 111.24,
+        "bold": true,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "Completed work & next steps",
+        "x": 90,
+        "y": 424.46875,
+        "w": 1420,
+        "h": 40,
+        "size": 30,
+        "line": 42,
+        "bold": false,
+        "color": "rgb(105, 116, 108)",
+        "kicker": false
+      },
+      {
+        "text": "阶段成果与后续计划",
+        "x": 90,
+        "y": 545.46875,
+        "w": 1420,
+        "h": 35,
+        "size": 26,
+        "line": 31.2,
+        "bold": false,
+        "color": "rgb(105, 116, 108)",
+        "kicker": false
+      },
+      {
+        "text": "2 November 2026",
+        "x": 90,
+        "y": 810,
+        "w": 1420,
+        "h": 30,
+        "size": 22,
+        "line": 26.4,
+        "bold": false,
+        "color": "rgb(105, 116, 108)",
+        "kicker": false
+      }
+    ],
+    "rules": [
+      {
+        "x": 90,
+        "y": 517.46875,
+        "w": 100,
+        "h": 4,
+        "cover": true
+      }
+    ],
+    "notes": "大家好，这次汇报主要介绍我们这一阶段已经完成的工作，以及接下来的测试和实施计划。"
+  },
+  {
+    "items": [
+      {
+        "text": "PROGRESS OVERVIEW",
+        "x": 90,
+        "y": 72,
+        "w": 1420,
+        "h": 27,
+        "size": 20,
+        "line": 24,
+        "bold": false,
+        "color": "rgb(105, 116, 108)",
+        "kicker": true
+      },
+      {
+        "text": "A working foundation\nfor system integration.",
+        "x": 90,
+        "y": 114,
+        "w": 1420,
+        "h": 151.1875,
+        "size": 62,
+        "line": 68.2,
+        "bold": true,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "The robot can move forward, reverse and turn under PC serial control.",
+        "x": 90,
+        "y": 335.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "Live camera processing and a robot localization prototype are now available.",
+        "x": 90,
+        "y": 429.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "Wireless and single-target approach test software has been prepared for hardware validation.",
+        "x": 90,
+        "y": 523.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      }
+    ],
+    "rules": [
+      {
+        "x": 90,
+        "y": 308.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 402.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 496.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      }
+    ],
+    "notes": "这一阶段，我们主要完成了三个方面的工作：小车已经能够通过电脑串口实现基本移动；视觉程序已经支持实时画面和小车定位原型；同时准备了无线联动和单目标接近的测试程序。整体正在从单独模块开发走向系统联调，但完整自主推块还没有完成。"
+  },
+  {
+    "items": [
+      {
+        "text": "COMPLETED WORK · VISION",
+        "x": 90,
+        "y": 72,
+        "w": 1420,
+        "h": 27,
+        "size": 20,
+        "line": 24,
+        "bold": false,
+        "color": "rgb(105, 116, 108)",
+        "kicker": true
+      },
+      {
+        "text": "Live field images\ncan now be processed.",
+        "x": 90,
+        "y": 114,
+        "w": 1420,
+        "h": 151.1875,
+        "size": 62,
+        "line": 68.2,
+        "bold": true,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "A phone connected by USB provides live images to the computer.",
+        "x": 90,
+        "y": 335.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "The program supports field correction, block detection and blue/yellow region identification.",
+        "x": 90,
+        "y": 429.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "Annotated images and detection results can be saved for review and further tuning.",
+        "x": 90,
+        "y": 523.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      }
+    ],
+    "rules": [
+      {
+        "x": 90,
+        "y": 308.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 402.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 496.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      }
+    ],
+    "notes": "视觉方面，我们已经通过USB连接手机，把实时画面送入电脑。程序能够进行场地四角校正、方块识别和蓝黄分区，也能保存原始画面、标注图和检测数据，方便复查。真实照片和视频中已经做过检测，但反光、相邻方块粘连和部分漏检仍需优化。"
+  },
+  {
+    "items": [
+      {
+        "text": "COMPLETED WORK · LOCALIZATION",
+        "x": 90,
+        "y": 72,
+        "w": 1420,
+        "h": 27,
+        "size": 20,
+        "line": 24,
+        "bold": false,
+        "color": "rgb(105, 116, 108)",
+        "kicker": true
+      },
+      {
+        "text": "Robot position and heading\ncan be estimated.",
+        "x": 90,
+        "y": 114,
+        "w": 1420,
+        "h": 151.1875,
+        "size": 62,
+        "line": 68.2,
+        "bold": true,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "The prototype detects four red wheels and estimates the robot center.",
+        "x": 90,
+        "y": 335.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "The front and rear wheel spacing is used to determine its heading.",
+        "x": 90,
+        "y": 429.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "Position markers and a heading arrow are displayed in the camera view; field accuracy still needs testing.",
+        "x": 90,
+        "y": 523.375,
+        "w": 1310,
+        "h": 85,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      }
+    ],
+    "rules": [
+      {
+        "x": 90,
+        "y": 308.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 402.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 496.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      }
+    ],
+    "notes": "小车定位已经采用四个红色轮胎作为识别特征，根据前后轮间距的区别判断车头方向，并在画面上显示中心和朝向箭头。参考照片及其旋转后的图像已完成检查。当前仍是定位原型，四轮缺失或朝向不明确时不会输出有效朝向，全场精度和遮挡影响还需要现场测试。"
+  },
+  {
+    "items": [
+      {
+        "text": "COMPLETED WORK · MOTION",
+        "x": 90,
+        "y": 72,
+        "w": 1420,
+        "h": 27,
+        "size": 20,
+        "line": 24,
+        "bold": false,
+        "color": "rgb(105, 116, 108)",
+        "kicker": true
+      },
+      {
+        "text": "Basic movement\nhas been achieved.",
+        "x": 90,
+        "y": 114,
+        "w": 1420,
+        "h": 151.1875,
+        "size": 62,
+        "line": 68.2,
+        "bold": true,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "The ESP32, motor driver and motors form the current control setup.",
+        "x": 90,
+        "y": 335.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "PC serial commands can move the robot forward, reverse, left and right.",
+        "x": 90,
+        "y": 429.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "This provides a practical basis for the next round of wireless movement and stopping tests.",
+        "x": 90,
+        "y": 523.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      }
+    ],
+    "rules": [
+      {
+        "x": 90,
+        "y": 308.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 402.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 496.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      }
+    ],
+    "notes": "硬件控制方面，目前采用ESP32、驱动模块和电机的控制组合。已经确认小车能够通过电脑串口实现前进、后退、左转和右转，说明基本控制通路已经建立。接下来会继续检查重复动作、转向和停车表现，再开展无线联动测试。"
+  },
+  {
+    "items": [
+      {
+        "text": "INTEGRATION PREPARATION",
+        "x": 90,
+        "y": 72,
+        "w": 1420,
+        "h": 27,
+        "size": 20,
+        "line": 24,
+        "bold": false,
+        "color": "rgb(105, 116, 108)",
+        "kicker": true
+      },
+      {
+        "text": "Test software is ready.\nHardware validation comes next.",
+        "x": 90,
+        "y": 114,
+        "w": 1420,
+        "h": 151.1875,
+        "size": 62,
+        "line": 68.2,
+        "bold": true,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "The Wi-Fi test can request short movements and includes time-limited stopping logic.",
+        "x": 90,
+        "y": 335.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "The approach test uses visual observations to adjust direction and stop at an approach point.",
+        "x": 90,
+        "y": 429.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "Software checks and firmware compilation passed; the new tests still await firmware upload and real-world validation.",
+        "x": 90,
+        "y": 523.375,
+        "w": 1310,
+        "h": 85,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      }
+    ],
+    "rules": [
+      {
+        "x": 90,
+        "y": 308.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 402.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 496.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      }
+    ],
+    "notes": "联动方面，我们准备了两类测试程序。一类是视觉与Wi-Fi短动作测试，另一类是根据画面调整方向、接近目标点后停止的测试。相关软件检查和固件编译已经通过，但新增固件尚未烧录，实车动作也没有验证。这里的成果是测试程序和软件准备，不能表述为已经完成自主接近或自主推块。"
+  },
+  {
+    "items": [
+      {
+        "text": "NEXT PLAN · FIELD TESTING",
+        "x": 90,
+        "y": 72,
+        "w": 1420,
+        "h": 27,
+        "size": 20,
+        "line": 24,
+        "bold": false,
+        "color": "rgb(105, 116, 108)",
+        "kicker": true
+      },
+      {
+        "text": "Validate vision and motion\non the real field.",
+        "x": 90,
+        "y": 114,
+        "w": 1420,
+        "h": 151.1875,
+        "size": 62,
+        "line": 68.2,
+        "bold": true,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "Fix the camera position and check detection at the center and edges of the field.",
+        "x": 90,
+        "y": 335.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "Upload the test firmware, then verify motor direction, short movements and stopping with the wheels raised.",
+        "x": 90,
+        "y": 429.375,
+        "w": 1310,
+        "h": 85,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "Proceed to low-speed ground tests and record positioning error and stopping behavior.",
+        "x": 90,
+        "y": 568.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      }
+    ],
+    "rules": [
+      {
+        "x": 90,
+        "y": 308.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 402.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 541.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      }
+    ],
+    "notes": "接下来先把摄像头固定好，检查场地中心、边缘和转向过程中，小车与方块能否持续识别。然后烧录测试固件，先架空核对电机方向、短动作和停止，再进行低速落地测试。测试过程中记录定位误差、动作表现和停车情况，用结果来调整参数。"
+  },
+  {
+    "items": [
+      {
+        "text": "NEXT PLAN · MILESTONE",
+        "x": 90,
+        "y": 72,
+        "w": 1420,
+        "h": 27,
+        "size": 20,
+        "line": 24,
+        "bold": false,
+        "color": "rgb(105, 116, 108)",
+        "kicker": true
+      },
+      {
+        "text": "Complete one task\nbefore expanding the system.",
+        "x": 90,
+        "y": 114,
+        "w": 1420,
+        "h": 151.1875,
+        "size": 62,
+        "line": 68.2,
+        "bold": true,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "First demonstrate reliable detection, approach and stopping for one target.",
+        "x": 90,
+        "y": 335.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "Then add the pushing action and record one complete physical trial.",
+        "x": 90,
+        "y": 429.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      },
+      {
+        "text": "In parallel, check the chassis footprint and evaluate tire size and grip.",
+        "x": 90,
+        "y": 523.375,
+        "w": 1310,
+        "h": 40,
+        "size": 30,
+        "line": 45,
+        "bold": false,
+        "color": "rgb(36, 59, 52)",
+        "kicker": false
+      }
+    ],
+    "rules": [
+      {
+        "x": 90,
+        "y": 308.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 402.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      },
+      {
+        "x": 90,
+        "y": 496.375,
+        "w": 1310,
+        "h": 1,
+        "cover": false
+      }
+    ],
+    "notes": "近期目标是先完成一个可验证的小任务：稳定识别一个目标，自动接近并在接近点停车。这个过程可靠后，再加入推送动作，录制一次完整实车试验。同时继续核对整车占地，评估轮胎尺寸和抓地表现。先把单目标流程做稳定，再逐步增加任务复杂度。"
+  },
+  {
+    "items": [],
+    "rules": [],
+    "notes": "空白页，可按需补充内容。"
+  },
+  {
+    "items": [],
+    "rules": [],
+    "notes": "空白页，可按需补充内容。"
+  },
+  {
+    "items": [],
+    "rules": [],
+    "notes": "空白页，可按需补充内容。"
+  }
+]

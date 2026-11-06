@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Block-Pushing Robot · Completed Work and Next Steps</title>
+<style>
+:root{--paper:#f5f4ee;--ink:#243b34;--muted:#69746c;--line:#cdd2c8;--accent:#3f7159;--warm:#936239}
+*{box-sizing:border-box}body{margin:0;background:#dcded6;color:var(--ink);font-family:"Segoe UI","Microsoft YaHei",sans-serif;overflow:hidden}#viewport{position:fixed;inset:0}#stage{position:absolute;width:1600px;height:900px;transform-origin:top left;background:var(--paper)}
+.slide{position:absolute;inset:0;padding:72px 90px;visibility:hidden;background:var(--paper)}.slide.active{visibility:visible}.kicker{font-size:20px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:0 0 23px}h1,h2,h3,p{margin:0}h1,h2{font-size:62px;line-height:1.1;font-weight:600;letter-spacing:-1.8px}h3{font-size:31px;line-height:1.25;font-weight:600}.lead{font-size:27px;color:var(--muted);line-height:1.4;margin-top:23px}.flow{display:grid;grid-template-columns:1fr 58px 1fr 58px 1fr;align-items:center;margin-top:68px}.node{border-top:3px solid var(--accent);padding-top:25px;min-height:180px}.node p{font-size:25px;color:var(--muted);line-height:1.5;margin-top:15px}.arrow{text-align:center;font-size:40px;color:var(--muted)}.band{border-top:1px solid var(--line);margin-top:46px;padding-top:24px;display:flex;justify-content:space-between;gap:40px}.band p{font-size:25px;line-height:1.5}.band strong{display:block;font-size:19px;color:var(--muted);font-weight:500;margin-bottom:8px}.bottom{position:absolute;bottom:60px;left:90px;right:90px;font-size:22px;color:var(--muted)}table{border-collapse:collapse;width:100%;margin-top:45px;font-size:25px;line-height:1.35}th{text-align:left;font-size:19px;font-weight:500;color:var(--muted);padding:0 0 14px}td{border-top:1px solid var(--line);padding:24px 0;vertical-align:top}td:first-child{width:210px;font-weight:600}td:nth-child(2){width:760px;padding-right:35px}.status{display:inline-block;font-size:20px;color:var(--accent)}.status.pending{color:var(--warm)}.statement{font-size:28px;margin-top:34px;font-weight:600}.rows{margin-top:46px}.row{display:grid;grid-template-columns:70px 370px 1fr;gap:25px;border-top:1px solid var(--line);padding:23px 0}.number{font-size:29px;color:var(--accent)}.row p{font-size:27px;line-height:1.45;color:var(--muted)}.row h3{font-size:30px}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:44px;margin-top:66px}.step{border-top:3px solid var(--accent);padding-top:25px}.step h3{margin-top:22px;font-size:32px}.step p{font-size:26px;line-height:1.5;color:var(--muted);margin-top:20px}.outcome{font-size:24px;line-height:1.4;border-top:1px solid var(--line);padding-top:20px;margin-top:30px}.outcome strong{display:block;color:var(--accent);font-size:19px;margin-bottom:9px;font-weight:500}.milestone{font-size:73px;line-height:1.14;letter-spacing:-2px;max-width:1160px;margin-top:52px}.checks{display:flex;gap:48px;margin-top:60px;padding-top:26px;border-top:1px solid var(--line)}.checks div{flex:1;font-size:26px;line-height:1.45}.checks span{display:block;font-size:19px;color:var(--muted);margin-bottom:13px}.next{margin-top:50px;font-size:26px;color:var(--muted)}
+nav{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:9px;padding:7px 12px;border:1px solid #c4cabf;border-radius:8px;background:#f5f4eef2;color:var(--muted);z-index:10;font-size:13px}button{font:inherit;border:0;background:transparent;color:var(--ink);cursor:pointer;padding:6px 10px;border-radius:4px}button:hover{background:#e3e6dc}button:focus-visible{outline:2px solid var(--accent)}#notes{display:none;position:fixed;bottom:68px;left:50%;transform:translateX(-50%);width:min(850px,92vw);max-height:45vh;overflow:auto;background:#fffef9;border:1px solid var(--line);padding:24px 28px;z-index:20;font-size:18px;line-height:1.8;box-shadow:0 8px 30px #243b3420}#notes.open{display:block}#notes h3{font-size:19px;margin-bottom:8px}#notes .source{font-size:14px;color:var(--muted);margin-top:12px}
+@media print{@page{size:1600px 900px;margin:0}body{background:white;overflow:visible}#viewport{position:static}#stage{position:static;transform:none!important;width:1600px;height:auto}.slide{position:relative;visibility:visible;width:1600px;height:900px;break-after:page;page-break-after:always}.slide:last-child{break-after:auto}nav,#notes{display:none!important}}
+.key-points{margin-top:74px;max-width:1280px}.key-points p{font-size:36px;line-height:1.4;padding:27px 0;border-top:1px solid var(--line)}.cover h1{font-size:108px;margin-top:70px;line-height:1.03}.cover .lead{margin-top:32px;font-size:30px}.cover-rule{width:100px;height:4px;background:var(--accent);margin-top:52px}.cover-sub{font-size:26px;color:var(--muted);margin-top:24px}
+.report-copy{margin-top:50px;max-width:1310px}.report-copy p{font-size:30px;line-height:1.5;margin-top:24px;padding-top:24px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<main id="viewport"><div id="stage">
+<section class="slide active cover" aria-label="1. Project cover"><p class="kicker">Project progress · 03</p><h1>Block-Pushing<br>Robot</h1><p class="lead">Completed work &amp; next steps</p><div class="cover-rule"></div><p class="cover-sub">阶段成果与后续计划</p><p class="bottom">2 November 2026</p></section>
+<section class="slide" aria-label="2. Progress overview"><p class="kicker">Progress overview</p><h2>A working foundation<br>for system integration.</h2><div class="report-copy"><p>The robot can move forward, reverse and turn under PC serial control.</p>
+<p>Live camera processing and a robot localization prototype are now available.</p>
+<p>Wireless and single-target approach test software has been prepared for hardware validation.</p></div></section>
+<section class="slide" aria-label="3. Completed work · Vision"><p class="kicker">Completed work · Vision</p><h2>Live field images<br>can now be processed.</h2><div class="report-copy"><p>A phone connected by USB provides live images to the computer.</p>
+<p>The program supports field correction, block detection and blue/yellow region identification.</p>
+<p>Annotated images and detection results can be saved for review and further tuning.</p></div></section>
+<section class="slide" aria-label="4. Completed work · Localization"><p class="kicker">Completed work · Localization</p><h2>Robot position and heading<br>can be estimated.</h2><div class="report-copy"><p>The prototype detects four red wheels and estimates the robot center.</p>
+<p>The front and rear wheel spacing is used to determine its heading.</p>
+<p>Position markers and a heading arrow are displayed in the camera view; field accuracy still needs testing.</p></div></section>
+<section class="slide" aria-label="5. Completed work · Motion"><p class="kicker">Completed work · Motion</p><h2>Basic movement<br>has been achieved.</h2><div class="report-copy"><p>The ESP32, motor driver and motors form the current control setup.</p>
+<p>PC serial commands can move the robot forward, reverse, left and right.</p>
+<p>This provides a practical basis for the next round of wireless movement and stopping tests.</p></div></section>
+<section class="slide" aria-label="6. Integration preparation"><p class="kicker">Integration preparation</p><h2>Test software is ready.<br>Hardware validation comes next.</h2><div class="report-copy"><p>The Wi-Fi test can request short movements and includes time-limited stopping logic.</p>
+<p>The approach test uses visual observations to adjust direction and stop at an approach point.</p>
+<p>Software checks and firmware compilation passed; the new tests still await firmware upload and real-world validation.</p></div></section>
+<section class="slide" aria-label="7. Next plan · Field testing"><p class="kicker">Next plan · Field testing</p><h2>Validate vision and motion<br>on the real field.</h2><div class="report-copy"><p>Fix the camera position and check detection at the center and edges of the field.</p>
+<p>Upload the test firmware, then verify motor direction, short movements and stopping with the wheels raised.</p>
+<p>Proceed to low-speed ground tests and record positioning error and stopping behavior.</p></div></section>
+<section class="slide" aria-label="8. Next plan · Milestone"><p class="kicker">Next plan · Milestone</p><h2>Complete one task<br>before expanding the system.</h2><div class="report-copy"><p>First demonstrate reliable detection, approach and stopping for one target.</p>
+<p>Then add the pushing action and record one complete physical trial.</p>
+<p>In parallel, check the chassis footprint and evaluate tire size and grip.</p></div></section>
+<section class="slide" aria-label="9. Blank page"></section>
+<section class="slide" aria-label="10. Blank page"></section>
+<section class="slide" aria-label="11. Blank page"></section>
+</div></main>
+<nav aria-label="Presentation controls"><button id="prev" aria-label="Previous slide">←</button><span id="counter" aria-live="polite">1 / 11</span><button id="next" aria-label="Next slide">→</button><button id="noteButton" aria-expanded="false" aria-controls="notes">讲稿 N</button><button id="fullscreen">全屏 F</button></nav>
+<aside id="notes" aria-label="中文讲稿"><h3>中文讲稿</h3><p id="noteText"></p><p class="source">1页封面＋7页正文＋3页空白页。聚焦阶段成果与后续计划。英文页面、中文讲稿，约3分钟。方向键翻页，N讲稿，F全屏。依据截至2026-10-27的项目记录。</p></aside>
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const notes=["大家好，这次汇报主要介绍我们这一阶段已经完成的工作，以及接下来的测试和实施计划。","这一阶段，我们主要完成了三个方面的工作：小车已经能够通过电脑串口实现基本移动；视觉程序已经支持实时画面和小车定位原型；同时准备了无线联动和单目标接近的测试程序。整体正在从单独模块开发走向系统联调，但完整自主推块还没有完成。","视觉方面，我们已经通过USB连接手机，把实时画面送入电脑。程序能够进行场地四角校正、方块识别和蓝黄分区，也能保存原始画面、标注图和检测数据，方便复查。真实照片和视频中已经做过检测，但反光、相邻方块粘连和部分漏检仍需优化。","小车定位已经采用四个红色轮胎作为识别特征，根据前后轮间距的区别判断车头方向，并在画面上显示中心和朝向箭头。参考照片及其旋转后的图像已完成检查。当前仍是定位原型，四轮缺失或朝向不明确时不会输出有效朝向，全场精度和遮挡影响还需要现场测试。","硬件控制方面，目前采用ESP32、驱动模块和电机的控制组合。已经确认小车能够通过电脑串口实现前进、后退、左转和右转，说明基本控制通路已经建立。接下来会继续检查重复动作、转向和停车表现，再开展无线联动测试。","联动方面，我们准备了两类测试程序。一类是视觉与Wi-Fi短动作测试，另一类是根据画面调整方向、接近目标点后停止的测试。相关软件检查和固件编译已经通过，但新增固件尚未烧录，实车动作也没有验证。这里的成果是测试程序和软件准备，不能表述为已经完成自主接近或自主推块。","接下来先把摄像头固定好，检查场地中心、边缘和转向过程中，小车与方块能否持续识别。然后烧录测试固件，先架空核对电机方向、短动作和停止，再进行低速落地测试。测试过程中记录定位误差、动作表现和停车情况，用结果来调整参数。","近期目标是先完成一个可验证的小任务：稳定识别一个目标，自动接近并在接近点停车。这个过程可靠后，再加入推送动作，录制一次完整实车试验。同时继续核对整车占地，评估轮胎尺寸和抓地表现。先把单目标流程做稳定，再逐步增加任务复杂度。","空白页，可按需补充内容。","空白页，可按需补充内容。","空白页，可按需补充内容。"];
+let current=0;
+function resize(){const scale=Math.min(innerWidth/1600,innerHeight/900);document.getElementById('stage').style.transform=`translate(${(innerWidth-1600*scale)/2}px,${(innerHeight-900*scale)/2}px) scale(${scale})`;}
+function show(index){current=Math.max(0,Math.min(slides.length-1,index));slides.forEach((s,i)=>{s.classList.toggle('active',i===current);s.setAttribute('aria-hidden',String(i!==current));});document.getElementById('counter').textContent=`${current+1} / ${slides.length}`;document.getElementById('noteText').textContent=notes[current];}
+function toggleNotes(){const open=document.getElementById('notes').classList.toggle('open');document.getElementById('noteButton').setAttribute('aria-expanded',String(open));}
+async function fullscreen(){try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{}}
+document.getElementById('prev').onclick=()=>show(current-1);document.getElementById('next').onclick=()=>show(current+1);document.getElementById('noteButton').onclick=toggleNotes;document.getElementById('fullscreen').onclick=fullscreen;
+addEventListener('resize',resize);addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();show(current+1);}else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();show(current-1);}else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);else if(e.key.toLowerCase()==='n')toggleNotes();else if(e.key.toLowerCase()==='f')fullscreen();else if(e.key==='Escape'){document.getElementById('notes').classList.remove('open');document.getElementById('noteButton').setAttribute('aria-expanded','false');}});
+resize();show(0);
+</script></body></html>
+
+
+

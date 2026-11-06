@@ -118,6 +118,15 @@ def distance(a, b):
     return hypot(a.x - b.x, a.y - b.y)
 
 
+def capture_centers(lateral_positions, half_width, extra=()):
+    """Candidate corridor centres shared by the planner and image preview."""
+    positions = tuple(lateral_positions)
+    centers = {*extra, *positions}
+    centers.update((a + b) / 2 for a in positions for b in positions
+                   if abs(a - b) <= 2 * half_width)
+    return sorted(centers)
+
+
 def revise_task_for_endgame(config, task, robot, execution_state):
     """Shared policy for a task already executing when ENDGAME begins.
 
@@ -235,10 +244,7 @@ class Planner:
              distance(b, opponent) < c.threat_distance_mm))]
         half_width = c.pusher_width_mm / 2 - c.side_margin_mm - c.block_half_mm
         side_clearance = c.pusher_width_mm / 2 + c.side_margin_mm
-        centers = {world.robot.x, *(b.x for b in eligible)}
-        centers.update((a.x + b.x) / 2 for a in eligible for b in eligible
-                       if abs(a.x - b.x) <= 2 * half_width)
-        for center in sorted(centers):
+        for center in capture_centers((b.x for b in eligible), half_width, (world.robot.x,)):
             if not side_clearance <= center <= c.field_mm - side_clearance:
                 continue
             targets = [b for b in eligible if abs(b.x - center) <= half_width]

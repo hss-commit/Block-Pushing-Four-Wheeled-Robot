@@ -58,6 +58,9 @@ def main():
         assert report["field"]["valid"] and report["captured_at"]
         assert (report_path.parent / "source.png").exists()
         assert report["corners_in_frame_px"] == corners
+        assert report["priority"]["mode"] == "scene_preview_without_robot_pose"
+        assert not report["priority"]["executable"]
+        assert (report_path.parent / "priority.md").exists()
         try:
             vision.inspect_photo(frame, corners, source, capture)
         except ValueError as error:
@@ -78,6 +81,26 @@ def main():
             pass
         device.release.assert_called_once()
         print("PASS: camera released after processing failure")
+
+        robot_frame = np.full((800,800,3),210,np.uint8)
+        for x,y in ((260,260),(260,540),(500,240),(500,560)):
+            cv2.circle(robot_frame,(x,y),27,(0,0,230),-1)
+            cv2.circle(robot_frame,(x,y),13,(15,15,15),-1)
+        preview_device = Mock()
+        preview_device.read.return_value = (True,robot_frame)
+        with patch.object(cv2,"VideoCapture",return_value=preview_device), \
+             patch.object(cv2,"waitKey",side_effect=[ord('s'),27]):
+            vision.inspect_camera(0)
+        preview_device.release.assert_called_once()
+        saved = list((root/'results').glob('*/robot.json'))
+        assert len(saved)==1,saved
+        robot_report=json.loads(saved[0].read_text(encoding='utf-8'))
+        assert not robot_report['calibrated']
+        assert robot_report['robot']['heading_valid']
+        assert abs(robot_report['robot']['heading_rad'])<.05
+        assert (saved[0].parent/'source.png').exists()
+        assert (saved[0].parent/'robot.png').exists()
+        print('PASS: camera preview detects car and saves source/overlay/robot JSON without calibration')
 
 
 if __name__ == "__main__":
