@@ -11,13 +11,16 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 #include <freertos/task.h>
+#include "manual_ramp.h"
 
 // Same wiring and motor command as the existing four-motor test.
 constexpr int kMotorTx = 17;
 constexpr uint32_t kPulseMs = 250;
+constexpr uint32_t kManualHoldMs = 700;
 constexpr char kProtocol[] = "vision-pulse-v1";
 constexpr char kStop[] = "$Car:0,0,0,0!";
 constexpr char kForward[] = "$Car:0.1,0.1,0.1,0.1!";
+constexpr char kBackward[] = "$Car:-0.1,-0.1,-0.1,-0.1!";
 constexpr char kLeft[] = "$Car:-0.1,0.1,-0.1,0.1!"; // A/C left, B/D right
 constexpr char kRight[] = "$Car:0.1,-0.1,0.1,-0.1!";
 #ifdef VISION_BLUETOOTH
@@ -51,15 +54,35 @@ void requestStop() {
 void motorTask(void *) {
   bool moving = false;
   uint32_t stopAt = 0, lastStop = 0;
+  uint8_t manualCommand = 0;
+  uint32_t manualStartedAt = 0, lastManualWrite = 0;
   while (true) {
     uint8_t command;
     if (xQueueReceive(commands, &command, pdMS_TO_TICKS(10)) == pdTRUE) {
-      if (command >= 1 && command <= 4 && !moving) {
+      if (command >= 6 && command <= 9) {
+        if (!moving || manualCommand != command) {
+          manualStartedAt = millis();
+          lastManualWrite = millis()-50;
+        }
+        manualCommand = command;
+        moving = true;
+        stopAt = millis() + kManualHoldMs;
+      } else if (command >= 10 && command <= 13 && !moving) {
+        manualCommand = 0;
+        moving = true;
+        stopAt = millis()+80;
+        const float speed = command >= 12 ? 0.025f : 0.04f;
+        const float left = (command == 11 || command == 12) ? -speed : speed;
+        const float right = (command == 11 || command == 13) ? -speed : speed;
+        Serial1.printf("$Car:%.3f,%.3f,%.3f,%.3f!", left,right,left,right);
+      } else if (command >= 1 && command <= 5 && !moving) {
+        manualCommand = 0;
         moving = true;
         stopAt = millis() + (command == 1 ? kPulseMs : 120);
-        Serial1.print(command <= 2 ? kForward : command == 3 ? kLeft : kRight);
+        Serial1.print(command <= 2 ? kForward : command == 3 ? kLeft : command == 4 ? kRight : kBackward);
         Serial.printf("STEP %u: command sent\n", command);
       } else if (command == 0) {
+        manualCommand = 0;
         moving = false;
         Serial1.print(kStop);
         lastStop = millis();
@@ -69,11 +92,19 @@ void motorTask(void *) {
     }
     // Independent task: slow/incomplete communication cannot postpone this.
     if (moving && static_cast<int32_t>(millis() - stopAt) >= 0) {
+      manualCommand = 0;
       moving = false;
       Serial1.print(kStop);
       lastStop = millis();
       setBusy(false);
       Serial.println("Action time limit: STOP sent");
+    }
+    if (moving && manualCommand && millis()-lastManualWrite >= 50) {
+      const float speed = manualSpeed(manualCommand, millis()-manualStartedAt);
+      const float left = (manualCommand == 7 || manualCommand == 8) ? -speed : speed;
+      const float right = (manualCommand == 7 || manualCommand == 9) ? -speed : speed;
+      Serial1.printf("$Car:%.3f,%.3f,%.3f,%.3f!", left, right, left, right);
+      lastManualWrite = millis();
     }
     if (!moving && millis() - lastStop >= 100) {
       Serial1.print(kStop);
@@ -89,7 +120,7 @@ void reply(int code, const char *result) {
   server.sendHeader("Cache-Control", "no-store");
   server.send(code, "application/json", String("{\"protocol\":\"") + kProtocol +
               "\",\"result\":\"" + result + "\",\"busy\":" +
-              (isBusy() ? "true" : "false") + ",\"pulse_ms\":250,\"step_ms\":120}");
+              (isBusy() ? "true" : "false") + ",\"pulse_ms\":250,\"step_ms\":120,\"reverse_step\":true,\"manual_hold_ms\":700,\"manual_ramp_v\":1,\"gentle_step_ms\":80}");
 }
 #endif
 
@@ -129,15 +160,33 @@ void setup() {
 #endif
   server.on("/status", HTTP_GET, []() { reply(200, "ready"); });
   server.on("/stop", HTTP_POST, []() { requestStop(); reply(200, "stop_queued"); });
+  server.on("/manual", HTTP_POST, []() {
+    const String token = server.arg("id"), direction = server.arg("direction");
+    uint8_t command = direction == "forward" ? 6 : direction == "backward" ? 7 : direction == "left" ? 8 : direction == "right" ? 9 : 0;
+    bool valid = token.length() == 32 && command != 0;
+    for (size_t i = 0; i < token.length(); ++i) {
+      char c = token[i];
+      if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) valid = false;
+    }
+    if (!valid) { requestStop(); reply(400, "bad_manual"); return; }
+    if (token == lastToken) { reply(200, "duplicate_ignored"); return; }
+    lastToken = token;
+    setBusy(true);
+    xQueueOverwrite(commands, &command);
+    reply(200, "manual_queued");
+  });
   server.on("/step", HTTP_POST, []() {
     const String token = server.arg("id"), direction = server.arg("direction");
-    uint8_t command = direction == "forward" ? 2 : direction == "left" ? 3 : direction == "right" ? 4 : 0;
+    uint8_t command = direction == "forward" ? 2 : direction == "left" ? 3 : direction == "right" ? 4 : direction == "backward" ? 5 : 0;
     bool valid = token.length() == 32 && command != 0;
     for (size_t i = 0; i < token.length(); ++i) {
       char c = token[i];
       if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) valid = false;
     }
     if (!valid) { requestStop(); reply(400, "bad_step"); return; }
+    if (server.arg("gentle") == "1") {
+      command = direction == "forward" ? 10 : direction == "backward" ? 11 : direction == "left" ? 12 : 13;
+    }
     if (token == lastToken) { reply(200, "duplicate_ignored"); return; }
     if (isBusy()) { reply(409, "busy"); return; }
     lastToken = token;

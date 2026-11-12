@@ -15,6 +15,9 @@ from strategy.runtime import StrategyRuntime
 from vision.photo_vision import detect_midline, segment
 from vision.robot_vision import detect_robot, exclude_robot_regions
 
+from vision.test_robot_vision import paste_marker, TEST_CONFIG
+
+
 FIELD={'valid':True,'yellow_normal':[0,1],'point_px':[600,600]}
 BLOCKS=(Block('a',600,650),)
 
@@ -90,14 +93,12 @@ def main():
     else:
         raise AssertionError('Merged block accepted')
 
-    # Actual OpenCV perception including wheel exclusion and yellow mapping.
+    # Actual OpenCV perception including body exclusion and yellow mapping.
     image=np.full((1200,1200,3),(200,90,20),np.uint8)
     image[600:]=(20,220,240)
-    for x,y in ((490,190),(710,190),(480,310),(720,310)):
-        cv2.circle(image,(x,y),24,(0,0,230),-1)
-        cv2.circle(image,(x,y),13,(15,15,15),-1)
     cv2.rectangle(image,(590,580),(609,599),(0,0,230),-1)
-    detected=detect_robot(image)
+    paste_marker(image,(600,250),100,2)
+    detected=detect_robot(image,TEST_CONFIG)
     assert detected['heading_valid'],detected
     field=detect_midline(image)
     assert field['valid'],field
@@ -110,7 +111,7 @@ def main():
         plan=control.update(detected,blocks,field,t,t,t)
     assert plan['can_start'],plan
     assert plan['command']=='forward',plan
-    print('PASS: image -> wheel/block detection -> stable IDs -> shared strategy -> forward decision')
+    print('PASS: image -> marker/block detection -> stable IDs -> shared strategy -> forward decision')
 
     requests=[]
     class Handler(BaseHTTPRequestHandler):

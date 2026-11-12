@@ -1,0 +1,213 @@
+
+【视觉】
+检查：vision/test_latest_camera.py
+PASS: slow consumer skips old frames, no duplicate observation, camera loss/error, release
+检查：vision/test_robot_vision.py
+PASS: rotations, perspective, ID filtering, duplicate ID, no wheel fallback, offsets, body exclusion, printed asset, missing geometry blocks all motion modes
+检查：vision/test_photo_vision.py
+PASS: observed off-centre/rotated/diagonal line, yellow direction, crossing blocks, fail-closed missing interface
+PASS: OpenCV 5.0.0; perspective, HSV wrap, coordinates, invalid corners, Chinese paths
+Synthetic regions: [{'x_mm': 399.8, 'y_mm': 900.3, 'area_px': 400, 'bbox_px': [390, 290, 20, 20]}, {'x_mm': 900.3, 'y_mm': 399.8, 'area_px': 400, 'bbox_px': [890, 790, 20, 20]}]
+检查：vision/test_camera_vision.py
+中线检测: Observed blue/yellow interface ；本次目标区：黄色
+取色 HSV: [1, 222, 230]
+已保存到: C:\Users\Admin\AppData\Local\Temp\tmpf2fwvqqz\results\20261110-140524-035223
+中线检测: Observed blue/yellow interface ；本次目标区：黄色
+PASS: video frames, click sampling, moving block, midline, saved frame/JSON, recalibration, disconnection
+打开摄像头 0；N 下一个，P 上一个，Enter 选四角，Esc 退出。
+点击方块中心取色；S 保存当前帧，R 重新校正，Esc 退出。请固定手机和场地。
+PASS: camera released after processing failure
+打开摄像头 0；N 下一个，P 上一个，Enter 选四角，Esc 退出。
+已保存小车定位: C:\Users\Admin\AppData\Local\Temp\tmpf2fwvqqz\results\20261110-140524-198775
+PASS: camera preview detects car and saves source/overlay/robot JSON without calibration
+检查：vision/test_video_vision.py
+视频完成：8 帧，区域数量 2~2，输出：C:\Users\Admin\AppData\Local\Temp\tmpn_siwj52\output
+PASS: eight real video frames, moving detections, counts, FPS, exported decode, preview-only priorities
+检查：vision/test_reflections.py
+PASS: pale faces recovered, bright red retained, disconnected pale clutter rejected
+PASS: robust patch sample and exclusion of coloured objects outside field
+PASS: saved scene matches 20 individually marked blocks
+检查：vision/test_priority_results.py
+Photo 1: midline=True, regions=2, halves={'yellow': 0, 'blue': 2, 'on_line': 0, 'unknown': 0}
+Results: C:\Users\Admin\AppData\Local\Temp\tmp63fiv69s\detected
+Photo 1: [(1, [1, 2], 5.7865, False)]
+Priority results: C:\Users\Admin\AppData\Local\Temp\tmp63fiv69s\ranked
+PASS: batch/saved priorities agree; moved original supported; original results protected
+
+【通信与控制】
+检查：control/test_launcher.py
+输入无效：IP应为四段数字，摄像头编号应为非负整数。设置未更改。
+DroidCam连好后，只需使用这个入口，无须另开识别或控制脚本。
+实车模式需要电脑和ESP32连接同一手机热点；DroidCam客户端保持开启。
+
+========== 机器人测试 ==========
+摄像头：1  小车IP：10.112.135.116（会自动记住）
+1. 直接推块测试（自动接近、推移10厘米后停车）
+2. 只看视觉识别（不控制小车）
+3. 短动作测试（空格触发）
+4. 进阶：只自动接近（含转向，先验轮向）
+S. 修改IP / 摄像头    M. 贴码尺寸 / 车体尺寸    Q. 退出
+尚未填写车体长宽：先选2查看ArUco定位；量好后选M填写，再做实车测试。
+
+========== 机器人测试 ==========
+摄像头：1  小车IP：10.112.135.116（会自动记住）
+1. 直接推块测试（自动接近、推移10厘米后停车）
+2. 只看视觉识别（不控制小车）
+3. 短动作测试（空格触发）
+4. 进阶：只自动接近（含转向，先验轮向）
+S. 修改IP / 摄像头    M. 贴码尺寸 / 车体尺寸    Q. 退出
+单位为厘米；回车保留。长度沿车头方向，宽度含轮胎，长度含推板。
+尽量把码贴在车体中心，上边朝车头。偏移表示从码中心到车体中心，向右/向前为正。
+标记设置已保存；下次打开测试时生效。尺寸未填全时只允许查看定位。
+DroidCam连好后，只需使用这个入口，无须另开识别或控制脚本。
+实车模式需要电脑和ESP32连接同一手机热点；DroidCam客户端保持开启。
+
+========== 机器人测试 ==========
+摄像头：1  小车IP：10.112.135.116（会自动记住）
+1. 直接推块测试（自动接近、推移10厘米后停车）
+2. 只看视觉识别（不控制小车）
+3. 短动作测试（空格触发）
+4. 进阶：只自动接近（含转向，先验轮向）
+S. 修改IP / 摄像头    M. 贴码尺寸 / 车体尺寸    Q. 退出
+正在检查小车连接（不会发送运动指令）……
+未能连接：offline
+请确认电脑和小车均已加入Robot-Test热点，小车已供电。
+IP可能因重新联网而变化；输入S修改，或选2先看画面。
+
+========== 机器人测试 ==========
+摄像头：1  小车IP：10.112.135.116（会自动记住）
+1. 直接推块测试（自动接近、推移10厘米后停车）
+2. 只看视觉识别（不控制小车）
+3. 短动作测试（空格触发）
+4. 进阶：只自动接近（含转向，先验轮向）
+S. 修改IP / 摄像头    M. 贴码尺寸 / 车体尺寸    Q. 退出
+DroidCam连好后，只需使用这个入口，无须另开识别或控制脚本。
+实车模式需要电脑和ESP32连接同一手机热点；DroidCam客户端保持开启。
+
+========== 机器人测试 ==========
+摄像头：1  小车IP：10.112.135.116（会自动记住）
+1. 直接推块测试（自动接近、推移10厘米后停车）
+2. 只看视觉识别（不控制小车）
+3. 短动作测试（空格触发）
+4. 进阶：只自动接近（含转向，先验轮向）
+S. 修改IP / 摄像头    M. 贴码尺寸 / 车体尺寸    Q. 退出
+正在打开：只看视觉识别（不控制小车）
+关闭其他占用摄像头的测试窗口；DroidCam客户端保留。
+测试已退出。
+
+========== 机器人测试 ==========
+摄像头：1  小车IP：10.112.135.116（会自动记住）
+1. 直接推块测试（自动接近、推移10厘米后停车）
+2. 只看视觉识别（不控制小车）
+3. 短动作测试（空格触发）
+4. 进阶：只自动接近（含转向，先验轮向）
+S. 修改IP / 摄像头    M. 贴码尺寸 / 车体尺寸    Q. 退出
+DroidCam连好后，只需使用这个入口，无须另开识别或控制脚本。
+实车模式需要电脑和ESP32连接同一手机热点；DroidCam客户端保持开启。
+
+========== 机器人测试 ==========
+摄像头：3  小车IP：192.168.1.8（会自动记住）
+1. 直接推块测试（自动接近、推移10厘米后停车）
+2. 只看视觉识别（不控制小车）
+3. 短动作测试（空格触发）
+4. 进阶：只自动接近（含转向，先验轮向）
+S. 修改IP / 摄像头    M. 贴码尺寸 / 车体尺寸    Q. 退出
+正在检查小车连接（不会发送运动指令）……
+连接检查通过。测试程序仍会按原时限检查通信。
+正在打开：直接推块测试（自动接近、推移10厘米后停车）
+关闭其他占用摄像头的测试窗口；DroidCam客户端保留。
+只留一个方块并提前摆正小车；完成四角标定和取色后自动倒计时3秒运动，X停车。
+测试异常退出（1），可查看上方提示后重试。
+
+========== 机器人测试 ==========
+摄像头：3  小车IP：192.168.1.8（会自动记住）
+1. 直接推块测试（自动接近、推移10厘米后停车）
+2. 只看视觉识别（不控制小车）
+3. 短动作测试（空格触发）
+4. 进阶：只自动接近（含转向，先验轮向）
+S. 修改IP / 摄像头    M. 贴码尺寸 / 车体尺寸    Q. 退出
+Launcher checks passed: settings, validation, four modes, GET-only preflight, failure/retry and remembered start.
+检查：control/test_vision_wifi.py
+PASS: repeated missing camera does not flood STOP; SPACE cannot move; startup, X and exit still send STOP
+PASS: stable vision, manual trigger, one pulse, lost/uncertain/stale/changed robot, manual stop, clock reversal
+PASS: actual OpenCV detection -> gate -> real local HTTP handshake/pulse/stop, unique token, failed request with no movement retry
+检查：control/test_bluetooth_link.py
+PASS: handshake, stop, fragmented/stale replies, pulse and directions, wraparound expiry, invalid direction, busy/no retry, timeout before motion, close
+检查：control/test_approach_control.py
+PASS: shared strategy goals, left/right/forward, observed arrival, lost/moved target, pose jump, stale input, obstacle, no progress, no automatic restart
+PASS: image -> marker/block detection -> stable IDs -> shared strategy -> forward decision
+PASS: real loopback HTTP capability check, directional commands, unique IDs, stop (no real car)
+检查：control/test_single_push_control.py
+PASS: rejected field calibration displays its reason and retry instructions, and releases camera on exit
+PASS: error window stays visible until Esc or explicit window close
+PASS: automatic countdown -> approach -> observed 100mm push -> stop; no SPACE, no automatic second push
+PASS: lost/multiple target, stale vision/link, pose/block jump, heading/lateral drift, frame gap and manual stop latch
+PASS: alignment/field-edge guards and continuous stable observation before auto start
+PASS: no-progress, stalled contact and external block movement cannot fabricate success
+PASS: actual OpenCV pixels -> marker/block detection -> stable automatic forward command
+PASS: actual runner calibration/colour/camera frames -> automatic short steps -> observed block movement -> STOP, without SPACE
+PASS: runtime network failure stops/latches, records cause and retains an error window
+PASS: runtime camera failure stops/latches, records cause and retains an error window
+
+【直接推块联调】
+检查：control/test_push_integration.py
+PASS: actual app + ArUco + block pixels + HTTP: push, target=20mm
+PASS: actual app + ArUco + block pixels + HTTP: push, target=100mm
+PASS: actual app + ArUco + block pixels + HTTP: push, target=150mm
+PASS: actual app + ArUco + block pixels + HTTP: stalled, target=100mm
+PASS: actual app + ArUco + block pixels + HTTP: lost_marker, target=100mm
+PASS: actual app + ArUco + block pixels + HTTP: reject, target=100mm
+
+【比赛策略】
+检查：strategy/test_planner.py
+test_avoid_opponent_race (__main__.StrategyChecks.test_avoid_opponent_race) ... ok
+test_direction_mirrors_coordinates (__main__.StrategyChecks.test_direction_mirrors_coordinates) ... ok
+test_do_not_push_through_opponent_or_excluded_block (__main__.StrategyChecks.test_do_not_push_through_opponent_or_excluded_block) ... ok
+test_early_midgame (__main__.StrategyChecks.test_early_midgame) ... ok
+test_invalid_inputs_and_clock (__main__.StrategyChecks.test_invalid_inputs_and_clock) ... ok
+test_lock_survives_jitter_but_not_lost_target (__main__.StrategyChecks.test_lock_survives_jitter_but_not_lost_target) ... ok
+test_no_target_and_too_late (__main__.StrategyChecks.test_no_target_and_too_late) ... ok
+test_opening_prefers_front_and_corridor_is_not_overwide (__main__.StrategyChecks.test_opening_prefers_front_and_corridor_is_not_overwide) ... ok
+test_phases_and_shorter_endgame_delivery (__main__.StrategyChecks.test_phases_and_shorter_endgame_delivery) ... ok
+test_recapture_after_loss_and_do_not_chase_active_push (__main__.StrategyChecks.test_recapture_after_loss_and_do_not_chase_active_push) ... ok
+test_safety_overrides_lock (__main__.StrategyChecks.test_safety_overrides_lock) ... ok
+test_secure_only_threatened_shallow_blocks (__main__.StrategyChecks.test_secure_only_threatened_shallow_blocks) ... ok
+test_short_delivery_preserves_existing_safe_blocks (__main__.StrategyChecks.test_short_delivery_preserves_existing_safe_blocks) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.003s
+
+OK
+检查：strategy/test_runtime.py
+test_expired_frame_is_not_refreshed_by_repeat_calls (__main__.RuntimeChecks.test_expired_frame_is_not_refreshed_by_repeat_calls) ... ok
+test_feedback_progress_and_time_are_monotonic (__main__.RuntimeChecks.test_feedback_progress_and_time_are_monotonic) ... ok
+test_host_timestamps_feed_identical_shared_decisions (__main__.RuntimeChecks.test_host_timestamps_feed_identical_shared_decisions) ... ok
+test_missing_and_future_data_stop (__main__.RuntimeChecks.test_missing_and_future_data_stop) ... ok
+test_shared_active_task_endgame_policy (__main__.RuntimeChecks.test_shared_active_task_endgame_policy) ... ok
+test_simulator_uses_runtime_entry (__main__.RuntimeChecks.test_simulator_uses_runtime_entry) ... ok
+test_stale_heartbeat_does_not_move (__main__.RuntimeChecks.test_stale_heartbeat_does_not_move) ... ok
+test_strategy_imports_without_site_packages_or_gui (__main__.RuntimeChecks.test_strategy_imports_without_site_packages_or_gui) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.162s
+
+OK
+检查：strategy/test_scene_priority.py
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+OK
+检查：strategy/test_simulator.py
+test_dragged_block_triggers_recapture (__main__.ContinuousChecks.test_dragged_block_triggers_recapture) ... ok
+test_live_endgame_event_and_obstacle (__main__.ContinuousChecks.test_live_endgame_event_and_obstacle) ... ok
+test_mirrored_delivery_and_reset (__main__.ContinuousChecks.test_mirrored_delivery_and_reset) ... ok
+test_no_scene_teleports_and_speed_independence (__main__.ContinuousChecks.test_no_scene_teleports_and_speed_independence) ... ok
+test_whole_match_moves_blocks_and_stops (__main__.ContinuousChecks.test_whole_match_moves_blocks_and_stops) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.387s
+
+OK
+
+共17项：通过17，失败0。

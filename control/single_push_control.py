@@ -56,7 +56,9 @@ class SinglePushControl:
             return self._invalid('VISION GAP / COUNTDOWN RESET')
         self.last_now = now
         if not robot.get('detected') or not robot.get('heading_valid'):
-            return self._invalid('NEED FOUR WHEELS AND ROBOT HEADING')
+            return self._invalid('NEED ROBOT MARKER AND HEADING')
+        if not robot.get('geometry_valid', True):
+            return self._invalid('SET BODY SIZE IN LAUNCHER MENU M')
         if not field.get('valid'):
             return self._invalid('FIELD CALIBRATION LOST')
         if len(blocks) != 1:

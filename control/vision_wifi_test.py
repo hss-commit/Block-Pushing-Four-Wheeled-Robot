@@ -15,6 +15,7 @@ import cv2
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from vision.latest_camera import LatestCamera
 from vision.robot_vision import detect_robot, draw_robot
 
 PROTOCOL = "vision-pulse-v1"
@@ -22,6 +23,8 @@ OUTPUT = Path(__file__).resolve().parent.parent / "vision" / "results"
 
 
 class WifiLink:
+    request_timeout = .18
+
     def __init__(self, host):
         host = host.strip()
         if host.startswith('http://'):
@@ -39,8 +42,13 @@ class WifiLink:
         payload = None if data is None else urlencode(data).encode("ascii")
         request = Request(self.host+path, data=payload,
                           headers={"Content-Type":"application/x-www-form-urlencoded"})
-        with self.opener.open(request, timeout=.18) as response:
-            result = json.loads(response.read(4096).decode("utf-8"))
+        started = time.perf_counter()
+        try:
+            with self.opener.open(request, timeout=self.request_timeout) as response:
+                result = json.loads(response.read(4096).decode("utf-8"))
+        except OSError as error:
+            raise OSError(f'{path} 请求失败（{(time.perf_counter()-started)*1000:.0f}ms，'
+                          f'等待上限{self.request_timeout:g}s）：{error}') from error
         if not isinstance(result,dict) or result.get("protocol") != PROTOCOL:
             raise ValueError("ESP32 程序不匹配，请烧录视觉无线联动测试工程")
         return result
@@ -82,7 +90,7 @@ class PulseGate:
 
     @staticmethod
     def pose(robot):
-        if not robot.get("detected") or not robot.get("heading_valid"):
+        if not robot.get("detected") or not robot.get("heading_valid") or not robot.get('geometry_valid', True):
             return None
         try:
             center = np.asarray(robot["center_px"], dtype=float)
@@ -184,11 +192,11 @@ def main():
         while True:
             if capture is None:
                 print(f"使用摄像头 {args.camera}；请关闭其他占用摄像头的预览窗口，N/P可切换。")
-                capture = cv2.VideoCapture(args.camera)
-                capture.set(cv2.CAP_PROP_BUFFERSIZE,1)
+                capture = LatestCamera(args.camera)
                 gate.reset("CAMERA CHANGED / WAIT FOR STABLE ROBOT")
             captured_at = time.monotonic()
             ok,frame = capture.read()
+            captured_at = capture.captured_at
             if not ok or frame is None:
                 robot = {"detected":False,"heading_valid":False,"reason":"NO CAMERA"}
                 action = gate.update(robot,captured_at,time.monotonic())

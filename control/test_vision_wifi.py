@@ -24,11 +24,12 @@ def missing_camera_checks():
     link.connect.side_effect=lambda: link.stop()
     capture=Mock()
     capture.read.return_value=(False,None)
+    capture.captured_at=0.
     with tempfile.TemporaryDirectory() as folder, redirect_stdout(io.StringIO()), \
          patch.object(wifi_test,'OUTPUT',Path(folder)), \
          patch.object(wifi_test.sys,'argv',['vision_wifi_test.py','--host','http://127.0.0.1']), \
          patch.object(wifi_test,'WifiLink',return_value=link), \
-         patch.object(cv2,'VideoCapture',return_value=capture), \
+         patch.object(wifi_test,'LatestCamera',return_value=capture), \
          patch.object(cv2,'namedWindow'), patch.object(cv2,'imshow'), \
          patch.object(cv2,'getWindowProperty',return_value=1), \
          patch.object(cv2,'waitKey',side_effect=[32,0,0,ord('x'),0,27]), \
@@ -40,12 +41,12 @@ def missing_camera_checks():
     print('PASS: repeated missing camera does not flood STOP; SPACE cannot move; startup, X and exit still send STOP')
 
 
+from vision.test_robot_vision import paste_marker, TEST_CONFIG
+
 def observation():
     image=np.full((800,800,3),210,np.uint8)
-    for x,y in ((260,260),(260,540),(500,240),(500,560)):
-        cv2.circle(image,(x,y),27,(0,0,230),-1)
-        cv2.circle(image,(x,y),13,(15,15,15),-1)
-    result=detect_robot(image)
+    paste_marker(image,(400,400),100,3)
+    result=detect_robot(image,TEST_CONFIG)
     assert result['heading_valid']
     return result
 

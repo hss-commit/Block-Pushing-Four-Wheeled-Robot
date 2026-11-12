@@ -1,0 +1,10 @@
+PASS: rejected field calibration displays its reason and retry instructions, and releases camera on exit
+PASS: error window stays visible until Esc or explicit window close
+PASS: automatic countdown -> approach -> observed 100mm push -> stop; no SPACE, no automatic second push
+PASS: lost/multiple target, stale vision/link, pose/block jump, heading/lateral drift, frame gap and manual stop latch
+PASS: alignment/field-edge guards and continuous stable observation before auto start
+PASS: no-progress, stalled contact and external block movement cannot fabricate success
+PASS: actual OpenCV pixels -> marker/block detection -> stable automatic forward command
+PASS: actual runner calibration/colour/camera frames -> automatic short steps -> observed block movement -> STOP, without SPACE
+PASS: runtime network failure stops/latches, records cause and retains an error window
+PASS: runtime camera failure stops/latches, records cause and retains an error window

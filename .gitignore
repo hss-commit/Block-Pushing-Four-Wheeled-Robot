@@ -1,3 +1,4 @@
 .venv/
 __pycache__/
 vision/results/
+control/launcher.local.json

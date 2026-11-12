@@ -12,6 +12,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from strategy.scene_priority import rank_scene, priority_markdown
+from vision.latest_camera import LatestCamera
 from vision.robot_vision import detect_robot, draw_robot, exclude_robot_regions
 
 FIELD_MM = 1200
@@ -328,11 +329,11 @@ def select_corners(image):
 
 def inspect_photo(image, corners, source, capture=None):
     live = capture is not None
-    name = "2 - Click block | W: wheels | D: coordinates | S: save | R: recalibrate | Esc: quit"
+    name = "2 - Click block | W: marker | D: coordinates | S: save | R: recalibrate | Esc: quit"
     controls = "Mask and HSV controls"
     sample = None
     details = False
-    wheels_enabled = True
+    marker_enabled = True
     field = detect_midline(image)
     print("中线检测:", field["reason"], "；本次目标区：黄色")
 
@@ -365,10 +366,10 @@ def inspect_photo(image, corners, source, capture=None):
                 image = rectify(frame, corners)
                 field = detect_midline(image)
             values = [cv2.getTrackbarPos(label, controls) for label in sliders]
-            state = (tuple(sample or []), *values, details, wheels_enabled)
+            state = (tuple(sample or []), *values, details, marker_enabled)
             if live or state != previous:
-                robot = detect_robot(image) if wheels_enabled else {
-                    "detected": False, "heading_valid": False, "reason": "WHEELS OFF (W)"}
+                robot = detect_robot(image) if marker_enabled else {
+                    "detected": False, "heading_valid": False, "reason": "MARKER OFF (W)"}
                 if sample is not None:
                     mask, regions = segment(image, sample, *values, field=field)
                     regions = exclude_robot_regions(regions, robot)
@@ -383,7 +384,7 @@ def inspect_photo(image, corners, source, capture=None):
                 cv2.imshow(name, cv2.resize(result, (PREVIEW, PREVIEW)))
                 cv2.imshow(controls, cv2.resize(mask, (420, 420), interpolation=cv2.INTER_NEAREST))
                 previous = state
-            key = cv2.waitKey(30) & 0xFF
+            key = cv2.waitKey(1 if live else 30) & 0xFF
             if key == 27 or any(cv2.getWindowProperty(w, cv2.WND_PROP_VISIBLE) < 1 for w in (name, controls)):
                 break
             if live and key in (ord("r"), ord("R")):
@@ -391,7 +392,7 @@ def inspect_photo(image, corners, source, capture=None):
             if key in (ord("d"), ord("D")):
                 details = not details
             if key in (ord("w"), ord("W")):
-                wheels_enabled = not wheels_enabled
+                marker_enabled = not marker_enabled
             if key in (ord("s"), ord("S")):
                 folder = OUTPUT / datetime.now().strftime("%Y%m%d-%H%M%S-%f")
                 folder.mkdir(parents=True)
@@ -407,7 +408,7 @@ def inspect_photo(image, corners, source, capture=None):
                           "segmentation": "seeded-colour-v2",
                           "priority": priority,
                           "robot": robot,
-                          "robot_coordinates_note": "Ground-plane estimate; wheel height/perspective not compensated. No motor output.",
+                          "robot_coordinates_note": "Ground-plane estimate; marker height/perspective not compensated. No motor output.",
                           "direction_is_not_a_path_or_motor_command": True}
                 if live:
                     report["captured_at"] = datetime.now().isoformat(timespec="milliseconds")
@@ -423,37 +424,37 @@ def inspect_camera(index):
     """Preview a Windows webcam, then reuse the calibrated photo controls."""
     name = "Camera | N: next | P: previous | Enter: select corners | Esc: quit"
     capture = None
-    wheels_enabled = True
+    marker_enabled = True
     try:
         while True:
             if capture is None:
                 print(f"打开摄像头 {index}；N 下一个，P 上一个，Enter 选四角，Esc 退出。")
-                capture = cv2.VideoCapture(index)
+                capture = LatestCamera(index)
             ok, frame = capture.read()
             if ok and frame is not None:
                 scale = min(1100 / frame.shape[1], 720 / frame.shape[0], 1)
                 preview = cv2.resize(frame, None, fx=scale, fy=scale)
-                if wheels_enabled:
+                if marker_enabled:
                     draw_robot(preview, detect_robot(preview))
             else:
                 preview = np.zeros((360, 800, 3), np.uint8)
                 cv2.putText(preview, "No video. Check DroidCam, or press N / P.",
                             (15, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-            cv2.putText(preview, f"Camera {index} | N/P: switch | W: wheels | S: save",
+            cv2.putText(preview, f"Camera {index} | N/P: switch | W: marker | S: save",
                         (10, 25), cv2.FONT_HERSHEY_SIMPLEX, min(.65,preview.shape[1]/900), (0, 255, 0), 1)
             cv2.putText(preview, "Enter: calibrate field | Esc: quit",
                         (10, 48), cv2.FONT_HERSHEY_SIMPLEX, min(.6,preview.shape[1]/900), (0, 255, 0), 1)
             cv2.imshow(name, preview)
-            key = cv2.waitKey(30) & 0xFF
+            key = cv2.waitKey(1) & 0xFF
             if key == 27 or cv2.getWindowProperty(name, cv2.WND_PROP_VISIBLE) < 1:
                 return
             if key in (ord("w"), ord("W")):
-                wheels_enabled = not wheels_enabled
+                marker_enabled = not marker_enabled
             if key in (ord("s"), ord("S")) and ok and frame is not None:
                 folder = OUTPUT / datetime.now().strftime("%Y%m%d-%H%M%S-%f")
                 folder.mkdir(parents=True)
-                robot = detect_robot(frame) if wheels_enabled else {
-                    "detected": False, "heading_valid": False, "reason": "WHEELS OFF (W)"}
+                robot = detect_robot(frame) if marker_enabled else {
+                    "detected": False, "heading_valid": False, "reason": "MARKER OFF (W)"}
                 result = frame.copy()
                 draw_robot(result, robot)
                 write_png(folder / "source.png", frame)
@@ -675,7 +676,7 @@ def main():
     parser = argparse.ArgumentParser(description="OpenCV 手机照片识别：标定四角，点击取色，S 保存。")
     parser.add_argument("image", nargs="?", help="JPG/PNG 文件路径；留空则弹出选择窗口")
     parser.add_argument("--demo", action="store_true", help="用合成演示图练习操作")
-    parser.add_argument("--robot-photo", action="store_true", help="仅检查照片中的四红轮小车，无窗口，配合照片路径和 --output")
+    parser.add_argument("--robot-photo", action="store_true", help="仅检查照片中的ArUco车顶标记，无窗口，配合照片路径和 --output")
     parser.add_argument("--camera", nargs="?", const=0, type=int, metavar="INDEX",
                         help="实时摄像头识别，默认编号 0；预览时 N/P 切换摄像头")
     parser.add_argument("--batch", nargs="+", metavar="PHOTO", help="无窗口批量检查：检测中线、分区及朝黄色区的方向")

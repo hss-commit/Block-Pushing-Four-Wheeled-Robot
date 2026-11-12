@@ -46,10 +46,13 @@ class Config:
     link_timeout_s: float = 0.3
     target_lock_s: float = 0.8
     opening_lateral_penalty: float = 1.5
+    capture_limit: int = 30
 
     def __post_init__(self):
         if self.target_half not in ("lower", "upper"):
             raise ValueError("target_half must be lower or upper")
+        if type(self.capture_limit) is not int or self.capture_limit < 1:
+            raise ValueError('capture_limit must be a positive integer')
         for name, value in vars(self).items():
             if name != "target_half" and (not isinstance(value, (int, float)) or not isfinite(value) or value <= 0):
                 raise ValueError(f"Invalid config: {name}")
@@ -248,7 +251,7 @@ class Planner:
             if not side_clearance <= center <= c.field_mm - side_clearance:
                 continue
             targets = [b for b in eligible if abs(b.x - center) <= half_width]
-            if not targets:
+            if not targets or len(targets) > c.capture_limit:
                 continue
             foreign = [b for b in targets if self.depth(b.y) <= c.block_half_mm]
             if self.phase == "ENDGAME" and len(targets) == 1 and self.depth(targets[0].y) < -c.safe_depth_mm:

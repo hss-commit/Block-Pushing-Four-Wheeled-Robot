@@ -95,6 +95,8 @@ class ApproachControl:
                 return self.stop('ROBOT LOST / HEADING UNCERTAIN')
             self.ready_since = None
             return self._waiting('NEED ROBOT HEADING')
+        if not robot.get('geometry_valid', True):
+            return self.stop('SET BODY SIZE IN LAUNCHER MENU M')
         if (not field.get('valid') or field['yellow_normal'][1] < .97 or
                 abs(field['point_px'][1]-599.5) > 120):
             return self.stop('FIELD / YELLOW DIRECTION INVALID')

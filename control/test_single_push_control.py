@@ -18,6 +18,8 @@ from vision.robot_vision import detect_robot, exclude_robot_regions
 from vision.photo_vision import detect_midline, segment
 from control import vision_approach_test as runner
 
+from vision.test_robot_vision import paste_marker, TEST_CONFIG
+
 FIELD={'valid':True}
 
 
@@ -32,7 +34,7 @@ def calibration_feedback_check():
     drawn=[]
     with ExitStack() as stack, redirect_stdout(io.StringIO()):
         for obj,name,value in (
-            (cv2,'VideoCapture',lambda *args:capture),
+            (runner,'LatestCamera',lambda *args:capture),
             (cv2,'putText',lambda image,text,*args:drawn.append(text)),
             (cv2,'imshow',lambda *args:None),
             (cv2,'getWindowProperty',lambda *args:1),
@@ -87,13 +89,12 @@ def runner_check(fault=None):
     class Capture:
         def read(self):
             world['now']+=.1;world['frames']+=1
+            self.captured_at=world['now']
             if fault=='camera' and world['now']>=4:
                 return False,None
             image=np.full((1200,1200,3),(200,90,20),np.uint8);image[600:]=(20,220,240)
             cy=1200-world['robot_y']
-            for x,y in ((490,cy-60),(710,cy-60),(480,cy+60),(720,cy+60)):
-                cv2.circle(image,(x,round(y)),24,(0,0,230),-1)
-                cv2.circle(image,(x,round(y)),13,(15,15,15),-1)
+            paste_marker(image,(600,cy),100,2)
             by=round(1200-world['block_y'])
             cv2.rectangle(image,(590,by-10),(609,by+9),(0,0,230),-1)
             return True,image
@@ -112,7 +113,7 @@ def runner_check(fault=None):
             assert direction=='forward','Unverified turning command emitted'
             world['commands'].append(direction)
             world['robot_y']-=10
-            world['block_y']=min(world['block_y'],world['robot_y']-95)
+            world['block_y']=min(world['block_y'],world['robot_y']-115)
             return {'result':'step_queued'}
         def stop(self):
             world['commands'].append('stop')
@@ -130,6 +131,7 @@ def runner_check(fault=None):
     with tempfile.TemporaryDirectory() as folder, ExitStack() as stack, redirect_stdout(io.StringIO()):
         for obj,name,value in (
             (runner,'OUTPUT',Path(folder)),
+            (runner,'detect_robot',lambda image:detect_robot(image,TEST_CONFIG)),
             (runner.sys,'argv',['vision_approach_test.py','--single-push','--host','http://127.0.0.1']),
             (runner,'SinglePushControl',lambda *args: controller),
             (runner,'DirectionLink',lambda *args: Link()),
@@ -229,12 +231,11 @@ def main():
     assert 'WITHOUT' in tick(control,3.1,by=760)['reason']
     print('PASS: no-progress, stalled contact and external block movement cannot fabricate success')
 
-    # Real synthetic camera pixels through wheel/colour perception and the controller.
+    # Real synthetic camera pixels through marker/colour perception and the controller.
     image=np.full((1200,1200,3),(200,90,20),np.uint8);image[600:]=(20,220,240)
-    for x,y in ((490,190),(710,190),(480,310),(720,310)):
-        cv2.circle(image,(x,y),24,(0,0,230),-1);cv2.circle(image,(x,y),13,(15,15,15),-1)
     cv2.rectangle(image,(590,440),(609,459),(0,0,230),-1)
-    detected=detect_robot(image);field=detect_midline(image)
+    paste_marker(image,(600,250),100,2)
+    detected=detect_robot(image,TEST_CONFIG);field=detect_midline(image)
     _,regions=segment(image,[0,255,230],h_tol=18,min_area=90,field=field)
     regions=exclude_robot_regions(regions,detected)
     assert len(regions)==1 and detected['heading_valid'],(regions,detected)
@@ -242,7 +243,7 @@ def main():
     blocks=(Block('single-0',regions[0]['x_mm'],regions[0]['y_mm']),)
     for i in range(31): plan=control.update(detected,blocks,field,i/10,i/10,i/10)
     assert plan['command']=='forward' and control.active,plan
-    print('PASS: actual OpenCV pixels -> wheel/block detection -> stable automatic forward command')
+    print('PASS: actual OpenCV pixels -> marker/block detection -> stable automatic forward command')
     runner_check()
     runner_check('network')
     runner_check('camera')

@@ -11,8 +11,8 @@
 3. 在VS Code / PlatformIO中打开本目录 `测试用例/手机热点联动测试`，点√编译、→上传。它会替换蓝牙或诊断固件。
 4. 打开115200串口监视器，必要时按EN复位。应显示 `Connecting to phone hotspot: Robot-Test`，连上后显示 `Phone hotspot connected / car address: http://...`。记下**实际显示的IP地址**，不要沿用旧热点地址。也可在手机热点的已连接设备中找ESP32的地址。
 5. 电脑Wi-Fi也连接 **Robot-Test**。在电脑浏览器打开 `http://实际IP/status`；例如串口打印192.168.43.123，就打开 `http://192.168.43.123/status`（示例地址不能照抄）。应返回包含 `vision-pulse-v1`、`ready`、`pulse_ms:250` 和 `step_ms:120` 的JSON。此GET只查询状态，不发运动指令。只有加入同一热点且设备之间能互相访问，才算联通；如果串口已连上但电脑无法访问，核对IP、电脑所连热点及热点设备间访问限制。
-6. 关闭串口监视器，手机USB DroidCam画面正常后，打开驱动板并保持四轮架空。双击根目录 **启动手机热点联动测试.cmd**，输入上一步的IP（只输入数字和点）。出现摄像头画面后N/P选择手机镜头，READY后按一次空格，观察约250ms低速前进和停车；X停止，R重新准备，Esc退出。
-7. 架空方向与停车确认后，再用 **启动手机热点自动接近测试.cmd**，输入同一IP，按 [自动接近说明](../../control/自动接近测试说明.md) 做标定、取色和单目标接近。到接近点停止，不推块。
+6. 关闭串口监视器，手机USB DroidCam画面正常后，打开驱动板并保持四轮架空。双击根目录 **启动机器人.cmd（选3，S设置实际IP）**，输入上一步的IP（只输入数字和点）。出现摄像头画面后N/P选择手机镜头，READY后按一次空格，观察约250ms低速前进和停车；X停止，R重新准备，Esc退出。
+7. 架空方向与停车确认后，再用 **启动机器人.cmd（选4，S设置实际IP）**，输入同一IP，按 [自动接近说明](../../control/自动接近测试说明.md) 做标定、取色和单目标接近。到接近点停止，不推块。
 
 若不想修改现有手机热点，可编辑 `control/esp32_hotspot_config.h` 中的名称和密码后重新编译、上传。默认值是测试用公开凭据；不要在共享仓库提交私人热点密码。
 
@@ -27,3 +27,7 @@
 2026-11-03：本固件已通过PlatformIO编译；既有视觉触发/自动接近与本机HTTP测试通过；两个CMD入口已由真实cmd.exe验证可到达IP输入提示，并保持CRLF格式。尚未烧录或连接真实手机热点，未验证掉线、重连或实车动作；编译及本机HTTP测试不能代替这些硬件验证。
 
 参考：[Espressif Wi-Fi STA API](https://docs.espressif.com/projects/arduino-esp32/en/latest/api/wifi.html)、[ESP32-WROOM-32频段规格](https://documentation.espressif.com/esp32-wroom-32_datasheet_en.html)、[iPhone最大兼容性](https://support.apple.com/en-ca/guide/security/secfd166f620/web)。
+
+## 电脑键盘遥控（2026-11-10）
+
+重新上传新版后，状态回复增加 `reverse_step:true`，`/step` 新增 `direction=backward`，同样120ms限时。原有视觉接口继续兼容。根目录统一入口选5使用W/S/A/D或方向键，空格停车、Q退出；不需要摄像头。详见 [键盘遥控说明](../../control/键盘遥控测试说明.md)。实际后退轮向尚待架空确认。

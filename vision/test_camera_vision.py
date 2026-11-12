@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 
 import photo_vision as vision
+from vision.test_robot_vision import paste_marker
 
 
 def main():
@@ -71,7 +72,7 @@ def main():
 
         device = Mock()
         device.read.return_value = (True, frame)
-        stack.enter_context(patch.object(cv2, "VideoCapture", return_value=device))
+        stack.enter_context(patch.object(vision, "LatestCamera", return_value=device))
         stack.enter_context(patch.object(cv2, "waitKey", return_value=13))
         stack.enter_context(patch.object(vision, "select_corners", return_value=(frame, corners)))
         stack.enter_context(patch.object(vision, "inspect_photo", side_effect=ValueError("disconnected")))
@@ -86,9 +87,10 @@ def main():
         for x,y in ((260,260),(260,540),(500,240),(500,560)):
             cv2.circle(robot_frame,(x,y),27,(0,0,230),-1)
             cv2.circle(robot_frame,(x,y),13,(15,15,15),-1)
+        paste_marker(robot_frame,(380,400),120,3)
         preview_device = Mock()
         preview_device.read.return_value = (True,robot_frame)
-        with patch.object(cv2,"VideoCapture",return_value=preview_device), \
+        with patch.object(vision,"LatestCamera",return_value=preview_device), \
              patch.object(cv2,"waitKey",side_effect=[ord('s'),27]):
             vision.inspect_camera(0)
         preview_device.release.assert_called_once()
