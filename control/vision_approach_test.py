@@ -17,6 +17,7 @@ from control.vision_wifi_test import WifiLink, OUTPUT
 from strategy.planner import Block, Config
 from control.single_push_control import SinglePushControl
 from control.multi_push_control import MultiPushControl, MovingBlocks
+from control.straight_push_control import StraightPush, FrameBlocks
 from vision.photo_vision import (select_corners, rectify, detect_midline, segment,
                                  classify_regions, annotated, sample_colour, write_png)
 from vision.latest_camera import LatestCamera
@@ -142,22 +143,35 @@ def main():
     parser.add_argument('--invert-turns',action='store_true',help='仅当实测左右转反向时交换发送的转向命令')
     parser.add_argument('--single-push',action='store_true',help='单块直线推送：识别稳定倒计时3秒后自动开始，按视觉位移停车')
     parser.add_argument('--multi-push',action='store_true',help='逐个将方块送入黄色区，退开核验后再选下一个；空格启动')
+    parser.add_argument('--straight-push',action='store_true',help='Single manually aligned push into yellow; Space starts')
+    parser.add_argument('--one-delivery',action='store_true',help='Stop after one verified delivery in automatic push mode')
     parser.add_argument('--push-distance',type=float,default=100,help='单块模式目标位移，20～150mm，默认100mm')
     args=parser.parse_args()
-    if args.multi_push and (args.single_push or args.bluetooth_port):
-        parser.error('多块模式不能与单块或蓝牙模式同时使用')
+    stepped_push=args.multi_push or args.straight_push
+    if args.one_delivery and not args.multi_push:
+        parser.error('--one-delivery requires --multi-push')
+    if (args.multi_push and args.straight_push) or (stepped_push and (args.single_push or args.bluetooth_port)):
+        parser.error('Push modes are mutually exclusive; stepped push requires Wi-Fi')
     if args.camera<0:
         parser.error('摄像头编号须非负')
     config=Config.load(Path(__file__).resolve().parent.parent/'strategy'/'config.json')
-    controller=MultiPushControl(config) if args.multi_push else SinglePushControl(config,args.push_distance) if args.single_push else ApproachControl(config)
-    tracker=MovingBlocks() if args.multi_push else StationaryBlocks()
+    if args.straight_push:
+        controller=StraightPush(config)
+        tracker_type=FrameBlocks
+    elif stepped_push:
+        controller=MultiPushControl(config, one_delivery=True) if args.one_delivery else MultiPushControl(config)
+        tracker_type=MovingBlocks
+    else:
+        controller=SinglePushControl(config,args.push_distance) if args.single_push else ApproachControl(config)
+        tracker_type=StationaryBlocks
+    tracker=tracker_type()
     if args.bluetooth_port:
         from control.bluetooth_link import BluetoothLink
-    link=None if args.dry_run else (BluetoothLink(args.bluetooth_port) if args.bluetooth_port else GentleLink(args.host) if args.multi_push else DirectionLink(args.host))
+    link=None if args.dry_run else (BluetoothLink(args.bluetooth_port) if args.bluetooth_port else GentleLink(args.host) if stepped_push else DirectionLink(args.host))
     capture=None
-    folder=OUTPUT/(('multi-push-' if args.multi_push else 'single-push-' if args.single_push else 'approach-')+datetime.now().strftime('%Y%m%d-%H%M%S-%f'))
+    folder=OUTPUT/(('straight-push-' if args.straight_push else 'auto-one-delivery-' if args.one_delivery else 'multi-push-' if stepped_push else 'single-push-' if args.single_push else 'approach-')+datetime.now().strftime('%Y%m%d-%H%M%S-%f'))
     folder.mkdir(parents=True)
-    name=('MULTI BLOCK | SPACE start | X stop | R rearm | S save | Esc exit' if args.multi_push else 'AUTO ONE BLOCK | 3s countdown | X stop | R rearm | S save | Esc exit' if args.single_push else
+    name=('STRAIGHT PUSH | SPACE start | X stop | S save | Esc exit' if args.straight_push else ('AUTO ONE DELIVERY' if args.one_delivery else 'MULTI BLOCK')+' | SPACE start | X stop | R rearm | S save | Esc exit' if stepped_push else 'AUTO ONE BLOCK | 3s countdown | X stop | R rearm | S save | Esc exit' if args.single_push else
           'Approach | click block colour | SPACE start | X stop | R rearm | S save | Esc exit')
     sample=None
     pending=None
@@ -199,7 +213,7 @@ def main():
                     completed=controller.completed
                     controller.rearm()
                     controller.completed=completed
-                    tracker=MovingBlocks()
+                    tracker=tracker_type()
                     pending=None
                     last_command='stop';last_send=-math.inf
                     record('reconnected',completed=completed,requires_space=True)
@@ -212,7 +226,11 @@ def main():
                 if args.single_push:
                     print('Enter四角标定，再点击唯一方块取色。车头须对准方块，场景稳定3秒后自动前进，不需空格。')
                     print(f'方块视觉位移达到{args.push_distance:g}mm后停止，只执行一次。X停止，R重新倒计时，S保存，Esc退出。')
-                elif args.multi_push:
+                elif args.straight_push:
+                    print('STRAIGHT PUSH: align the car with one block facing yellow. Calibrate, sample colour, then wait for READY and press Space.')
+                elif args.one_delivery:
+                    print('单块入区：四角标定、点击方块取色，按空格启动。自动对准，核验一块后结束。')
+                elif stepped_push:
                     print('多块实车测试：Enter标定，点击方块取色，场景稳定后按空格开始。逐个推入黄区、退开核验，再选下一块。X停车。')
                 else:
                     print('Enter 四角标定，点击方块取色。空格启动一次自动接近，X停止，R重新准备，S保存。')
@@ -226,12 +244,12 @@ def main():
                 cv2.setMouseCallback(name,mouse)
                 last_reason=None
                 while True:
-                    if (args.multi_push and link and not controller.finished and
+                    if (stepped_push and link and not controller.finished and
                             time.monotonic()-last_receipt>.15 and time.monotonic()>=status_retry_at):
                         try:
                             link.request('/status')
                         except OSError as status_error:
-                            if controller.active:
+                            if controller.active and not args.multi_push:
                                 raise
                             if link_healthy:
                                 record('idle_link_wait',error=str(status_error))
@@ -256,11 +274,11 @@ def main():
                         raise ValueError('摄像头断开或分辨率改变，请重新启动并标定。')
                     image=np.rot90(rectify(frame,corners),turns).copy()
                     if pending is not None:
-                        if not args.multi_push or controller.active or last_command!='stop':
+                        if not stepped_push or controller.active or last_command!='stop':
                             send('stop')
                         sample=sample_colour(image,*pending)
                         pending=None
-                        controller.rearm();tracker=MovingBlocks() if args.multi_push else StationaryBlocks()
+                        controller.rearm();tracker=tracker_type()
                         print('方块取色 HSV:',sample)
                     robot=detect_robot(image)
                     field=detect_midline(image)
@@ -269,10 +287,14 @@ def main():
                     blocks=()
                     track_error=None
                     if sample is not None:
-                        mask,regions=segment(image,sample,h_tol=18,min_area=90,field=field)
+                        if args.multi_push:
+                            mask,regions=segment(image,sample,h_tol=18,min_area=90,field=field,
+                                                 square_side_mm=2*config.block_half_mm)
+                        else:
+                            mask,regions=segment(image,sample,h_tol=18,min_area=90,field=field)
                         regions=exclude_robot_regions(regions,robot)
                         classify_regions(regions,field)
-                        if args.single_push or args.multi_push:
+                        if args.single_push or stepped_push:
                             for region in regions:
                                 region.pop('direction_arrow_px',None)
                         try:
@@ -284,33 +306,40 @@ def main():
                                 blocks=tracker.update(regions)
                         except ValueError as error:
                             track_error=str(error)
-                    if not args.multi_push and link and time.monotonic()-last_receipt>.15:
+                    if not stepped_push and link and time.monotonic()-last_receipt>.15:
                         link.request('/status')
                         last_receipt=time.monotonic()
                     now=time.monotonic()
                     if args.dry_run:
                         last_receipt=now
-                    if args.multi_push and not link_healthy:
-                        plan=controller._invalid('WAITING FOR CAR STATUS / AUTO RECHECK')
+                    if stepped_push and not link_healthy:
+                        reason='WAITING FOR CAR STATUS / AUTO RECHECK'
+                        if args.multi_push and controller.active:
+                            plan=controller._reselect(reason)
+                        else:
+                            plan=controller._invalid(reason)
                     elif track_error:
-                        if args.multi_push and not controller.active and not controller.finished:
+                        if args.multi_push and not controller.finished:
+                            plan=controller._reselect(track_error)
+                            tracker=tracker_type()
+                        elif stepped_push and not controller.active and not controller.finished:
                             plan=controller._invalid(track_error)
-                            tracker=MovingBlocks()
+                            tracker=tracker_type()
                         else:
                             plan=controller.stop(track_error)
                     elif sample is None:
                         plan=controller._waiting('CLICK A BLOCK TO SAMPLE COLOUR')
                     else:
                         plan=controller.update(robot,blocks,field,acquired,now,last_receipt)
-                    if args.multi_push and start_requested:
-                        if controller.finished:
+                    if stepped_push and start_requested:
+                        if controller.finished or (args.straight_push and not plan.get('can_start')):
                             start_requested=False
                             record('start_cancelled',reason=plan['reason'])
                             print('启动请求已取消，保持停车：',plan['reason'])
                         elif plan.get('can_start') and controller.start():
                             start_requested=False
                             record('start_accepted')
-                            print('条件满足，开始多块推送。')
+                            print('条件满足，开始推送。')
                     # No motion while preparing. A stop/direction change interrupts the old step.
                     command=plan['command'] if controller.active else 'stop'
                     if command=='stop':
@@ -328,12 +357,12 @@ def main():
                                         tuple(np.rint(goal).astype(int)),(255,255,0),3,tipLength=.1)
                         cv2.circle(result,tuple(np.rint(goal).astype(int)),15,(255,0,255),3)
                     mode='DRY RUN' if args.dry_run else 'LIVE BLUETOOTH' if args.bluetooth_port else 'LIVE WIFI'
-                    state=controller.state if args.single_push or args.multi_push else 'RUNNING' if controller.active else 'READY' if plan.get('can_start') else 'STOPPED'
-                    if args.multi_push and plan.get('can_start'):
+                    state=controller.state if args.single_push or stepped_push else 'RUNNING' if controller.active else 'READY' if plan.get('can_start') else 'STOPPED'
+                    if stepped_push and plan.get('can_start'):
                         state='READY'
                     cv2.rectangle(result,(0,0),(1200,100),(25,25,25),-1)
                     detail=plan['reason']
-                    if args.multi_push:
+                    if stepped_push:
                         detail+=f' | VERIFIED: {controller.completed}'
                         if start_requested:
                             detail+=' | START REQUESTED / X CANCEL'
@@ -344,7 +373,17 @@ def main():
                                                                'SPACE start | X stop | R rearm | S save | Esc exit'))):
                         cv2.putText(result,text,(12,25+30*row),cv2.FONT_HERSHEY_SIMPLEX,.65,(0,230,255),1,cv2.LINE_AA)
                     if last_reason!=plan['reason']:
-                        record('plan',plan=plan)
+                        if stepped_push:
+                            record('plan',plan=plan,robot_reason=robot.get('reason'),
+                                   field_reason=field.get('reason'),
+                                   field_point_px=field.get('point_px'),
+                                   yellow_normal=field.get('yellow_normal'),
+                                   frame_age_ms=round((now-acquired)*1000),
+                                   link_age_ms=round((now-last_receipt)*1000),
+                                   regions=[{key: region.get(key) for key in ('x_mm','y_mm','half')}
+                                            for region in regions])
+                        else:
+                            record('plan',plan=plan)
                         last_reason=plan['reason']
                     cv2.imshow(name,cv2.resize(result,(700,700)))
                     key=cv2.waitKey(15)&255
@@ -359,14 +398,19 @@ def main():
                         controller.stop('MANUAL STOP');send('stop')
                     if key in (ord('r'),ord('R')):
                         start_requested=False
-                        send('stop');controller.rearm();tracker=MovingBlocks() if args.multi_push else StationaryBlocks()
+                        send('stop');controller.rearm();tracker=tracker_type()
                     if key==32:
-                        if args.multi_push:
+                        if args.straight_push and not controller.active and not plan.get('can_start'):
+                            record('start_rejected',reason=plan['reason'])
+                            print('Not ready. Press R to reset a finished run, or check the current status:',plan['reason'])
+                        elif stepped_push:
                             if not controller.active:
                                 if controller.finished:
                                     completed=controller.completed
-                                    controller.rearm();controller.completed=completed
-                                    tracker=MovingBlocks()
+                                    controller.rearm()
+                                    if not args.one_delivery:
+                                        controller.completed=completed
+                                    tracker=tracker_type()
                                 start_requested=True
                                 record('start_requested',reason=controller.last_plan['reason'])
                                 print('已收到启动请求：条件满足后开始；X取消。当前状态：',controller.last_plan['reason'])
@@ -381,7 +425,8 @@ def main():
                         stamp=datetime.now().strftime('%H%M%S-%f')
                         write_png(folder/(stamp+'-source.png'),frame)
                         write_png(folder/(stamp+'-result.png'),result)
-                        record('snapshot',robot=robot,regions=regions,plan=plan,corners=corners,rotation_ccw=turns)
+                        record('snapshot',robot=robot,regions=regions,field=field,plan=plan,
+                               corners=corners,rotation_ccw=turns)
                 break
             except (OSError,ValueError,cv2.error) as error:
                 start_requested=False
@@ -393,7 +438,7 @@ def main():
                     record('stop_unconfirmed',error=str(stop_error))
                 print('测试已暂停，保持停车：',error)
                 print('错误已记录：',folder/'events.jsonl')
-                if args.multi_push and isinstance(error,OSError):
+                if stepped_push and isinstance(error,OSError):
                     print('窗口保持打开。网络恢复后按R重连，成功后还须按空格重新启动。Esc退出。')
                     recovery=show_stopped_error(name,error,allow_reconnect=True,image=image)
                     if recovery:

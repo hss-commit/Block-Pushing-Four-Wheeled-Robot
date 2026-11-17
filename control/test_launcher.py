@@ -32,8 +32,17 @@ def main():
                     assert args[args.index('--camera') + 1] == '3'
                 assert ('--host' in args) == (mode != '2')
                 assert ('--single-push' in args) == (mode == '1')
-                assert ('--multi-push' in args) == (mode == '6')
+                assert ('--multi-push' in args) == (mode in ('6', '8'))
+                assert ('--one-delivery' in args) == (mode == '6')
                 assert Path(args[3]).is_file()
+            launcher.save_settings({'ip': '192.168.1.8', 'camera': 3, 'mode': '7'})
+            assert launcher.load_settings() == {'ip': '192.168.1.8', 'camera': 3, 'mode': '6'}
+            for choice in ('', '7'):
+                with patch('builtins.input', side_effect=[choice, 'q']), patch.object(launcher, 'check_connection'), patch.object(launcher.subprocess, 'run') as run:
+                    run.return_value.returncode = 0
+                    assert launcher.main() == 0
+                    assert run.call_args.args[0] == launcher.command(settings, '6')
+            launcher.SETTINGS.write_text('broken', encoding='utf-8')
             # A failed connection must not open the motion program.
             with patch('builtins.input', side_effect=['1', 'q']), patch('vision.robot_vision.load_config', return_value={**TEST_CONFIG, 'body_length_mm': None}), patch.object(launcher, 'check_connection') as check, patch.object(launcher.subprocess, 'run') as run:
                 assert launcher.main() == 0
@@ -83,7 +92,7 @@ def main():
             pass
         else:
             raise AssertionError('wrong firmware accepted')
-    print('Launcher checks passed: settings, six modes, camera-free remote, GET-only preflight, failure/retry and remembered start.')
+    print('Launcher checks passed: settings, seven modes, camera-free remote, GET-only preflight, failure/retry and remembered start.')
 
 
 if __name__ == '__main__':

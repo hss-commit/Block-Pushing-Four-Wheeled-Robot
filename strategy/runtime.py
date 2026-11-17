@@ -52,7 +52,7 @@ class StrategyRuntime:
         self.planner.lock_ids = ()
         return Decision(self.planner.phase, "STOP", reason)
 
-    def decide(self, observation: Observation, feedback: Feedback, now_s: float) -> Decision:
+    def decide(self, observation: Observation, feedback: Feedback, now_s: float, feasible=None) -> Decision:
         if not self._number(now_s) or now_s < self.last_now_s:
             return self._stop("主机时间无效或倒退")
         self.last_now_s = now_s
@@ -87,7 +87,7 @@ class StrategyRuntime:
             jammed=feedback.jammed,
             emergency_stop=feedback.emergency_stop,
         )
-        result = self.planner.tick(world)
+        result = self.planner.tick(world) if feasible is None else self.planner.tick(world, feasible)
         # Do not accept progress reported by an already-expired heartbeat.
         if world.link_age_s <= self.planner.config.link_timeout_s:
             self.completed_pushes = feedback.completed_pushes

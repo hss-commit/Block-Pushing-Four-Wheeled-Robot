@@ -84,7 +84,8 @@ def sample_colour(image, x, y):
             int(np.median(pixels[:, 1])), int(np.median(pixels[:, 2]))]
 
 
-def segment(image, sample, h_tol=10, s_tol=70, v_tol=90, min_area=150, field=None):
+def segment(image, sample, h_tol=10, s_tol=70, v_tol=90, min_area=150, field=None,
+            *, square_side_mm=None):
     """Grow saturated colour seeds into connected paler/shadowed faces."""
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     center = np.asarray(sample, dtype=np.int16)
@@ -114,6 +115,18 @@ def segment(image, sample, h_tol=10, s_tol=70, v_tol=90, min_area=150, field=Non
         x, y, width, height, area = map(int, stats[index])
         if area < min_area or seed_counts[index] < 3:
             continue
+        if square_side_mm is not None:
+            component = (labels[y:y + height, x:x + width] == index).astype(np.uint8)
+            contours, _ = cv2.findContours(component, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            contour = max(contours, key=cv2.contourArea)
+            short, long = sorted(cv2.minAreaRect(contour)[1])
+            mm_per_pixel = FIELD_MM / (SIZE - 1)
+            if (short * mm_per_pixel < .6 * square_side_mm or
+                    long * mm_per_pixel > 1.65 * square_side_mm or long > 1.4 * short):
+                continue
+            corners = cv2.approxPolyDP(contour, .035 * cv2.arcLength(contour, True), True)
+            if len(corners) != 4 or not cv2.isContourConvex(corners):
+                continue
         keep[index] = 255
         cx, cy = map(float, centers[index])
         regions.append({

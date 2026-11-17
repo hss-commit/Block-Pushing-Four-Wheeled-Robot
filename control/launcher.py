@@ -15,7 +15,8 @@ MODES = {
     '3': ('短动作测试（空格触发）', 'control/vision_wifi_test.py', []),
     '4': ('进阶：只自动接近（含转向，先验轮向）', 'control/vision_approach_test.py', []),
     '5': ('键盘遥控（按住持续走，松开停车）', 'control/keyboard_remote.py', []),
-    '6': ('多块入区测试（逐个送入黄区，空格启动）', 'control/vision_approach_test.py', ['--multi-push']),
+    '6': ('单方块自动入区（核验一块后结束）', 'control/vision_approach_test.py', ['--multi-push', '--one-delivery']),
+    '8': ('多方块自动入区（逐块推送并核验）', 'control/vision_approach_test.py', ['--multi-push']),
 }
 
 
@@ -29,9 +30,10 @@ def load_settings():
     try:
         saved = json.loads(SETTINGS.read_text(encoding='utf-8'))
         defaults['ip'] = address(saved['ip'])
-        if type(saved['camera']) is not int or saved['camera'] < 0 or saved['mode'] not in MODES:
+        mode = '6' if saved['mode'] == '7' else saved['mode']
+        if type(saved['camera']) is not int or saved['camera'] < 0 or mode not in MODES:
             raise ValueError('invalid settings')
-        defaults.update(camera=saved['camera'], mode=saved['mode'])
+        defaults.update(camera=saved['camera'], mode=mode)
     except (OSError, ValueError, KeyError, TypeError):
         pass
     return defaults
@@ -126,8 +128,10 @@ def main():
             configure_marker()
             continue
         mode = mode or settings['mode']
+        if mode == '7':
+            mode = '6'
         if mode not in MODES:
-            print('请输入1～6、S、M或Q。')
+            print('请选择菜单中列出的模式，或输入S、M、Q。')
             continue
         if mode != '2':
             if mode != '5':
@@ -139,7 +143,7 @@ def main():
                     continue
             print('正在检查小车连接（不会发送运动指令）……')
             try:
-                check_connection(settings['ip'], mode in ('1', '4', '5', '6'))
+                check_connection(settings['ip'], mode in ('1', '4', '5', '6', '8'))
             except (OSError, ValueError) as error:
                 print(f'未能连接：{error}')
                 print('请确认电脑和小车均已加入Robot-Test热点，小车已供电。')

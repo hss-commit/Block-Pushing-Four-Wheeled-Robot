@@ -47,6 +47,11 @@ class Config:
     target_lock_s: float = 0.8
     opening_lateral_penalty: float = 1.5
     capture_limit: int = 30
+    boundary_y_mm: float | None = None
+
+    @property
+    def boundary_y(self):
+        return self.field_mm / 2 if self.boundary_y_mm is None else self.boundary_y_mm
 
     def __post_init__(self):
         if self.target_half not in ("lower", "upper"):
@@ -54,8 +59,12 @@ class Config:
         if type(self.capture_limit) is not int or self.capture_limit < 1:
             raise ValueError('capture_limit must be a positive integer')
         for name, value in vars(self).items():
+            if name == 'boundary_y_mm' and value is None:
+                continue
             if name != "target_half" and (not isinstance(value, (int, float)) or not isfinite(value) or value <= 0):
                 raise ValueError(f"Invalid config: {name}")
+        if not 0 < self.boundary_y < self.field_mm:
+            raise ValueError('Field boundary must be inside the field')
         if not (self.stop_remaining_s < self.endgame_remaining_s < self.match_s - self.opening_s):
             raise ValueError("Phase times overlap")
         if not (self.quick_depth_mm < self.safe_depth_mm <= self.deep_depth_mm < self.field_mm / 2):
@@ -143,7 +152,7 @@ def revise_task_for_endgame(config, task, robot, execution_state):
     if execution_state != "PUSH":
         return "REPLAN", None
     sign = -1 if config.target_half == "lower" else 1
-    y = config.field_mm / 2 + sign * (config.quick_depth_mm - config.front_offset_mm - config.block_half_mm)
+    y = config.boundary_y + sign * (config.quick_depth_mm - config.front_offset_mm - config.block_half_mm)
     if sign * (y - robot.y) <= 0:
         return "RELEASE", task
     return "CONTINUE", replace(task, phase="ENDGAME", delivery="QUICK_CROSS", push_to_mm=(robot.x, y))
@@ -161,7 +170,7 @@ class Planner:
 
     def depth(self, y):
         sign = -1 if self.config.target_half == "lower" else 1
-        return sign * (y - self.config.field_mm / 2)
+        return sign * (y - self.config.boundary_y)
 
     def _stop(self, reason):
         self.lock_ids = ()
@@ -184,7 +193,7 @@ class Planner:
         return all(isinstance(p.heading, (int, float)) and isfinite(p.heading)
                    for p in (world.robot, world.opponent) if p is not None)
 
-    def tick(self, world):
+    def tick(self, world, feasible=None):
         c = self.config
         if not self._valid(world):
             return self._stop("输入数据无效或时间倒退")
@@ -225,6 +234,8 @@ class Planner:
         self.previous_depth = {b.id: self.depth(b.y) for b in world.blocks}
 
         candidates = list(self._candidates(world, remaining))
+        if feasible is not None:
+            candidates = [candidate for candidate in candidates if feasible(candidate)]
         if not candidates:
             self.lock_ids = ()
             return Decision(self.phase, "WAIT", "没有可在剩余时间内完成的合适目标")
@@ -278,11 +289,12 @@ class Planner:
                 goal_depth, delivery = short_depth, "QUICK_CROSS"
             behind_depth = first_depth - c.front_offset_mm - c.block_half_mm - c.approach_gap_mm
             end_depth = goal_depth - c.front_offset_mm - c.block_half_mm
-            behind = Pose(center, c.field_mm / 2 + sign * behind_depth)
-            end = Pose(center, c.field_mm / 2 + sign * end_depth)
+            behind = Pose(center, c.boundary_y + sign * behind_depth)
+            end = Pose(center, c.boundary_y + sign * end_depth)
             if any(not c.body_margin_mm <= p.y <= c.field_mm - c.body_margin_mm for p in (behind, end)):
                 continue
-            if goal_depth + c.block_half_mm + c.side_margin_mm > c.field_mm / 2:
+            target_depth = c.boundary_y if sign < 0 else c.field_mm - c.boundary_y
+            if goal_depth + c.block_half_mm + c.side_margin_mm > target_depth:
                 continue
             if opponent:
                 nearest_y = max(min(behind.y, end.y), min(opponent.y, max(behind.y, end.y)))
