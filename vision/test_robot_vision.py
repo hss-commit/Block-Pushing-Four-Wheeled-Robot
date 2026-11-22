@@ -5,7 +5,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from vision.robot_vision import detect_robot, exclude_robot_regions
+from vision.robot_vision import detect_robot, exclude_robot_regions, retain_contact_target
 
 TEST_CONFIG = dict(marker_id=0, marker_size_mm=50, body_length_mm=100,
                    body_width_mm=150, center_offset_right_mm=0, center_offset_forward_mm=0)
@@ -80,7 +80,57 @@ def main():
     assert PulseGate.pose(no_size) is None
     assert SinglePushControl().update(no_size,(),{},0,0,0)['command']=='stop'
     assert not ApproachControl().update(no_size,(),{},0,0,0)['can_start']
+    check_contact_target()
     print('PASS: rotations, perspective, ID filtering, duplicate ID, no wheel fallback, offsets, body exclusion, printed asset, missing geometry blocks all motion modes')
+
+
+def check_contact_target():
+    for angle in (0,30,90,145):
+        matrix=cv2.getRotationMatrix2D((400,400),angle,1)
+        hull=cv2.transform(np.float32([[[300,350],[500,350],[500,450],[300,450]]]),matrix)[0]
+        body={'detected':True,'geometry_valid':True,'body_polygon_px':hull.tolist()}
+        def region(x,y,size=20):
+            corners=cv2.transform(np.float32([[[x-size/2,y-size/2],[x+size/2,y-size/2],
+                                               [x+size/2,y+size/2],[x-size/2,y+size/2]]]),matrix)[0]
+            point=cv2.transform(np.float32([[[x,y]]]),matrix)[0,0]
+            low=corners.min(axis=0);high=corners.max(axis=0)
+            return dict(bbox_px=[*map(float,low),*map(float,high-low)],
+                        x_mm=float(point[0]),y_mm=1200-float(point[1]))
+        previous=region(400,360)
+        target=region(400,385)
+        wheels=[region(305,400),region(495,400),region(400,440)]
+        assert target not in exclude_robot_regions([target],body)
+        kept=retain_contact_target([target,*wheels],body,previous,block_side_px=20)
+        assert kept==[target],(angle,kept)
+        assert retain_contact_target([target,*wheels],body,None,block_side_px=20)==[]
+        ambiguous=region(403,385)
+        assert retain_contact_target([target,ambiguous],body,previous,block_side_px=20)==[]
+        assert retain_contact_target([region(400,385,60)],body,previous,block_side_px=20)==[]
+        assert retain_contact_target([target],body,previous,block_side_px=20,
+            other_points_mm=[(target['x_mm'],target['y_mm'])])==[]
+    # Exercise actual colour segmentation before body masking, not only boxes.
+    from vision.photo_vision import segment
+    image=np.full((1200,1200,3),160,np.uint8)
+    cv2.rectangle(image,(390,350),(409,369),(0,0,230),-1)
+    _,before=segment(image,[0,255,230],min_area=90,square_side_mm=20)
+    assert len(before)==1,before
+    image[:]=160
+    for x,y in ((400,385),(305,400),(495,400)):
+        cv2.rectangle(image,(x-10,y-10),(x+9,y+9),(0,0,230),-1)
+    _,after=segment(image,[0,255,230],min_area=90,square_side_mm=20)
+    body={'detected':True,'geometry_valid':True,
+          'body_polygon_px':[[300,350],[500,350],[500,450],[300,450]]}
+    assert len(after)==3 and exclude_robot_regions(after,body)==[],after
+    kept=retain_contact_target(after,body,before[0],block_side_px=20)
+    assert len(kept)==1 and abs(kept[0]['x_mm']-400)<2,kept
+    # An empty bounding-box corner touches the car; actual colour does not.
+    image[:]=160
+    cv2.fillPoly(image,[np.int32([[280,300],[310,330],[280,360],[250,330]])],(0,0,230))
+    cv2.circle(image,(300,410),15,(0,0,230),-1)
+    _,regions=segment(image,[0,255,230],min_area=90)
+    assert len(regions)==2,regions
+    kept=exclude_robot_regions(regions,body)
+    assert len(kept)==1 and kept[0]['x_mm']<290,kept
 
 
 if __name__=='__main__':

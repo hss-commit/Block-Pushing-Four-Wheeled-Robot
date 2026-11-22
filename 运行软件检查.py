@@ -13,6 +13,7 @@ GROUPS = {
                    'control/test_bluetooth_link.py', 'control/test_approach_control.py',
                    'control/test_single_push_control.py'],
     '直接推块联调': ['control/test_push_integration.py', 'control/test_multi_push_control.py',
+                     'control/test_local_multi_push.py', 'control/test_turn_feedback.py',
                      'control/test_multi_push_integration.py', 'control/test_multi_reconnect.py'],
     '比赛策略': ['strategy/test_planner.py', 'strategy/test_runtime.py',
                  'strategy/test_scene_priority.py', 'strategy/test_simulator.py'],

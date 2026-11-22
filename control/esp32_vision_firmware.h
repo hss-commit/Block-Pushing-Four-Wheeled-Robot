@@ -67,6 +67,14 @@ void motorTask(void *) {
         manualCommand = command;
         moving = true;
         stopAt = millis() + kManualHoldMs;
+      } else if (command >= 14 && command <= 17 && !moving) {
+        manualCommand = 0;
+        moving = true;
+        stopAt = millis() + (command >= 16 ? 35 : 60);
+        const float speed = 0.05f;
+        const float left = (command == 14 || command == 16) ? -speed : speed;
+        const float right = -left;
+        Serial1.printf("$Car:%.3f,%.3f,%.3f,%.3f!", left,right,left,right);
       } else if (command >= 10 && command <= 13 && !moving) {
         manualCommand = 0;
         moving = true;
@@ -120,7 +128,7 @@ void reply(int code, const char *result) {
   server.sendHeader("Cache-Control", "no-store");
   server.send(code, "application/json", String("{\"protocol\":\"") + kProtocol +
               "\",\"result\":\"" + result + "\",\"busy\":" +
-              (isBusy() ? "true" : "false") + ",\"pulse_ms\":250,\"step_ms\":120,\"reverse_step\":true,\"manual_hold_ms\":700,\"manual_ramp_v\":1,\"gentle_step_ms\":80}");
+              (isBusy() ? "true" : "false") + ",\"pulse_ms\":250,\"step_ms\":120,\"reverse_step\":true,\"manual_hold_ms\":700,\"manual_ramp_v\":1,\"gentle_step_ms\":80,\"medium_turn_ms\":60,\"fine_turn_ms\":35,\"turn_speed\":0.05}");
 }
 #endif
 
@@ -186,6 +194,14 @@ void setup() {
     if (!valid) { requestStop(); reply(400, "bad_step"); return; }
     if (server.arg("gentle") == "1") {
       command = direction == "forward" ? 10 : direction == "backward" ? 11 : direction == "left" ? 12 : 13;
+    }
+    const String turnProfile = server.arg("turn_profile");
+    if (turnProfile.length()) {
+      if ((direction != "left" && direction != "right") ||
+          (turnProfile != "medium" && turnProfile != "fine")) {
+        requestStop(); reply(400, "bad_turn_profile"); return;
+      }
+      command = (turnProfile == "fine" ? 16 : 14) + (direction == "right" ? 1 : 0);
     }
     if (token == lastToken) { reply(200, "duplicate_ignored"); return; }
     if (isBusy()) { reply(409, "busy"); return; }

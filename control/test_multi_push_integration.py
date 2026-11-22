@@ -20,15 +20,22 @@ from control.multi_push_control import MultiPushControl
 from vision.robot_vision import detect_robot
 
 
-def check(preview_delay=0):
-    control=MultiPushControl()
+def check(preview_delay=0, *, in_process=False, local=False, turn_profiles=False, turn_breakaway=False,
+          occlude_contact=False, marker_dropout=False):
+    control=MultiPushControl(field_guided=local)
     ages=[]
     original_update=control.update
-    def checked_update(robot,blocks,field,captured,now,link_at):
+    def checked_update(robot,blocks,field,captured,now,link_at,**kwargs):
         ages.append(now-captured)
-        return original_update(robot,blocks,field,captured,now,link_at)
+        assert captured>=world['observe_after'], (captured,world['observe_after'])
+        return original_update(robot,blocks,field,captured,now,link_at,**kwargs)
     world=dict(now=0.,x=600.,y=950.,heading=-math.pi/2,frames=0,
-               blocks={'a':[400.,700.],'b':[800.,700.]},pending=[],requests=[])
+               blocks={'a':[400.,700.],'b':[800.,700.]},pending=[],requests=[],observe_after=-math.inf)
+    world['turn_unlocked']=not turn_breakaway
+    world['occluded_frames']=0
+    world['marker_dropout_frames']=0
+    if occlude_contact:
+        world['blocks']={'a':[600.,700.],'b':[400.,700.]}
     config=dict(marker_id=0,marker_size_mm=50,body_length_mm=100,body_width_mm=200,
                 center_offset_right_mm=0,center_offset_forward_mm=0)
     class Handler(BaseHTTPRequestHandler):
@@ -39,11 +46,20 @@ def check(preview_delay=0):
             if self.path=='/status':
                 world['now']+=preview_delay
             if self.path=='/step':
-                assert data['gentle']==['1']
+                gentle=data.get('gentle')==['1']
+                assert gentle or (local and (data['direction'][0] in ('forward','backward') or
+                                              control.last_plan.get('normal_turn_step')))
+                if turn_breakaway and data['direction'][0] in ('left','right'):
+                    world['turn_unlocked']=not gentle
                 world['pending'].append(data['direction'][0])
+                duration={'medium':.06,'fine':.035}.get(data.get('turn_profile',[''])[0],.08 if gentle else .12)
+                world['observe_after']=world['now']+duration+.02
+            if self.path=='/stop':
+                world['observe_after']=-math.inf
             self.send_response(200);self.end_headers()
             self.wfile.write(json.dumps(dict(protocol='vision-pulse-v1',pulse_ms=250,step_ms=120,
-                gentle_step_ms=80,result={'/status':'ready','/stop':'stop_queued','/step':'step_queued'}[self.path])).encode())
+                gentle_step_ms=80,result={'/status':'ready','/stop':'stop_queued','/step':'step_queued'}[self.path],
+                **({'medium_turn_ms':60,'fine_turn_ms':35} if turn_profiles else {}))).encode())
         do_GET=handle_request
         do_POST=handle_request
     class Camera:
@@ -52,7 +68,8 @@ def check(preview_delay=0):
             self.captured_at=world['now']
             for command in world['pending']:
                 if command in ('left','right'):
-                    world['heading']+=.08 if command=='left' else -.08
+                    if world['turn_unlocked']:
+                        world['heading']+=.08 if command=='left' else -.08
                 else:
                     step=10 if command=='forward' else -10
                     world['x']+=step*math.cos(world['heading'])
@@ -60,6 +77,14 @@ def check(preview_delay=0):
                     if command=='forward' and control.state=='PUSH':
                         # Only the block physically ahead can be contacted.
                         for point in world['blocks'].values():
+                            if local:
+                                ox,oy=point[0]-world['x'],point[1]-world['y']
+                                ahead=ox*math.cos(world['heading'])+oy*math.sin(world['heading'])
+                                lateral=-ox*math.sin(world['heading'])+oy*math.cos(world['heading'])
+                                if 30<ahead<75 and abs(lateral)<90:
+                                    point[0]+=step*math.cos(world['heading'])
+                                    point[1]+=step*math.sin(world['heading'])
+                                continue
                             if abs(point[0]-world['x'])<20 and 40<world['y']-point[1]<75:
                                 point[1]=min(point[1],world['y']-62)
             world['pending'].clear()
@@ -69,8 +94,18 @@ def check(preview_delay=0):
             marker=cv2.warpAffine(marker,cv2.getRotationMatrix2D((49.5,49.5),
                 math.degrees(world['heading']-math.pi/2),1),(100,100),borderValue=255)
             x,y=round(world['x']),round(1200-world['y'])
-            image[y-50:y+50,x-50:x+50]=cv2.cvtColor(marker,cv2.COLOR_GRAY2BGR)
+            if marker_dropout and control.contact_anchor is not None and world['marker_dropout_frames']<12:
+                world['marker_dropout_frames']+=1
+            else:
+                image[y-50:y+50,x-50:x+50]=cv2.cvtColor(marker,cv2.COLOR_GRAY2BGR)
             for bx,by in world['blocks'].values():
+                if occlude_contact and control.state=='PUSH' and control.contact_anchor is not None:
+                    ox,oy=bx-world['x'],by-world['y']
+                    ahead=ox*math.cos(world['heading'])+oy*math.sin(world['heading'])
+                    lateral=-ox*math.sin(world['heading'])+oy*math.cos(world['heading'])
+                    if 30<ahead<80 and abs(lateral)<90:
+                        world['occluded_frames']+=1
+                        continue
                 bx,by=round(bx),round(1200-by)
                 cv2.rectangle(image,(bx-10,by-10),(bx+9,by+9),(0,0,230),-1)
             return True,image
@@ -78,21 +113,49 @@ def check(preview_delay=0):
 
     server=ThreadingHTTPServer(('127.0.0.1',0),Handler)
     thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
+    class LocalResponse:
+        def __init__(self,request):
+            self.path=request.full_url.removeprefix(f'http://127.0.0.1:{server.server_port}')
+            data=parse_qs((request.data or b'').decode())
+            world['requests'].append((self.path,data))
+            if self.path=='/status':
+                world['now']+=preview_delay
+            if self.path=='/step':
+                gentle=data.get('gentle')==['1']
+                assert gentle or (local and (data['direction'][0] in ('forward','backward') or
+                                              control.last_plan.get('normal_turn_step')))
+                if turn_breakaway and data['direction'][0] in ('left','right'):
+                    world['turn_unlocked']=not gentle
+                world['pending'].append(data['direction'][0])
+                duration={'medium':.06,'fine':.035}.get(data.get('turn_profile',[''])[0],.08 if gentle else .12)
+                world['observe_after']=world['now']+duration+.02
+            if self.path=='/stop':
+                world['observe_after']=-math.inf
+        def __enter__(self): return self
+        def __exit__(self,*args): pass
+        def read(self,size):
+            return json.dumps(dict(protocol='vision-pulse-v1',pulse_ms=250,step_ms=120,
+                gentle_step_ms=80,result={'/status':'ready','/stop':'stop_queued','/step':'step_queued'}[self.path],
+                **({'medium_turn_ms':60,'fine_turn_ms':35} if turn_profiles else {}))).encode()
     try:
         with tempfile.TemporaryDirectory() as folder, ExitStack() as stack, redirect_stdout(io.StringIO()):
+            if in_process:
+                stack.enter_context(patch('urllib.request.OpenerDirector.open',
+                    lambda opener,request,**kwargs:LocalResponse(request)))
             def key(*args):
                 if preview_delay:
                     return 27 if world['frames']>=8 else 0
-                return 27 if control.finished or world['frames']>2400 else 32 if control.last_plan.get('can_start') else 0
+                delivered=local and control.completed==2 and control.state=='SELECT'
+                return 27 if control.finished or delivered or world['frames']>2400 else 32 if control.last_plan.get('can_start') else 0
             for obj,name,value in (
                 (app.sys,'argv',['multi-test','--multi-push','--host',f'http://127.0.0.1:{server.server_port}']),
-                (app,'OUTPUT',Path(folder)),(app,'MultiPushControl',lambda *args:control),
+                (app,'OUTPUT',Path(folder)),(app,'MultiPushControl',lambda *args,**kwargs:control),
                 (control,'update',checked_update),
-                (app,'detect_robot',lambda image:detect_robot(image,config)),
+                (app,'detect_robot',lambda image,**kwargs:detect_robot(image,config,**kwargs)),
                 (app,'calibration',lambda index:(Camera(),[],0,(1200,1200))),
                 (app,'rectify',lambda frame,corners:frame),
                 (app.time,'monotonic',lambda:world['now']),
-                (app,'show_stopped_error',lambda name,error:(_ for _ in ()).throw(AssertionError(str(error)))),
+                (app,'show_stopped_error',lambda name,error,**kwargs:(_ for _ in ()).throw(AssertionError(str(error)))),
                 (cv2,'namedWindow',lambda *args:None),(cv2,'destroyAllWindows',lambda:None),
                 (cv2,'imshow',lambda *args:None),(cv2,'getWindowProperty',lambda *args:1),
                 (cv2,'setMouseCallback',lambda name,callback:callback(cv2.EVENT_LBUTTONDOWN,233,292,0,None)),
@@ -108,18 +171,46 @@ def check(preview_delay=0):
             assert app.GentleLink.request_timeout==.6 and app.WifiLink.request_timeout==.18
             print('PASS: slow status query precedes NEW camera acquisition; preparation remains usable, original mode timeout unchanged')
             return
-        assert control.state=='DONE' and control.completed==2,(control.state,control.last_plan,world)
-        assert all(point[1]<570 for point in world['blocks'].values())
+        assert control.state==('SELECT' if local else 'DONE') and control.completed==2,(control.state,control.last_plan,world)
+        if local:
+            assert control.active and not control.finished
+        assert all(point[1]<(590 if occlude_contact else 585 if local else 570)
+                   for point in world['blocks'].values()),world['blocks']
         assert world['requests'][-1][0]=='/stop' and world['released']
         steps=[data for path,data in world['requests'] if path=='/step']
         assert len({s['id'][0] for s in steps})==len(steps)
-        assert {'forward','backward','left','right'}<={s['direction'][0] for s in steps}
+        required={'forward','backward'} if occlude_contact else {'forward','backward','left','right'}
+        assert required<={s['direction'][0] for s in steps}
+        if turn_profiles:
+            turns=[s for s in steps if s['direction'][0] in ('left','right')]
+            assert turns and all(s.get('turn_profile') in (['medium'],['fine']) or
+                                 'gentle' not in s for s in turns),turns
+            assert all('turn_profile' not in s for s in steps if s['direction'][0] in ('forward','backward'))
+        if turn_breakaway:
+            assert any(s['direction'][0] in ('left','right') and 'gentle' not in s for s in steps)
         assert max(e.get('plan',{}).get('completed',0) for e in events)==2
-        print('PASS: actual ArUco/block pixels + complete application + real HTTP: two yellow deliveries, reverse/verify/reselect, gentle actions, final STOP')
+        if occlude_contact:
+            assert world['occluded_frames']>10,world['occluded_frames']
+            assert any(e.get('plan',{}).get('block_estimated') for e in events)
+        if marker_dropout:
+            assert world['marker_dropout_frames']==12
+            marker_wait=[e['plan'] for e in events if e.get('event')=='plan' and
+                         'ROBOT MARKER / BODY LOST' in e.get('plan',{}).get('reason','')]
+            assert marker_wait and all(p.get('target_ids') for p in marker_wait),marker_wait
+        assert any(e.get('plan',{}).get('reason')=='WAIT FOR FRAME AFTER STEP' for e in events)
+        print('PASS: actual ArUco/block pixels + complete application + '+
+              ('in-process HTTP transport' if in_process else 'real HTTP')+
+              (' / local test 8' if local else '')+
+              (' / contact blocks hidden then visually verified' if occlude_contact else '')+
+              ': two yellow deliveries, reverse/verify/reselect, bounded steps, final STOP')
     finally:
         server.shutdown();server.server_close();thread.join(timeout=2)
 
 
 if __name__=='__main__':
-    check()
-    check(preview_delay=.25)
+    check(in_process='--in-process' in sys.argv)
+    check(in_process='--in-process' in sys.argv,local=True)
+    check(in_process='--in-process' in sys.argv,local=True,occlude_contact=True,marker_dropout=True)
+    check(in_process='--in-process' in sys.argv,local=True,turn_breakaway=True)
+    check(in_process='--in-process' in sys.argv,local=True,turn_profiles=True,turn_breakaway=True)
+    check(preview_delay=.25,in_process='--in-process' in sys.argv)

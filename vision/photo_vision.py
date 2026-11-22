@@ -84,8 +84,45 @@ def sample_colour(image, x, y):
             int(np.median(pixels[:, 1])), int(np.median(pixels[:, 2]))]
 
 
+class ClickedBlock:
+    """Associate a click with one block and keep its identity across missed frames."""
+
+    def __init__(self, point):
+        self.point = point
+        self.last_region = None
+        self.last_seen = None
+        self.missed = False
+
+    def update(self, regions, captured_at, *, expected_point=None):
+        sx, sy = expected_point if expected_point is not None and self.last_region is not None else self.point
+        matches = []
+        for region in regions:
+            x, y, width, height = region['bbox_px']
+            if self.last_region is None:
+                nearby = x-5 <= sx <= x+width+5 and y-5 <= sy <= y+height+5
+            else:
+                # After a miss, require the candidate to overlap the last
+                # known position before resuming the same track.
+                radius = min(30, max(self.last_region['bbox_px'][2:])/2) if self.missed and expected_point is None else 30
+                nearby = (x+width/2-sx)**2 + (y+height/2-sy)**2 <= radius**2
+            if nearby:
+                matches.append(region)
+        if len(matches) != 1:
+            self.missed = True
+            return []
+        self.missed = False
+        self.last_region = matches[0]
+        self.last_seen = captured_at
+        x, y, width, height = self.last_region['bbox_px']
+        self.point = (x+width/2, y+height/2)
+        return matches
+
+    def recently_seen(self, captured_at):
+        return self.last_seen is not None and captured_at-self.last_seen <= .35
+
+
 def segment(image, sample, h_tol=10, s_tol=70, v_tol=90, min_area=150, field=None,
-            *, square_side_mm=None):
+            *, square_side_mm=None, allow_blurred_square=False):
     """Grow saturated colour seeds into connected paler/shadowed faces."""
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     center = np.asarray(sample, dtype=np.int16)
@@ -121,34 +158,51 @@ def segment(image, sample, h_tol=10, s_tol=70, v_tol=90, min_area=150, field=Non
             contour = max(contours, key=cv2.contourArea)
             short, long = sorted(cv2.minAreaRect(contour)[1])
             mm_per_pixel = FIELD_MM / (SIZE - 1)
+            max_side = 1.8 if allow_blurred_square else 1.65
+            max_aspect = 1.55 if allow_blurred_square else 1.4
             if (short * mm_per_pixel < .6 * square_side_mm or
-                    long * mm_per_pixel > 1.65 * square_side_mm or long > 1.4 * short):
+                    long * mm_per_pixel > max_side * square_side_mm or long > max_aspect * short):
                 continue
-            corners = cv2.approxPolyDP(contour, .035 * cv2.arcLength(contour, True), True)
-            if len(corners) != 4 or not cv2.isContourConvex(corners):
+            outline = cv2.convexHull(contour) if allow_blurred_square else contour
+            corners = cv2.approxPolyDP(outline, .035 * cv2.arcLength(outline, True), True)
+            if not cv2.isContourConvex(corners):
+                continue
+            if allow_blurred_square:
+                # Compression can notch a cube's silhouette. Use the hull
+                # for corners and the original pixels for the fill check.
+                fill = cv2.contourArea(contour) / (short * long)
+                if not 4 <= len(corners) <= 7 or fill < (.76 if len(corners) == 7 else .70):
+                    continue
+            elif len(corners) != 4:
                 continue
         keep[index] = 255
+        if square_side_mm is None:
+            component = (labels[y:y + height, x:x + width] == index).astype(np.uint8)
+            contours, _ = cv2.findContours(component, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            contour=max(contours,key=cv2.contourArea)
         cx, cy = map(float, centers[index])
         regions.append({
             "x_mm": round(cx * FIELD_MM / (SIZE - 1), 1),
             "y_mm": round((SIZE - 1 - cy) * FIELD_MM / (SIZE - 1), 1),
             "area_px": area, "bbox_px": [x, y, width, height],
+            "contour_px": (contour.reshape(-1,2)+[x,y]).tolist(),
         })
     return keep[labels], sorted(regions, key=lambda region: (region["x_mm"], region["y_mm"]))
 
 
-def detect_midline(image):
+def detect_midline(image, *, max_dimension=900):
     """Fit the observed blue/yellow interface, not the image centre.
 
     Returns pixel geometry, with the unit normal pointing into yellow.
     A missing or inconsistent boundary is explicitly invalid.
     """
     height, width = image.shape[:2]
-    scale = min(900 / max(height, width), 1)
+    scale = min(max_dimension / max(height, width), 1)
     small = cv2.resize(image, None, fx=scale, fy=scale)
     hsv = cv2.cvtColor(small, cv2.COLOR_BGR2HSV)
+    # The yellow floor can appear orange under DroidCam's colour balance.
     masks = [cv2.inRange(hsv, np.array(lo), np.array(hi)) for lo, hi in (
-        ((90, 80, 45), (135, 255, 255)), ((18, 80, 45), (40, 255, 255)))]
+        ((90, 80, 45), (135, 255, 255)), ((12, 80, 45), (40, 255, 255)))]
     labels = np.zeros(small.shape[:2], np.uint8)
     for value, mask in enumerate(masks, 1):
         count, components, stats, _ = cv2.connectedComponentsWithStats(mask)

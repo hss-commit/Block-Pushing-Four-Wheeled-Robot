@@ -26,6 +26,7 @@ def check(idle_failure=False):
     class Controller:
         def __init__(self):
             self.active=self.finished=False;self.completed=2;self.state='PREPARE'
+            self.task=None
             self.last_plan=dict(command='stop',reason='READY',can_start=True)
         def rearm(self):
             self.__init__();self.completed=0
@@ -33,7 +34,7 @@ def check(idle_failure=False):
             self.active=False;self.finished=True;self.state='STOPPED'
             self.last_plan=dict(command='stop',reason=reason,can_start=False)
             return self.last_plan
-        def update(self,*args):
+        def update(self,*args,**kwargs):
             if world['connects']==1:
                 self.completed=2  # Simulate two previously verified deliveries.
             self.last_plan=dict(command='forward' if self.active else 'stop',reason='PREPARING',
@@ -73,11 +74,11 @@ def check(idle_failure=False):
         calibration=Mock(return_value=(Capture(),[],0,(1200,1200)))
         for obj,name,value in (
             (app.sys,'argv',['test','--multi-push','--host','http://127.0.0.1']),
-            (app,'OUTPUT',Path(folder)),(app,'MultiPushControl',lambda *args:control),
+            (app,'OUTPUT',Path(folder)),(app,'MultiPushControl',lambda *args,**kwargs:control),
             (app,'GentleLink',lambda *args:Link()),(app,'calibration',calibration),
             (app,'rectify',lambda frame,corners:frame),
-            (app,'sample_colour',lambda *args:[0,255,230]),(app,'detect_robot',lambda image:{}),
-            (app,'detect_midline',lambda image:{}),
+            (app,'sample_colour',lambda *args:[0,255,230]),(app,'detect_robot',lambda image,**kwargs:{}),
+            (app,'detect_midline',lambda image,**kwargs:{}),
             (app,'segment',lambda *args,**kwargs:(np.zeros((1200,1200),np.uint8),[])),
             (app,'annotated',lambda image,*args,**kwargs:image.copy()),(app,'draw_robot',lambda *args,**kwargs:None),
             (app,'show_stopped_error',error_window),(app.time,'monotonic',lambda:world['now']),

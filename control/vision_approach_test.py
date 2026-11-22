@@ -19,9 +19,9 @@ from control.single_push_control import SinglePushControl
 from control.multi_push_control import MultiPushControl, MovingBlocks
 from control.straight_push_control import StraightPush, FrameBlocks
 from vision.photo_vision import (select_corners, rectify, detect_midline, segment,
-                                 classify_regions, annotated, sample_colour, write_png)
+                                 classify_regions, annotated, sample_colour, write_png, ClickedBlock)
 from vision.latest_camera import LatestCamera
-from vision.robot_vision import detect_robot, draw_robot, exclude_robot_regions
+from vision.robot_vision import detect_robot, draw_robot, exclude_robot_regions, retain_contact_target
 
 
 class DirectionLink(WifiLink):
@@ -46,16 +46,86 @@ class GentleLink(DirectionLink):
 
     def connect(self):
         super().connect()
-        if self.request('/status').get('gentle_step_ms') != 80:
+        status=self.request('/status')
+        self.medium_turn_ms=status.get('medium_turn_ms',0)
+        self.fine_turn_ms=status.get('fine_turn_ms',0)
+        if self.medium_turn_ms!=60 or self.fine_turn_ms!=35:
+            print('ESP32: legacy turns; test 8 uses visual breakaway correction with existing 120ms steps.')
+        if status.get('gentle_step_ms') != 80:
             raise ValueError('多块测试需要新版80ms低速动作，请重新上传手机热点联动固件。')
 
-    def step(self, direction):
+    def step(self, direction, *, gentle=True, turn_profile=None):
         if direction not in ('forward','backward','left','right'):
             raise ValueError('Invalid direction')
-        result=self.request('/step',{'id':uuid.uuid4().hex,'direction':direction,'gentle':'1'})
+        payload={'id':uuid.uuid4().hex,'direction':direction}
+        if gentle:
+            payload['gentle']='1'
+        if turn_profile is not None:
+            if direction not in ('left','right') or turn_profile not in ('medium','fine'):
+                raise ValueError('Invalid turn profile')
+            payload['turn_profile']=turn_profile
+        result=self.request('/step',payload)
         if result.get('result')!='step_queued':
             raise ValueError('ESP32未接受低速动作：'+str(result))
         return result
+
+
+class TurnFeedback:
+    """Check commanded turn signs against fresh marker headings."""
+
+    def __init__(self, inverted=False):
+        self.inverted=inverted
+        self.reference=None
+        self.opposite_count=0
+        self.stalled_count=0
+        self.last_direction=None
+
+    def reset(self):
+        self.reference=None
+        self.opposite_count=0
+        self.stalled_count=0
+        self.last_direction=None
+
+    def use_normal_step(self, direction, plan, *, profiles):
+        """Use available breakaway torque, bounded by the checked turn sweep."""
+        if direction!=self.last_direction:
+            self.stalled_count=0
+        if not plan.get('normal_turn_clear',False):
+            return False
+        error=abs(plan.get('heading_error_deg',0))
+        # Old 0.025 steps often cannot start a loaded skid-steer chassis.
+        # Near the goal try gentle correction first; boost after two measured
+        # failures, including errors below the old 15-degree boost cutoff.
+        return (not profiles and error>=25) or self.stalled_count>=2
+
+    def sent(self, direction, heading, observe_after):
+        if direction!=self.last_direction:
+            self.stalled_count=0
+        self.last_direction=direction
+        self.reference=(direction,heading,observe_after)
+
+    def observe(self, heading, captured_at):
+        if self.reference is None:
+            return False
+        direction,before,after=self.reference
+        if captured_at<after:
+            return False
+        self.reference=None
+        if captured_at-after>.6:
+            self.stalled_count=0
+            return False
+        change=(heading-before+math.pi)%(2*math.pi)-math.pi
+        self.stalled_count=self.stalled_count+1 if abs(change)<math.radians(1) else 0
+        if not math.radians(2)<=abs(change)<=math.radians(20):
+            return False
+        opposite=change*(1 if direction=='left' else -1)<0
+        self.opposite_count=self.opposite_count+1 if opposite else 0
+        if self.opposite_count<2:
+            return False
+        self.inverted=not self.inverted
+        self.opposite_count=0
+        self.stalled_count=0
+        return True
 
 
 def calibration(index):
@@ -159,7 +229,7 @@ def main():
         controller=StraightPush(config)
         tracker_type=FrameBlocks
     elif stepped_push:
-        controller=MultiPushControl(config, one_delivery=True) if args.one_delivery else MultiPushControl(config)
+        controller=MultiPushControl(config,one_delivery=args.one_delivery,field_guided=True)
         tracker_type=MovingBlocks
     else:
         controller=SinglePushControl(config,args.push_distance) if args.single_push else ApproachControl(config)
@@ -175,12 +245,19 @@ def main():
           'Approach | click block colour | SPACE start | X stop | R rearm | S save | Esc exit')
     sample=None
     pending=None
+    clicked_block=None
     image=None
     last_receipt=last_send=-math.inf
+    observe_after=-math.inf
     last_command='stop'
+    turn_feedback=TurnFeedback(args.invert_turns)
     start_requested=False
     link_healthy=True
     status_retry_at=0.
+    field_cache=None
+    field_checked_at=-math.inf
+    timing_logged_at=-math.inf
+    request_ms=0.
 
     def record(event,**data):
         with (folder/'events.jsonl').open('a',encoding='utf-8') as stream:
@@ -188,15 +265,53 @@ def main():
                 'dry_run':args.dry_run,**data},ensure_ascii=False)+'\n')
 
     def send(command):
-        nonlocal last_receipt,last_send,last_command
-        wire={'left':'right','right':'left'}.get(command,command) if args.invert_turns else command
+        nonlocal last_receipt,last_send,last_command,observe_after,request_ms
+        wire={'left':'right','right':'left'}.get(command,command) if turn_feedback.inverted else command
+        standard_step=(args.multi_push and
+                       (controller.last_plan.get('normal_turn_step',False) if command in ('left','right') else
+                        controller.last_plan.get('standard_step',False)))
+        profiles=(getattr(link,'medium_turn_ms',0)==60 and getattr(link,'fine_turn_ms',0)==35)
+        if args.multi_push and wire in ('left','right'):
+            standard_step=standard_step or turn_feedback.use_normal_step(
+                command,controller.last_plan,profiles=profiles)
+            controller.last_plan['normal_turn_step']=bool(standard_step)
+            controller.last_plan['turn_stalled_observations']=turn_feedback.stalled_count
+        startup_pulse=args.multi_push and wire=='forward' and controller.last_plan.get('startup_pulse',False)
+        step_duration=.25 if startup_pulse else .12 if standard_step else .08
+        turn_profile=None
+        if (args.multi_push and not standard_step and wire in ('left','right') and
+                profiles):
+            turn_profile=('fine' if abs(controller.last_plan.get('heading_error_deg',180))<15 else 'medium')
+            step_duration=.035 if turn_profile=='fine' else .06
+        request_started=time.monotonic()
         if link:
-            response=link.stop() if wire=='stop' else link.step(wire)
+            if wire=='stop':
+                response=link.stop()
+            elif startup_pulse:
+                response=link.pulse()
+            elif turn_profile:
+                response=link.step(wire,turn_profile=turn_profile)
+            elif standard_step:
+                response=link.step(wire,gentle=False)
+            else:
+                response=link.step(wire)
         else:
             response={'dry_run':True}
         last_receipt=last_send=time.monotonic()
+        request_ms=(last_receipt-request_started)*1000
+        if startup_pulse:
+            controller.startup_pulse_used=True
+        if args.multi_push:
+            # Judge the step from a frame acquired after its firmware time limit.
+            observe_after=(-math.inf if wire=='stop' else
+                           last_receipt+step_duration+.02)
+            if wire in ('left','right') and robot.get('heading_valid'):
+                turn_feedback.sent(command,robot['heading_rad'],observe_after)
+            else:
+                turn_feedback.reset()
         last_command=command
-        record('command',command=command,wire_command=wire,response=response,plan=controller.last_plan)
+        record('command',command=command,wire_command=wire,response=response,
+               request_ms=round(request_ms,1),turn_profile=turn_profile,plan=controller.last_plan)
 
     def mouse(event,x,y,flags,param):
         nonlocal pending
@@ -247,7 +362,9 @@ def main():
                     if (stepped_push and link and not controller.finished and
                             time.monotonic()-last_receipt>.15 and time.monotonic()>=status_retry_at):
                         try:
+                            status_started=time.monotonic()
                             link.request('/status')
+                            request_ms=(time.monotonic()-status_started)*1000
                         except OSError as status_error:
                             if controller.active and not args.multi_push:
                                 raise
@@ -272,27 +389,91 @@ def main():
                         controller.stop('CAMERA LOST / SIZE CHANGED')
                         send('stop')
                         raise ValueError('摄像头断开或分辨率改变，请重新启动并标定。')
+                    processing_started=time.monotonic()
                     image=np.rot90(rectify(frame,corners),turns).copy()
                     if pending is not None:
                         if not stepped_push or controller.active or last_command!='stop':
                             send('stop')
                         sample=sample_colour(image,*pending)
+                        if args.one_delivery:
+                            clicked_block=ClickedBlock(pending)
+                        if args.multi_push:
+                            clicked_hsv=sample
+                            # Use one stable red band across the OpenCV hue wrap.
+                            if sample[0]<=12 or sample[0]>=160:
+                                # Cover purple-red shadows without extending
+                                # the upper red edge into the orange floor.
+                                sample=[176,*sample[1:]]
+                            record('colour_sample',point_px=pending,hsv=clicked_hsv,segmentation_hsv=sample)
                         pending=None
                         controller.rearm();tracker=tracker_type()
                         print('方块取色 HSV:',sample)
-                    robot=detect_robot(image)
-                    field=detect_midline(image)
+                    robot=detect_robot(image,retry_low_contrast=args.multi_push)
+                    robot_done=time.monotonic()
+                    if (args.multi_push and robot.get('detected') and
+                            robot.get('heading_valid') and robot.get('geometry_valid')):
+                        if turn_feedback.observe(robot['heading_rad'],acquired):
+                            record('turn_mapping_corrected',inverted=turn_feedback.inverted)
+                            print('连续两次观察到反向转动，已自动交换左右转向。')
+                    # Floor geometry is stationary after calibration. A lower
+                    # resolution refresh avoids stalling marker/block control.
+                    if (not args.multi_push or field_cache is None or
+                            not field_cache.get('valid') or acquired-field_checked_at>=2):
+                        field_cache=(detect_midline(image,max_dimension=450) if args.multi_push else
+                                     detect_midline(image))
+                        field_checked_at=acquired
+                    field=field_cache
+                    field_done=time.monotonic()
                     regions=[]
+                    obstacle_regions=[]
                     mask=np.zeros(image.shape[:2],np.uint8)
                     blocks=()
+                    recent_obstacles=()
+                    association_hints={}
+                    contact_hint=(getattr(controller,'contact_estimate',lambda pose:None)(robot)
+                                  if args.multi_push else None)
                     track_error=None
                     if sample is not None:
                         if args.multi_push:
-                            mask,regions=segment(image,sample,h_tol=18,min_area=90,field=field,
-                                                 square_side_mm=2*config.block_half_mm)
+                            hue_tolerance=16 if sample[0]==176 else 10
+                            mask,regions=segment(image,sample,h_tol=hue_tolerance,
+                                                 min_area=90,field=field,
+                                                 square_side_mm=2*config.block_half_mm,
+                                                 allow_blurred_square=True)
                         else:
                             mask,regions=segment(image,sample,h_tol=18,min_area=90,field=field)
-                        regions=exclude_robot_regions(regions,robot)
+                        detected_regions=regions
+                        outside_regions=exclude_robot_regions(detected_regions,robot)
+                        regions=outside_regions
+                        locked=getattr(controller,'target_lock',None)
+                        tracking_contact=(args.multi_push and controller.active and
+                            ((controller.task is not None and controller.state in ('APPROACH','ALIGN','PUSH','RELEASE')) or
+                             locked is not None))
+                        if clicked_block is not None:
+                            candidates=regions
+                            if clicked_block.last_region is not None and tracking_contact:
+                                contact_px=2*config.block_half_mm*1199/config.field_mm
+                                if contact_hint is not None or (clicked_block.last_seen is not None and acquired-clicked_block.last_seen<=.6):
+                                    candidates=retain_contact_target(detected_regions,robot,
+                                        clicked_block.last_region,block_side_px=contact_px,
+                                        expected_point_mm=contact_hint)
+                            expected_px=(None if contact_hint is None else
+                                (contact_hint[0]*1199/config.field_mm,(config.field_mm-contact_hint[1])*1199/config.field_mm))
+                            regions=clicked_block.update(candidates,acquired,expected_point=expected_px)
+                            if regions:
+                                obstacle_regions=[region for region in outside_regions if region is not regions[0]]
+                        elif tracking_contact:
+                            target_id=controller.task.target_ids[0] if controller.task is not None else locked['id']
+                            previous=tracker.previous.get(target_id)
+                            if contact_hint is not None or (previous is not None and acquired-tracker.last_seen[target_id]<=.6):
+                                contact_px=2*config.block_half_mm*1199/config.field_mm
+                                other_tracks=[point for key,point in tracker.previous.items()
+                                    if key!=target_id and acquired-tracker.last_seen[key]<=tracker.TRACK_WINDOW_SECONDS]
+                                regions=retain_contact_target(detected_regions,robot,
+                                    tracker.regions.get(target_id),block_side_px=contact_px,
+                                    other_points_mm=other_tracks,expected_point_mm=contact_hint)
+                                if contact_hint is not None:
+                                    association_hints={target_id:contact_hint}
                         classify_regions(regions,field)
                         if args.single_push or stepped_push:
                             for region in regions:
@@ -302,6 +483,13 @@ def main():
                                 if any(max(r['bbox_px'][2:])>40 for r in regions):
                                     raise ValueError('MERGED / OVERSIZE BLOCK')
                                 blocks=tuple(Block(f'single-{i}',r['x_mm'],r['y_mm']) for i,r in enumerate(regions))
+                            elif clicked_block is not None:
+                                blocks=tuple(Block('selected',r['x_mm'],r['y_mm']) for r in regions)
+                                blocks+=tracker.update(obstacle_regions)
+                            elif args.multi_push:
+                                blocks=tracker.update(regions,acquired,association_hints=association_hints)
+                                recent_obstacles=tuple(Block(key,*point) for key,point in tracker.previous.items()
+                                    if 0<acquired-tracker.last_seen[key]<=.6)
                             else:
                                 blocks=tracker.update(regions)
                         except ValueError as error:
@@ -310,16 +498,24 @@ def main():
                         link.request('/status')
                         last_receipt=time.monotonic()
                     now=time.monotonic()
+                    perception_ms=(now-processing_started)*1000
                     if args.dry_run:
                         last_receipt=now
+                    waiting_for_step_frame=(args.multi_push and controller.active and link_healthy and
+                                            acquired<observe_after)
                     if stepped_push and not link_healthy:
                         reason='WAITING FOR CAR STATUS / AUTO RECHECK'
                         if args.multi_push and controller.active:
                             plan=controller._reselect(reason)
                         else:
                             plan=controller._invalid(reason)
+                    elif waiting_for_step_frame:
+                        plan={**controller.last_plan,'command':'stop',
+                              'reason':'WAIT FOR FRAME AFTER STEP','can_start':False}
                     elif track_error:
-                        if args.multi_push and not controller.finished:
+                        if args.multi_push and not args.one_delivery and not controller.finished:
+                            plan=controller._missing_vision(track_error,now)
+                        elif args.multi_push and not controller.finished:
                             plan=controller._reselect(track_error)
                             tracker=tracker_type()
                         elif stepped_push and not controller.active and not controller.finished:
@@ -329,6 +525,12 @@ def main():
                             plan=controller.stop(track_error)
                     elif sample is None:
                         plan=controller._waiting('CLICK A BLOCK TO SAMPLE COLOUR')
+                    elif args.one_delivery:
+                        plan=controller.update(robot,blocks,field,acquired,now,last_receipt,
+                                               target_block_id='selected')
+                    elif args.multi_push:
+                        plan=controller.update(robot,blocks,field,acquired,now,last_receipt,
+                                               recent_obstacles=recent_obstacles)
                     else:
                         plan=controller.update(robot,blocks,field,acquired,now,last_receipt)
                     if stepped_push and start_requested:
@@ -340,16 +542,36 @@ def main():
                             start_requested=False
                             record('start_accepted')
                             print('条件满足，开始推送。')
+                    planning_ms=(time.monotonic()-now)*1000
                     # No motion while preparing. A stop/direction change interrupts the old step.
                     command=plan['command'] if controller.active else 'stop'
-                    if command=='stop':
+                    if waiting_for_step_frame:
+                        pass  # The ESP32 ends the current step on its own timer.
+                    elif command=='stop':
                         if last_command!='stop':
                             send('stop')
-                    elif now-last_send>=.22:
+                    elif now-last_send>=(.10 if args.multi_push else .22):
                         send(command)
                     elif command!=last_command and last_command!='stop':
                         send('stop')
+                    if args.multi_push and now-timing_logged_at>=1:
+                        record('timing',frame_age_ms=round((now-acquired)*1000,1),
+                               processing_ms=round(perception_ms,1),
+                               robot_and_warp_ms=round((robot_done-processing_started)*1000,1),
+                               field_ms=round((field_done-robot_done)*1000,1),
+                               blocks_ms=round((now-field_done)*1000,1),
+                               planning_ms=round(planning_ms,1),
+                               request_ms=round(request_ms,1))
+                        timing_logged_at=now
                     result=annotated(image,regions,field,calibrated=True)
+                    for obstacle in obstacle_regions:
+                        x,y,w,h=obstacle['bbox_px']
+                        cv2.rectangle(result,(x,y),(x+w,y+h),(0,165,255),2)
+                    if clicked_block is not None and not regions and clicked_block.recently_seen(acquired):
+                        x,y,w,h=clicked_block.last_region['bbox_px']
+                        cv2.rectangle(result,(x,y),(x+w,y+h),(0,165,255),2)
+                        cv2.putText(result,'LAST SEEN',(x,max(105,y-5)),cv2.FONT_HERSHEY_SIMPLEX,
+                                    .45,(0,165,255),1,cv2.LINE_AA)
                     draw_robot(result,robot,calibrated=True)
                     if plan.get('goal_mm') and robot.get('detected'):
                         goal=np.array([plan['goal_mm'][0],1200-plan['goal_mm'][1]])*1199/1200
@@ -372,9 +594,14 @@ def main():
                                                detail,('AUTO START | X stop | R rearm | S save | Esc' if args.single_push else
                                                                'SPACE start | X stop | R rearm | S save | Esc exit'))):
                         cv2.putText(result,text,(12,25+30*row),cv2.FONT_HERSHEY_SIMPLEX,.65,(0,230,255),1,cv2.LINE_AA)
+                    if args.multi_push:
+                        cv2.putText(result,f'VISION {now-acquired:.3f}s | PROCESS {perception_ms:.0f}ms | HTTP {request_ms:.0f}ms',
+                                    (12,1190),cv2.FONT_HERSHEY_SIMPLEX,.6,(0,230,255),2,cv2.LINE_AA)
                     if last_reason!=plan['reason']:
                         if stepped_push:
                             record('plan',plan=plan,robot_reason=robot.get('reason'),
+                                   obstacle_regions=obstacle_regions,
+                                   recent_obstacles_mm=[(b.x,b.y) for b in recent_obstacles],
                                    field_reason=field.get('reason'),
                                    field_point_px=field.get('point_px'),
                                    yellow_normal=field.get('yellow_normal'),
@@ -426,7 +653,7 @@ def main():
                         write_png(folder/(stamp+'-source.png'),frame)
                         write_png(folder/(stamp+'-result.png'),result)
                         record('snapshot',robot=robot,regions=regions,field=field,plan=plan,
-                               corners=corners,rotation_ccw=turns)
+                               corners=corners,rotation_ccw=turns,sample_hsv=sample)
                 break
             except (OSError,ValueError,cv2.error) as error:
                 start_requested=False

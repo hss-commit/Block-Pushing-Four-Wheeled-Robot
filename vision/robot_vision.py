@@ -30,7 +30,7 @@ def load_config():
     return validate_config(json.loads(CONFIG_PATH.read_text(encoding='utf-8')))
 
 
-def detect_robot(image, config=None):
+def detect_robot(image, config=None, *, retry_low_contrast=False):
     """Marker top edge points forward; footprint is a projection at roof height."""
     missing = {'detected': False, 'heading_valid': False, 'geometry_valid': False,
                'reason': 'NEED ARUCO 4X4_50 ID 0', 'executable': False}
@@ -39,7 +39,15 @@ def detect_robot(image, config=None):
     except (OSError, ValueError, KeyError, TypeError):
         return {**missing, 'reason': 'INVALID MARKER SETTINGS / USE MENU M'}
     corners, ids, _ = DETECTOR.detectMarkers(image)
-    matches = [] if ids is None else [i for i, value in enumerate(ids.flatten()) if value == config['marker_id']]
+    marker_id = config['marker_id']
+    matches = [] if ids is None else np.flatnonzero(ids.ravel() == marker_id).tolist()
+    if retry_low_contrast and not matches:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if image.ndim == 3 else image
+        enhanced = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8)).apply(gray)
+        blurred = cv2.GaussianBlur(enhanced, (0, 0), 1.2)
+        sharpened = cv2.addWeighted(enhanced, 1.7, blurred, -.7, 0)
+        corners, ids, _ = DETECTOR.detectMarkers(sharpened)
+        matches = [] if ids is None else np.flatnonzero(ids.ravel() == marker_id).tolist()
     if len(matches) != 1:
         return {**missing, 'reason': ('DUPLICATE ROBOT MARKER ID' if matches else
                     f"NEED ARUCO 4X4_50 ID {config['marker_id']}")}
@@ -90,20 +98,87 @@ def draw_robot(image, robot, calibrated=False, field_mm=1200):
     cv2.putText(image,label,(12,y),cv2.FONT_HERSHEY_SIMPLEX,.55,colour,1,cv2.LINE_AA)
 
 
-def exclude_robot_regions(regions, robot):
+def exclude_robot_regions(regions, robot, *, front_contact_px=0):
     """Reject candidates overlapping the car, including wheels across its edges.
 
-    A partly occluded block is ambiguous too: keep only clear outside targets.
-    No padding is added, so a separate block just ahead remains detectable.
+    A caller tracking an established push target can also consider candidates
+    within a narrow strip at the front edge.
     """
     if not robot.get('detected') or not robot.get('geometry_valid'):
         return regions
     hull = np.float32(robot['body_polygon_px'])
+    front_edge = hull[1] - hull[0]
+    front_width = float(np.linalg.norm(front_edge))
+    if front_contact_px and front_width > front_contact_px:
+        tangent = front_edge / front_width
+        outward = np.array([-tangent[1], tangent[0]])
+        if (hull.mean(axis=0) - hull[0]) @ outward > 0:
+            outward = -outward
+    else:
+        front_contact_px = 0
     kept = []
     for region in regions:
         x,y,w,h = region['bbox_px']
         box = np.float32([[x,y],[x+w,y],[x+w,y+h],[x,y+h]])
         overlap,_ = cv2.intersectConvexConvex(hull,box)
+        if overlap>0 and region.get('contour_px'):
+            # Bounding boxes include empty corners around rotated/irregular
+            # colour blobs. Count actual silhouette pixels before rejecting.
+            left,top=int(math.floor(x)),int(math.floor(y))
+            shape=(max(1,int(math.ceil(h))+1),max(1,int(math.ceil(w))+1))
+            colour=np.zeros(shape,np.uint8);body=np.zeros(shape,np.uint8)
+            contour=np.rint(np.asarray(region['contour_px'])-[left,top]).astype(np.int32)
+            cv2.fillPoly(colour,[contour],1)
+            cv2.fillPoly(body,[np.rint(hull-[left,top]).astype(np.int32)],1)
+            total=int(np.count_nonzero(colour))
+            if total and np.count_nonzero(colour & body)<=.15*total:
+                overlap=0
         if overlap <= 0:
             kept.append(region)
+        elif front_contact_px:
+            offset = np.array([x+w/2, y+h/2]) - hull[0]
+            side_margin = front_contact_px / 2
+            if (offset @ outward >= -front_contact_px and
+                    side_margin <= offset @ tangent <= front_width-side_margin):
+                kept.append(region)
     return kept
+
+
+def retain_contact_target(regions, robot, previous, *, block_side_px,
+                          other_points_mm=(), max_shift_mm=30, expected_point_mm=None):
+    """Keep just one previously measured block in the front contact strip.
+
+    Other overlapping candidates (including wheels) still use body exclusion.
+    This returns measured detections only, never a predicted block position.
+    Coordinates are from the calibrated 1200mm field view.
+    """
+    outside=exclude_robot_regions(regions,robot)
+    if previous is None or not robot.get('geometry_valid') or not robot.get('detected'):
+        return outside
+    hull=np.asarray(robot['body_polygon_px'],float)
+    body_length=float(np.linalg.norm((hull[0]+hull[1]-hull[2]-hull[3])/2))
+    # Allow the ground block to project inside a roof-height body outline,
+    # but never open the rear or the side-wheel strips.
+    depth=min(body_length*.4,max(block_side_px*2,body_length*.2))
+    candidates=exclude_robot_regions(regions,robot,front_contact_px=depth)
+    previous_point=expected_point_mm if expected_point_mm is not None else (previous['x_mm'],previous['y_mm'])
+    old_size=max(previous['bbox_px'][2:])
+    matches=[]
+    for region in candidates:
+        size=max(region['bbox_px'][2:])
+        if not .45*old_size<=size<=min(2*old_size,2*block_side_px):
+            continue
+        point=(region['x_mm'],region['y_mm'])
+        distance=math.dist(point,previous_point)
+        if distance<=max_shift_mm:
+            matches.append((distance,region))
+    matches.sort(key=lambda item:item[0])
+    if not matches or (len(matches)>1 and matches[1][0]-matches[0][0]<=5):
+        return outside
+    distance,target=matches[0]
+    point=(target['x_mm'],target['y_mm'])
+    if any(math.dist(point,other)<=distance+5 for other in other_points_mm):
+        return outside
+    if target not in outside:
+        outside.append(target)
+    return outside

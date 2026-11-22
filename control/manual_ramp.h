@@ -2,15 +2,18 @@
 #include <stdint.h>
 
 // Motor-board command values, not calibrated physical speeds. Tune after testing.
-constexpr float kManualStraightStart = 0.03f;
-constexpr float kManualStraightMax = 0.08f;
-constexpr float kManualTurnStart = 0.02f;
-constexpr float kManualTurnMax = 0.04f;
+constexpr float kManualStraightStart = 0.025f;
+constexpr float kManualStraightMax = 0.06f;
+constexpr float kManualTurnStart = 0.015f;
+constexpr float kManualTurnMax = 0.03f;
 constexpr uint32_t kManualStraightRampMs = 2500;
 constexpr uint32_t kManualTurnRampMs = 3000;
 
 constexpr float rampValue(float start, float maximum, uint32_t elapsed, uint32_t duration) {
-  return start + (maximum-start) * (elapsed >= duration ? 1.0f : float(elapsed)/duration);
+  // Return the exact cap at the endpoint; recomputing it through float
+  // subtraction/addition can differ by one ULP and fail constexpr checks.
+  return elapsed >= duration ? maximum
+      : start + (maximum-start) * (float(elapsed)/duration);
 }
 
 constexpr float manualSpeed(uint8_t command, uint32_t elapsed) {
