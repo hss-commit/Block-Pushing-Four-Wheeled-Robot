@@ -109,6 +109,11 @@ def check(idle_failure=False):
          patch.object(cv2,'getWindowProperty',return_value=1), \
          patch.object(cv2,'waitKey',side_effect=[0,ord('r')]):
         assert app.show_stopped_error('test',TimeoutError('test'),allow_reconnect=True) is True
+    with patch.object(cv2,'namedWindow'),patch.object(cv2,'imshow'), \
+         patch.object(cv2,'getWindowProperty',return_value=1), \
+         patch.object(cv2,'waitKey',side_effect=[32,32,ord('r')]) as key:
+        assert app.show_stopped_error('test',TimeoutError('test'),allow_reconnect=True,allow_start=False) is True
+        assert key.call_count==3
     print('PASS: in-window R retry, repeated reconnect failure, camera/calibration retained, progress retained, no automatic motion, cleanup only on explicit exit')
 
 

@@ -17,6 +17,8 @@
 constexpr int kMotorTx = 17;
 constexpr uint32_t kPulseMs = 250;
 constexpr uint32_t kManualHoldMs = 700;
+constexpr uint32_t kDriveHoldMs = 2000;
+constexpr float kGentleStraightSpeed = 0.05f;
 constexpr char kProtocol[] = "vision-pulse-v1";
 constexpr char kStop[] = "$Car:0,0,0,0!";
 constexpr char kForward[] = "$Car:0.1,0.1,0.1,0.1!";
@@ -29,6 +31,12 @@ BluetoothSerial bluetooth;
 WebServer server(80);
 #endif
 QueueHandle_t commands;
+struct MotorCommand {
+  uint8_t code;
+  int16_t left;
+  int16_t right;
+  uint16_t holdMs;
+};
 portMUX_TYPE stateMux = portMUX_INITIALIZER_UNLOCKED;
 bool busy = false;
 String lastToken;
@@ -46,9 +54,13 @@ bool isBusy() {
   return value;
 }
 
-void requestStop() {
-  const uint8_t command = 0;
+void queueMotor(uint8_t code, int16_t left = 0, int16_t right = 0, uint16_t holdMs = 0) {
+  const MotorCommand command{code, left, right, holdMs};
   xQueueOverwrite(commands, &command);
+}
+
+void requestStop() {
+  queueMotor(0);
 }
 
 void motorTask(void *) {
@@ -57,9 +69,18 @@ void motorTask(void *) {
   uint8_t manualCommand = 0;
   uint32_t manualStartedAt = 0, lastManualWrite = 0;
   while (true) {
-    uint8_t command;
-    if (xQueueReceive(commands, &command, pdMS_TO_TICKS(10)) == pdTRUE) {
-      if (command >= 6 && command <= 9) {
+    MotorCommand next{};
+    if (xQueueReceive(commands, &next, pdMS_TO_TICKS(10)) == pdTRUE) {
+      const uint8_t command = next.code;
+      if (command == 18) {
+        manualCommand = 0;
+        moving = true;
+        setBusy(true);
+        stopAt = millis() + next.holdMs;
+        Serial1.printf("$Car:%.3f,%.3f,%.3f,%.3f!",
+                       next.left/1000.0, next.right/1000.0,
+                       next.left/1000.0, next.right/1000.0);
+      } else if (command >= 6 && command <= 9) {
         if (!moving || manualCommand != command) {
           manualStartedAt = millis();
           lastManualWrite = millis()-50;
@@ -79,7 +100,7 @@ void motorTask(void *) {
         manualCommand = 0;
         moving = true;
         stopAt = millis()+80;
-        const float speed = command >= 12 ? 0.025f : 0.04f;
+        const float speed = command >= 12 ? 0.025f : kGentleStraightSpeed;
         const float left = (command == 11 || command == 12) ? -speed : speed;
         const float right = (command == 11 || command == 13) ? -speed : speed;
         Serial1.printf("$Car:%.3f,%.3f,%.3f,%.3f!", left,right,left,right);
@@ -128,7 +149,8 @@ void reply(int code, const char *result) {
   server.sendHeader("Cache-Control", "no-store");
   server.send(code, "application/json", String("{\"protocol\":\"") + kProtocol +
               "\",\"result\":\"" + result + "\",\"busy\":" +
-              (isBusy() ? "true" : "false") + ",\"pulse_ms\":250,\"step_ms\":120,\"reverse_step\":true,\"manual_hold_ms\":700,\"manual_ramp_v\":1,\"gentle_step_ms\":80,\"medium_turn_ms\":60,\"fine_turn_ms\":35,\"turn_speed\":0.05}");
+              (isBusy() ? "true" : "false") + ",\"pulse_ms\":250,\"step_ms\":120,\"reverse_step\":true,\"manual_hold_ms\":700,\"manual_ramp_v\":1,\"gentle_step_ms\":80,\"medium_turn_ms\":60,\"fine_turn_ms\":35,\"turn_speed\":0.05,\"drive_hold_ms\":" +
+              String(kDriveHoldMs) + ",\"gentle_straight_speed\":" + String(kGentleStraightSpeed, 2) + "}");
 }
 #endif
 
@@ -139,7 +161,7 @@ void setup() {
   Serial1.print("$MOTOR_4CH_SET:0!");
   delay(100);
   Serial1.print(kStop);
-  commands = xQueueCreate(1, sizeof(uint8_t));
+  commands = xQueueCreate(1, sizeof(MotorCommand));
   if (!commands || xTaskCreate(motorTask, "motor-stop", 3072, nullptr, 2, nullptr) != pdPASS) {
     Serial.println("Motor watchdog initialization failed; wireless disabled");
     while (true) { Serial1.print(kStop); delay(100); }
@@ -180,7 +202,7 @@ void setup() {
     if (token == lastToken) { reply(200, "duplicate_ignored"); return; }
     lastToken = token;
     setBusy(true);
-    xQueueOverwrite(commands, &command);
+    queueMotor(command);
     reply(200, "manual_queued");
   });
   server.on("/step", HTTP_POST, []() {
@@ -207,8 +229,32 @@ void setup() {
     if (isBusy()) { reply(409, "busy"); return; }
     lastToken = token;
     setBusy(true);
-    xQueueOverwrite(commands, &command);
+    queueMotor(command);
     reply(200, "step_queued");
+  });
+  server.on("/drive", HTTP_POST, []() {
+    const String token = server.arg("id");
+    const String leftArg = server.arg("left"), rightArg = server.arg("right");
+    const String holdArg = server.arg("hold_ms");
+    bool valid = token.length() == 32;
+    for (size_t i = 0; i < token.length(); ++i) {
+      const char c = token[i];
+      valid &= (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
+    }
+    const long left = leftArg.toInt(), right = rightArg.toInt();
+    const long holdMs = holdArg.toInt();
+    if (!valid || left < 40 || left > 100 || right < 40 || right > 100 ||
+        leftArg != String(left) || rightArg != String(right) ||
+        holdMs < 300 || holdMs > kDriveHoldMs || holdArg != String(holdMs)) {
+      requestStop();
+      reply(400, "bad_drive");
+      return;
+    }
+    if (token == lastToken) { reply(200, "duplicate_ignored"); return; }
+    lastToken = token;
+    setBusy(true);
+    queueMotor(18, left, right, holdMs);
+    reply(200, "drive_queued");
   });
   server.on("/pulse", HTTP_POST, []() {
     const String token = server.arg("id");
@@ -224,7 +270,7 @@ void setup() {
     lastToken = token;
     setBusy(true);
     const uint8_t command = 1;
-    xQueueOverwrite(commands, &command);
+    queueMotor(command);
     reply(200, "pulse_queued");
   });
   server.on("/", HTTP_GET, []() {

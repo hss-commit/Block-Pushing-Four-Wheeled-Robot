@@ -10,14 +10,14 @@ from urllib.request import ProxyHandler, build_opener
 ROOT = Path(__file__).resolve().parent.parent
 SETTINGS = ROOT / 'control' / 'launcher.local.json'
 MODES = {
-    '1': ('直接推块测试（自动接近、推移10厘米后停车）', 'control/vision_approach_test.py', ['--single-push']),
     '2': ('只看视觉识别（不控制小车）', 'vision/photo_vision.py', []),
     '3': ('短动作测试（空格触发）', 'control/vision_wifi_test.py', []),
     '4': ('进阶：只自动接近（含转向，先验轮向）', 'control/vision_approach_test.py', []),
     '5': ('键盘遥控（按住持续走，松开停车）', 'control/keyboard_remote.py', []),
-    '6': ('单方块自动入区（核验一块后结束）', 'control/vision_approach_test.py', ['--multi-push', '--one-delivery']),
-    '8': ('多方块自动入区（逐块推送并核验）', 'control/vision_approach_test.py', ['--multi-push']),
+    '8': ('多方块完整推送（逐块推进对面半区中部、退开核验）', 'control/vision_approach_test.py', ['--multi-push', '--midfield']),
 }
+
+MODE_ALIASES = dict.fromkeys(('1', '6', '7'), '8')
 
 
 def address(value):
@@ -30,7 +30,7 @@ def load_settings():
     try:
         saved = json.loads(SETTINGS.read_text(encoding='utf-8'))
         defaults['ip'] = address(saved['ip'])
-        mode = '6' if saved['mode'] == '7' else saved['mode']
+        mode = MODE_ALIASES.get(saved['mode'], saved['mode'])
         if type(saved['camera']) is not int or saved['camera'] < 0 or mode not in MODES:
             raise ValueError('invalid settings')
         defaults.update(camera=saved['camera'], mode=mode)
@@ -51,9 +51,11 @@ def check_connection(ip, needs_steps):
         raise ValueError('小车程序不匹配，请使用手机热点联动测试固件')
     if needs_steps and status.get('step_ms') != 120:
         raise ValueError('小车固件不支持当前接近/推送测试')
+    return status
 
 
 def command(settings, mode):
+    mode = MODE_ALIASES.get(mode, mode)
     _, script, extra = MODES[mode]
     args = [sys.executable, '-X', 'utf8', str(ROOT / script), *extra]
     if mode != '5':
@@ -128,8 +130,7 @@ def main():
             configure_marker()
             continue
         mode = mode or settings['mode']
-        if mode == '7':
-            mode = '6'
+        mode = MODE_ALIASES.get(mode, mode)
         if mode not in MODES:
             print('请选择菜单中列出的模式，或输入S、M、Q。')
             continue
@@ -143,20 +144,20 @@ def main():
                     continue
             print('正在检查小车连接（不会发送运动指令）……')
             try:
-                check_connection(settings['ip'], mode in ('1', '4', '5', '6', '8'))
+                check_connection(settings['ip'], mode in ('4', '5', '8'))
             except (OSError, ValueError) as error:
                 print(f'未能连接：{error}')
                 print('请确认电脑和小车均已加入Robot-Test热点，小车已供电。')
                 print('IP可能因重新联网而变化；输入S修改，或选2先看画面。')
                 continue
             print('连接检查通过。测试程序仍会按原时限检查通信。')
+            if mode == '8':
+                print('多块推送使用车端限时短步，每步重新观察。')
         settings['mode'] = mode
         save_settings(settings)
         print('正在打开：' + MODES[mode][0])
         if mode != '5':
             print('关闭其他占用摄像头的测试窗口；DroidCam客户端保留。')
-        if mode == '1':
-            print('只留一个方块并提前摆正小车；完成四角标定和取色后自动倒计时3秒运动，X停车。')
         result = subprocess.run(command(settings, mode), cwd=ROOT)
         print('测试已退出。' if result.returncode == 0 else f'测试异常退出（{result.returncode}），可查看上方提示后重试。')
         if mode == '5':

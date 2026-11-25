@@ -102,10 +102,13 @@ def route(start, goal, blocks, radius, field=1200):
 
 
 class MultiPushControl:
-    def __init__(self, config=None, *, one_delivery=False, field_guided=False):
+    def __init__(self, config=None, *, one_delivery=False, field_guided=False, midfield=False):
         self.base_config = config or Config()
         self.one_delivery = one_delivery
         self.field_guided = field_guided
+        self.midfield = field_guided and (midfield or one_delivery)
+        self.required_deliveries = 0
+        self.clear_since = None
         self.active = self.finished = False
         self.state = 'PREPARE'
         self.last_plan = dict(command='stop',reason='CLICK BLOCK COLOUR',can_start=False)
@@ -129,6 +132,8 @@ class MultiPushControl:
         self.contact_best = -math.inf
         self.contact_progress_at = None
         self.target_lock = None
+        self.target_recovery = None
+        self.midfield_push_goal = None
 
     def stop(self, reason, done=False):
         self.active=False;self.finished=True
@@ -138,7 +143,8 @@ class MultiPushControl:
         return self.last_plan
 
     def rearm(self):
-        self.__init__(self.base_config, one_delivery=self.one_delivery, field_guided=self.field_guided)
+        self.__init__(self.base_config, one_delivery=self.one_delivery, field_guided=self.field_guided,
+                      midfield=self.midfield)
 
     def start(self):
         if self.last_plan.get('can_start') and not self.finished:
@@ -147,6 +153,10 @@ class MultiPushControl:
         return False
 
     def _waiting(self, reason):
+        if self.midfield:
+            self.clear_since=None
+            if self.state=='RELEASE':
+                self.verify_since=self.release_wait_since=None
         self.last_plan=dict(command='stop',reason=reason,state=self.state,
                             completed=self.completed,can_start=False,
                             target_ids=list(self.task.target_ids) if self.task else
@@ -157,6 +167,31 @@ class MultiPushControl:
         if self.field_guided and self.target_lock is None:
             self.target_lock=dict(id=block.id,point=[block.x,block.y],
                                   other_ids={b.id for b in blocks if b.id!=block.id})
+
+    def _reveal_target(self, center, hull, heading, obstacles, now):
+        """Back away once if the last known target could be under the pusher."""
+        point = tuple(self.target_lock['point'])
+        body = np.float32(hull)
+        forward = np.array([math.cos(heading),math.sin(heading)])
+        if self.target_recovery is None:
+            if ((np.asarray(point)-center)@forward <= 0 or
+                    cv2.pointPolygonTest(body,point,True) < -35):
+                return self._waiting('TARGET LOST / KEEP CURRENT TARGET')
+            self.target_recovery = (center.copy(), now)
+        origin, started = self.target_recovery
+        if math.dist(center,origin)>=55 or now-started>=2:
+            return self._waiting('TARGET NOT VISIBLE AFTER BACKUP / KEEP CURRENT TARGET')
+        travel = -forward*25
+        swept = cv2.convexHull(np.float32(np.vstack((hull,hull+travel))))
+        margin = math.sqrt(2)*self.base_config.block_half_mm+5
+        if (np.any(swept<0) or np.any(swept>self.base_config.field_mm) or
+                any(cv2.pointPolygonTest(swept,(float(b.x),float(b.y)),True)>=-margin
+                    for b in obstacles)):
+            return self._waiting('TARGET LOST / BACKUP BLOCKED')
+        self.previous_pose = (center.copy(),heading)
+        plan = self.plan('backward','BACK UP TO REVEAL CURRENT BLOCK',center+travel)
+        plan['target_ids'] = [self.target_lock['id']]
+        return plan
 
     def _invalid(self, reason):
         if self.active:
@@ -173,6 +208,7 @@ class MultiPushControl:
         self.contact_seen_at=None
         self.contact_anchor=None;self.contact_hidden_at=None
         self.contact_target_id=None
+        self.midfield_push_goal=None
         if self.active:
             self.task=None
             self.path=[]
@@ -209,7 +245,11 @@ class MultiPushControl:
             return None
         center=np.asarray(robot['center_px'],float)*self.base_config.field_mm/1199
         center[1]=self.base_config.field_mm-center[1]
-        origin,point,_=self.contact_anchor
+        origin,point,heading=self.contact_anchor
+        if self.midfield_push_goal is not None:
+            direction=np.array([math.cos(heading),math.sin(heading)])
+            travel=max(0,(center-origin)@direction-self.push_contact_gap)
+            return tuple(point+direction*travel)
         return tuple(point+center-origin)
 
     def _begin_release(self, center, direction, radius, front, point, now):
@@ -276,12 +316,12 @@ class MultiPushControl:
         return self.last_plan
 
     def update(self, robot, blocks, field, captured_at, now, link_at, *, target_block_id=None,
-               recent_obstacles=()):
+               recent_obstacles=(), continuous_drive=False, after_drive_segment=False):
         targets = tuple(b for b in blocks if target_block_id is None or b.id == target_block_id)
         if self.finished:
             return self.last_plan
         if (not all(math.isfinite(v) for v in (captured_at,now,link_at)) or
-                not 0<=now-captured_at<=.2 or not 0<=now-link_at<=.3):
+                not 0<=now-captured_at<=.2 or not 0<=now-link_at<=(2.1 if after_drive_segment else .3)):
             if self.field_guided and self.active:
                 return self._waiting('STALE VISION / LINK / WAIT FOR FRESH FRAME')
             return self._reselect('STALE VISION / LINK / WAIT FOR FRESH FRAME')
@@ -293,7 +333,8 @@ class MultiPushControl:
         if (not field.get('valid') or
                 abs(field['yellow_normal'][0])>abs(field['yellow_normal'][1])*math.tan(math.radians(15)) or
                 abs(field['yellow_normal'][1])<.85):
-            return self._reselect('FIELD / YELLOW DIRECTION INVALID')
+            reason='FIELD / YELLOW DIRECTION INVALID'
+            return self._missing_vision(reason,now) if self.midfield else self._reselect(reason)
         scale=self.base_config.field_mm/1199
         nx,ny=field['yellow_normal']
         push_sign=-1 if ny>0 else 1
@@ -306,7 +347,8 @@ class MultiPushControl:
 
         boundary_y=boundary_y_at(self.base_config.field_mm/2)
         if not 0<boundary_y<self.base_config.field_mm:
-            return self._reselect('FIELD / YELLOW DIRECTION INVALID')
+            reason='FIELD / YELLOW DIRECTION INVALID'
+            return self._missing_vision(reason,now) if self.midfield else self._reselect(reason)
         center=np.asarray(robot['center_px'],float)*scale
         hull=np.asarray(robot['body_polygon_px'],float)*scale
         center[1]=1200-center[1];hull[:,1]=1200-hull[:,1]
@@ -322,7 +364,9 @@ class MultiPushControl:
             existing=next((b for b in blocks if b.id==self.task.target_ids[0]),None)
             if existing is not None:
                 self._lock_target(existing,blocks)
-        if self.field_guided and self.active and self.target_lock is not None:
+        local_release=(self.field_guided and self.state=='RELEASE')
+        if (self.field_guided and self.active and self.target_lock is not None and
+                self.midfield_push_goal is None and not (self.midfield and local_release)):
             lock=self.target_lock
             matches=sorted((math.dist((b.x,b.y),lock['point']),b.id,b) for b in blocks
                            if b.id not in lock['other_ids'] and
@@ -330,6 +374,9 @@ class MultiPushControl:
             matched=(matches[0][2] if matches and
                      (len(matches)==1 or matches[1][0]-matches[0][0]>5) else None)
             if matched is not None:
+                if self.target_recovery is not None:
+                    self.target_recovery=None
+                    self._reselect('CURRENT BLOCK REACQUIRED')
                 old_id=lock['id'];lock['id']=matched.id;lock['point']=[matched.x,matched.y]
                 if self.task is not None and matched.id!=old_id:
                     self.task=replace(self.task,target_ids=(matched.id,))
@@ -338,29 +385,34 @@ class MultiPushControl:
                     if self.state=='RELEASE':
                         self.release_track_ids.add(matched.id)
                 targets=(matched,)
-            elif self.task is None:
-                return self._waiting('CURRENT BLOCK NOT VERIFIED / WAIT FOR SAME TARGET')
             else:
                 targets=()
-        local_release=(self.field_guided and self.state=='RELEASE')
-        if local_release and self.task.target_ids[0] not in current:
+        release_target=None
+        if local_release and (self.midfield or self.task.target_ids[0] not in current):
             # Delivery colours often disappear against the destination floor.
             # A newly assigned ID is usable only with one nearby observation.
             matches=[b for b in blocks if math.dist((b.x,b.y),self.release_point)<=40 and
                      (self.target_lock is None or b.id not in self.target_lock['other_ids'])]
             if len(matches)==1:
-                self.task=replace(self.task,target_ids=(matches[0].id,))
-                self.release_track_ids.add(matches[0].id)
+                release_target=matches[0]
+                self.task=replace(self.task,target_ids=(release_target.id,))
+                self.release_track_ids.add(release_target.id)
         task_target=self.task.target_ids[0] if self.task else None
+        locked_id=self.target_lock['id'] if self.target_lock else None
         obstacles=tuple(blocks)+tuple(b for b in recent_obstacles
-                                      if b.id not in current and b.id!=task_target and
+                                      if b.id not in current and b.id not in (task_target,locked_id) and
                                       not (local_release and b.id in self.release_track_ids))
         if len(current)!=len(blocks):
             return self._invalid('AMBIGUOUS BLOCK TRACK')
         if self.active and self.previous_pose is not None:
             p,h=self.previous_pose
-            if math.dist(p,center)>50 or (not self.field_guided and
+            if math.dist(p,center)>(190 if after_drive_segment else 50) or (not self.field_guided and
                     abs((heading-h+math.pi)%(2*math.pi)-math.pi)>.4):
+                if self.midfield:
+                    return self.stop('ROBOT POSE JUMP / LOCKED STOP')
+                if self.field_guided:
+                    self.previous_pose=None
+                    return self._waiting('ROBOT POSE JUMP / RECHECK')
                 return self._reselect('ROBOT POSE JUMP')
         if self.field_guided and self.vision_missing_since is not None:
             missing_time=now-self.vision_missing_since
@@ -372,11 +424,19 @@ class MultiPushControl:
             if self.contact_progress_at is not None:
                 self.contact_progress_at+=missing_time
             self.vision_missing_since=None
-        if self.task and self.task.target_ids[0] not in current and not local_release:
+        if (self.field_guided and not self.one_delivery and self.task is None and
+                self.target_lock is not None and not targets):
+            return self._reveal_target(center,hull,heading,obstacles,now)
+        if (self.task and not local_release and self.midfield_push_goal is None and
+                (self.task.target_ids[0] not in current or
+                 (self.field_guided and self.target_lock is not None and not targets))):
             if (self.field_guided and self.state=='PUSH' and self.contact_anchor is not None and
                     self.contact_target_id==self.task.target_ids[0] and
-                    (self.contact_hidden_at is not None or now-self.contact_seen_at<=.6)):
+                    (self.contact_hidden_at is not None or
+                     now-self.contact_seen_at<=(2.1 if after_drive_segment else .6))):
                 return self._carry_hidden(center,hull,heading,obstacles,now,push_sign,boundary_y_at,nx,ny)
+            if self.field_guided and not self.one_delivery and self.target_lock is not None:
+                return self._reveal_target(center,hull,heading,obstacles,now)
             return self._missing_vision('TARGET LOST',now)
         if self.contact_hidden_at is not None and not local_release:
             self.contact_hidden_at=None;self.progress_at=now
@@ -398,7 +458,8 @@ class MultiPushControl:
         aim_at_block=self.field_guided or (self.one_delivery and target_block_id is not None)
         target_overlaps_car=False
         for b in blocks:
-            if self.task and b.id in self.task.target_ids and self.state in ('PUSH','RELEASE'):
+            if b.id==task_target and (self.state=='PUSH' or
+                    (self.state=='RELEASE' and (not self.midfield or b is release_target))):
                 continue
             if cv2.pointPolygonTest(np.float32(hull),(b.x,b.y),True)>=-10:
                 if not aim_at_block or b.id!=task_target or self.state not in ('APPROACH','ALIGN'):
@@ -406,6 +467,11 @@ class MultiPushControl:
                 target_overlaps_car=True
         if not self.active:
             self.ready_push_sign=push_sign
+            if self.midfield:
+                self.required_deliveries=sum(push_sign*(b.y-boundary_y_at(b.x))<=self.base_config.block_half_mm
+                                             for b in targets)
+                if targets and not self.required_deliveries:
+                    return self._waiting('NO BLOCK IN BLUE')
             if not targets:
                 return self._waiting('WAIT FOR BLOCK DETECTION')
             if self.one_delivery and all(push_sign*(b.y-boundary_y_at(b.x))>self.base_config.block_half_mm
@@ -426,6 +492,8 @@ class MultiPushControl:
         heading_error=(push_heading-heading+math.pi)%(2*math.pi)-math.pi
         local_navigation=self.field_guided and not self.one_delivery
         active_target_id=self.task.target_ids[0] if self.task else target_block_id
+        if self.midfield and local_release and release_target is None:
+            active_target_id=None
 
         def rotated_hull(angle):
             cos,sin=math.cos(angle),math.sin(angle)
@@ -450,6 +518,34 @@ class MultiPushControl:
                         cv2.pointPolygonTest(swept_hull,(float(b.x),float(b.y)),True)<-obstacle_margin
                         for b in obstacles))
 
+        far_edge=cfg.field_mm if push_sign>0 else 0
+
+        def yellow_middle(x):
+            return (boundary_y_at(x)+far_edge)/2
+
+        if self.state=='PUSH' and self.midfield_push_goal is not None:
+            origin,initial_block,start_heading=self.contact_anchor
+            direction=np.array([math.cos(start_heading),math.sin(start_heading)])
+            side=np.array([-direction[1],direction[0]])
+            error=(heading-start_heading+math.pi)%(2*math.pi)-math.pi
+            if abs(error)>.14 or abs((center-origin)@side)>15:
+                return self.stop('MIDFIELD PUSH DRIFT')
+            remaining=float((self.midfield_push_goal-center)@direction)
+            if remaining<=10:
+                travel=max(0,(center-origin)@direction-self.push_contact_gap)
+                point=initial_block+direction*travel
+                self._begin_release(center,direction,radius,front,point,now)
+                self.midfield_push_goal=None
+                return self.plan('stop','CAR AT YELLOW MIDFIELD / REVERSE NEXT',center)
+            if not clear_translation(hull,forward*(remaining+15),active_target_id):
+                return self.stop('MIDFIELD PUSH PATH BLOCKED')
+            if remaining<self.best_cost-3:
+                self.best_cost=remaining
+                self.progress_at=now
+            elif now-self.progress_at>4:
+                return self.stop('NO CAR PROGRESS TOWARD MIDFIELD')
+            return self.plan('forward','PUSH TO YELLOW MIDFIELD / CAR POSITION',self.midfield_push_goal)
+
         def forward_push_goal(target, direction=forward, ignored_id=active_target_id):
             side=np.array([-direction[1],direction[0]])
             angle=math.atan2(direction[1],direction[0])-heading
@@ -468,14 +564,38 @@ class MultiPushControl:
             depth_per_mm=push_sign*(direction[1]-direction[0]*nx/ny)
             if depth_per_mm<=.1:
                 return None
-            travel=max(0,ahead-front)+(max(0,45-depth)/depth_per_mm)
+            if self.midfield:
+                middle_rate=push_sign*(direction[1]-direction[0]*nx/(2*ny))
+                if middle_rate<=.35:
+                    return None
+                travel=push_sign*(yellow_middle(center[0])-center[1])/middle_rate
+                if travel<ahead-front+cfg.block_half_mm:
+                    return None
+                final_hull=push_hull+direction*(travel+15)
+                if np.any(final_hull<60) or np.any(final_hull>cfg.field_mm-60):
+                    return None
+            else:
+                travel=max(0,ahead-front)+(max(0,45-depth)/depth_per_mm)
             displacement=direction*travel
             if local_navigation and (np.any(push_hull+displacement<0) or
                                      np.any(push_hull+displacement>cfg.field_mm)):
                 return None
-            checked_travel=(displacement*min(1,15/max(1,np.linalg.norm(displacement)))
+            checked_travel=(direction*(travel+15) if self.midfield else
+                            displacement*min(1,15/max(1,np.linalg.norm(displacement)))
                             if local_navigation else displacement)
             return center+displacement if clear_translation(push_hull,checked_travel,ignored_id) else None
+
+        if self.midfield and not self.one_delivery and self.state=='SELECT' and self.target_lock is None:
+            pending_count=sum(push_sign*(b.y-boundary_y_at(b.x))<=cfg.block_half_mm for b in targets)
+            self.required_deliveries=max(self.required_deliveries,self.completed+pending_count)
+            if pending_count:
+                self.clear_since=None
+            elif self.completed>=self.required_deliveries and self.completed:
+                if self.clear_since is None:
+                    self.clear_since=now
+                if now-self.clear_since>=.5:
+                    return self.stop('ALL DETECTED BLUE BLOCKS VERIFIED',done=True)
+                return self.plan('stop','CHECKING FOR REMAINING BLUE BLOCKS')
 
         if self.state=='SELECT' and aim_at_block:
             chosen=None
@@ -516,6 +636,15 @@ class MultiPushControl:
             if not targets:
                 return self._waiting('WAIT FOR BLOCK DETECTION')
             if not pending:
+                if self.target_lock is not None:
+                    block=targets[0]
+                    if push_sign*(block.y-boundary_y_at(block.x))>=cfg.block_half_mm+5:
+                        point=current[block.id]
+                        self.task=Decision('TEST','CAPTURE','REACQUIRED IN YELLOW',
+                                           target_ids=(block.id,))
+                        self._begin_release(center,forward,radius,front,point,now)
+                        self.release_goal=center.copy()
+                        return self.plan('stop','CURRENT BLOCK REACQUIRED IN YELLOW / VERIFY',point)
                 # A colour/shape dropout is not evidence that every block was
                 # delivered. Keep scanning so newly visible blue blocks resume.
                 return self._waiting('NO BLUE BLOCK DETECTED / KEEP SCANNING')
@@ -523,12 +652,17 @@ class MultiPushControl:
             self._lock_target(block,blocks)
             # Approach behind the block without requiring an entire clear route.
             # The actual next motion is checked against the current body below.
-            approach=(block.x,block.y-push_sign*(front+cfg.block_half_mm+35))
+            standoff=(radius+cfg.block_half_mm+30 if self.midfield else front+cfg.block_half_mm+35)
+            approach=(block.x,block.y-push_sign*standoff)
             approach=tuple(float(v) for v in np.clip(approach,front+20,cfg.field_mm-front-20))
             self.task=Decision('TEST','CAPTURE','LOCAL SINGLE BLOCK',target_ids=(block.id,),
                                approach_mm=approach,push_to_mm=(block.x,boundary_y_at(block.x)+push_sign*45),
                                heading_rad=push_heading)
             self.path=[approach]
+            if (self.midfield and abs(center[0]-block.x)>front and
+                    push_sign*(block.y-center[1])<front+cfg.block_half_mm+15):
+                # Get behind the block row before crossing it sideways.
+                self.path.insert(0,(float(center[0]),approach[1]))
             self.approach_reverse=None
             self.reverse_approach_blocked=False
             self.state='APPROACH';self.progress_at=now;self.best_cost=math.inf
@@ -569,7 +703,8 @@ class MultiPushControl:
             self._lock_target(next(b for b in blocks if b.id==self.task.target_ids[0]),blocks)
             self.state='APPROACH';self.progress_at=now;self.best_cost=math.inf
             return self.plan('stop','TASK SELECTED',self.path[0])
-        target=next((b for b in blocks if b.id==self.task.target_ids[0]),None)
+        target=(release_target if self.midfield and local_release else
+                next((b for b in blocks if b.id==self.task.target_ids[0]),None))
         target_visible=target is not None
         if target is None:
             # Only RELEASE can reach here: the last measured delivered position
@@ -579,14 +714,24 @@ class MultiPushControl:
         push_goal=forward_push_goal(point) if aim_at_block and self.state in ('APPROACH','ALIGN') else None
         if target_overlaps_car and push_goal is None:
             return self._reselect('TARGET OVERLAPS CAR OUTSIDE CLEAR PUSH CORRIDOR')
+        if (self.state in ('APPROACH','ALIGN') and
+                (push_goal is not None or
+                 (self.state=='ALIGN' and not aim_at_block and abs(heading_error)<=.06))):
+            self.path=[]
+            self.state='PUSH';self.progress_at=now;self.best_cost=math.inf
+            if self.midfield:
+                self.midfield_push_goal=push_goal
+                self.contact_anchor=(center.copy(),point.copy(),heading)
+                self.contact_target_id=target.id
+                self.push_contact_gap=max(0,(point-center)@forward-front-cfg.block_half_mm)
+                return self.plan('stop','MIDFIELD PUSH ROUTE SET',push_goal)
         if self.state=='APPROACH':
-            if push_goal is not None:
-                self.path=[]
-                self.state='PUSH';self.progress_at=now;self.best_cost=math.inf
-                return self.plan('stop','BLOCK IN FORWARD PATH / START PUSH')
             goal=np.array(self.path[0]);distance=math.dist(center,goal)
             if distance<=15:
                 self.path.pop(0)
+                if self.midfield:
+                    self.approach_reverse=None
+                    self.reverse_approach_blocked=False
                 self.best_cost=math.inf;self.progress_at=now
                 if not self.path:
                     self.state='ALIGN';self.best_cost=math.inf;self.progress_at=now
@@ -625,9 +770,6 @@ class MultiPushControl:
                 error=(aim_heading-heading+math.pi)%(2*math.pi)-math.pi
             cost=radius*abs(error)
             goal=point
-            if push_goal is not None or (not aim_at_block and abs(error)<=.06):
-                self.state='PUSH';self.best_cost=math.inf;self.progress_at=now
-                return self.plan('stop','ALIGNED / START PUSH')
             if aim_at_block and (abs(error)<=.06 or (not local_navigation and not clear_turn(error))):
                 return self._reselect('PUSH CORRIDOR NOT CLEAR / REPLAN')
             command='left' if error>0 else 'right'
@@ -667,16 +809,17 @@ class MultiPushControl:
         else:  # RELEASE: reverse by observed displacement, then verify the block.
             goal=self.release_goal
             delivery_threshold=cfg.block_half_mm if local_navigation else 30
-            if target_visible:
+            if target_visible and not self.midfield:
                 self.release_point=point.copy()
-            if target_visible and push_sign*(point[1]-boundary_y_at(point[0]))<delivery_threshold:
+            if (target_visible and not self.midfield and
+                    push_sign*(point[1]-boundary_y_at(point[0]))<delivery_threshold):
                 return self._reselect('DELIVERED BLOCK LEFT YELLOW / RESELECT')
             release_side=np.array([-self.release_direction[1],self.release_direction[0]])
             release_turn=math.atan2(self.release_direction[1],self.release_direction[0])
             release_error=(release_turn-heading+math.pi)%(2*math.pi)-math.pi
             if abs((center-goal)@release_side)>15 or abs(release_error)>.14:
                 return self.stop('RELEASE DRIFT')
-            released=((center-goal)@self.release_direction<=10 if local_navigation
+            released=((center-goal)@self.release_direction<=10 if self.field_guided
                       else math.dist(center,goal)<=10)
             if released:
                 if self.field_guided and not target_visible:
@@ -684,14 +827,22 @@ class MultiPushControl:
                     if self.release_wait_since is None:
                         self.release_wait_since=now
                     if now-self.release_wait_since>=.8:
+                        if self.midfield:
+                            return self.stop('RETURNED / BLOCK NOT VISIBLE')
                         return self._reselect('RELEASED / WAIT FOR CURRENT BLOCK VERIFICATION')
                     return self.plan('stop','RELEASED / LOOK FOR DELIVERED BLOCK')
                 self.release_wait_since=None
+                if (self.midfield and
+                        push_sign*(point[1]-yellow_middle(point[0]))<math.sqrt(2)*cfg.block_half_mm):
+                    return self.stop('RETURNED / BLOCK SHORT OF YELLOW MIDFIELD')
                 if self.verify_since is None:
                     self.verify_since=now
                 if now-self.verify_since>=.5:
                     self.verified.add(target.id);self.completed+=1
                     self.target_lock=None
+                    self.contact_anchor=None
+                    self.contact_seen_at=None
+                    self.contact_target_id=None
                     self.startup_pulse_used=False
                     self.task=None
                     self.path=[];self.approach_reverse=None
@@ -709,6 +860,8 @@ class MultiPushControl:
         if cost<self.best_cost-3:
             self.best_cost=cost;self.progress_at=now
         elif now-self.progress_at>4:
+            if self.midfield:
+                return self.stop(self.state+' / NO CAR PROGRESS')
             if local_navigation:
                 return self._reselect('NO VISUAL PROGRESS / RETRY TARGET')
             return self.stop('NO VISUAL PROGRESS')
@@ -723,6 +876,22 @@ class MultiPushControl:
                     self.reverse_approach_blocked=True
                     self.approach_reverse=False
                     return self.plan('stop','REVERSE APPROACH BLOCKED / USE FORWARD',goal)
+                if self.state=='APPROACH' and len(self.path)==1:
+                    # Keep the same block and try one short detour around the obstruction.
+                    detours=[]
+                    for degrees in (45,-45,90,-90):
+                        turn=math.radians(degrees)
+                        direction=np.array([math.cos(heading+turn),math.sin(heading+turn)])
+                        step=direction*65
+                        if clear_turn(turn) and clear_translation(rotated_hull(turn),step,None):
+                            detours.append((math.dist(center+step,goal),turn,center+step))
+                    if detours:
+                        _,turn,waypoint=min(detours,key=lambda choice:choice[0])
+                        self.path.insert(0,waypoint)
+                        self.approach_reverse=False
+                        self.best_cost=math.inf;self.progress_at=now
+                        return self.plan('left' if turn>0 else 'right',
+                                         'APPROACH DETOUR / SAME BLOCK',waypoint)
                 # Make space for the next correction, rather than rejecting a
                 # distant goal because the full route is currently obstructed.
                 if clear_translation(hull,-forward*15,None):
@@ -730,6 +899,41 @@ class MultiPushControl:
                 else:
                     return self._waiting('NEXT STEP BLOCKED / WAIT FOR SPACE')
         plan=self.plan(command,self.state+' / YELLOW DELIVERY',goal)
+        distance=math.dist(center,goal)
+        if (continuous_drive and local_navigation and distance>=40 and
+                ((self.state=='APPROACH' and command in ('forward','left','right') and
+                  not self.approach_reverse and abs(error)<=math.radians(38)) or
+                 (self.state=='PUSH' and command=='forward' and
+                  (self.contact_anchor is not None or
+                   offset@forward>=front+cfg.block_half_mm+100)))):
+            correction=max(-10,min(10,round(45*error))) if self.state=='APPROACH' else 0
+            left,right=50-correction,50+correction
+            duration=min(1.45,max(.25,(distance-15)/100))
+            # Include the final 350ms lease in the swept area.
+            # Nominal speed only estimates where to look for the end of the segment.
+            yaw_rate=(right-left)/130
+            parts=12
+            swept_points=[]
+            position=center.copy()
+            interval=(duration+.35)/parts
+            for i in range(parts+1):
+                angle=yaw_rate*i*interval
+                swept_points.extend(rotated_hull(angle)+position-center)
+                direction=heading+angle+yaw_rate*interval/2
+                position+=115*interval*np.array([math.cos(direction),math.sin(direction)])
+            swept=cv2.convexHull(np.float32(swept_points))
+            padding=60
+            ignored_id=active_target_id if self.state=='PUSH' else None
+            if (np.all(swept>=padding) and np.all(swept<=cfg.field_mm-padding) and
+                    all(b.id==ignored_id or
+                        cv2.pointPolygonTest(swept,(float(b.x),float(b.y)),True)<
+                        -15-math.sqrt(2)*cfg.block_half_mm for b in obstacles)):
+                direction=heading+yaw_rate*duration/2
+                travel=min(distance,50*duration)
+                plan.update(drive_wheels=[left,right],
+                            drive_replan_s=duration,
+                            drive_end_mm=(center+travel*np.array([math.cos(direction),math.sin(direction)])).tolist(),
+                            drive_sweep=swept.tolist(),drive_ignored_id=ignored_id)
         if local_navigation and command in ('left','right'):
             # The transport selects breakaway steps from observed turn response.
             # Check their larger sweep before authorizing higher power. Never
@@ -739,7 +943,7 @@ class MultiPushControl:
         if local_navigation and self.state=='APPROACH':
             plan['approach_reverse']=self.approach_reverse
             plan['heading_error_deg']=round(math.degrees(error),2)
-        if local_navigation and command in ('forward','backward'):
+        if local_navigation and not self.midfield and command in ('forward','backward'):
             # 80ms at 0.04 repeatedly spends most of the cycle starting the
             # motors. Use the existing 120ms / 0.1 straight step in open space;
             # retain gentle steps for the final 25mm and all turns.

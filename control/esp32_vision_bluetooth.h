@@ -46,7 +46,7 @@ void bluetoothCommand(const char *line) {
   if (isBusy()) { bluetoothReply(id, "busy"); return; }
   lastToken = id;
   setBusy(true);
-  xQueueOverwrite(commands, &command);
+  queueMotor(command);
   bluetoothReply(id, command == 1 ? "pulse_queued" : "step_queued");
 }
 

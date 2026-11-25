@@ -1,4 +1,5 @@
 """Test 8: local approach, turn correction and two observed deliveries."""
+from copy import deepcopy
 import math
 from pathlib import Path
 import sys
@@ -123,6 +124,7 @@ def check_rear_waypoint():
     # The real reported geometry should choose a 52-degree right correction,
     # instead of the old 128-degree left turn.
     control.path=[(649.6,886.884)]
+    control.target_lock['point']=[649.4,764.9]
     control.approach_reverse=None;control.reverse_approach_blocked=False
     pose=robot(486.125,800.822,math.radians(-100.5))
     control.previous_pose=None
@@ -132,6 +134,7 @@ def check_rear_waypoint():
     # New live failure: 296mm is beyond the original reverse-distance cutoff,
     # but the tail is only 20 degrees off the goal, so begin backing up.
     control.path=[(696.5,886.44)]
+    control.target_lock['point']=[696.5,784.4]
     control.approach_reverse=None;control.reverse_approach_blocked=False
     control.previous_pose=None
     pose=robot(473.09,691.60,math.radians(-119.47))
@@ -319,6 +322,93 @@ def check_target_commitment():
     assert plan['command']=='forward' and control.task.target_ids==('a',) and control.completed==0,plan
 
 
+def check_reveal_after_replan():
+    control=MultiPushControl(field_guided=True)
+    pose=robot(600,800,-math.pi/2)
+    target=Block('a',600,735)
+    other=Block('b',900,750)
+    control.update(pose,(Block('a',600,710),other),FIELD,1,1,1)
+    assert control.start()
+    control._lock_target(target,(target,other))
+    control._reselect('CONTACT PUSH PATH BLOCKED / REOBSERVE')
+    plan=control.update(pose,(other,Block('rear',600,880)),FIELD,1.1,1.1,1.1)
+    assert plan['command']=='stop' and 'BACKUP BLOCKED' in plan['reason'],plan
+    plan=control.update(pose,(other,),FIELD,1.2,1.2,1.2)
+    assert plan['command']=='backward' and plan['target_ids']==['a'],plan
+    for now,y in ((1.4,830),(1.6,857)):
+        plan=control.update(robot(600,y,-math.pi/2),(other,),FIELD,now,now,now)
+    assert plan['command']=='stop' and control.completed==0,plan
+    renamed=Block('new-a',600,735)
+    plan=control.update(robot(600,857,-math.pi/2),(renamed,other),FIELD,1.8,1.8,1.8)
+    assert control.task.target_ids==('new-a',) and control.completed==0,plan
+
+    # A target lost near the boundary can reappear fully inside yellow.
+    control.target_lock['point']=[600,601]
+    control._reselect('RECHECK BOUNDARY')
+    yellow=Block('new-a',600,580)
+    pose=robot(600,770,-math.pi/2)
+    plan=control.update(pose,(yellow,other),FIELD,2,2,2)
+    assert control.state=='RELEASE' and control.completed==0,plan
+    for now in (2.1,2.4,2.7):
+        plan=control.update(pose,(yellow,other),FIELD,now,now,now)
+    assert control.completed==1 and control.state=='SELECT',plan
+
+
+def check_midfield_verification():
+    control=MultiPushControl(field_guided=True,midfield=True)
+    other=Block('b',900,700)
+    initial=(Block('a',600,690),other)
+
+    def observe(y, blocks, now, frame_age=0):
+        return control.update(robot(600,y,-math.pi/2),blocks,FIELD,now-frame_age,now,now)
+
+    observe(760,initial,0)
+    assert control.start()
+    for now in (.1,.2,.3):
+        observe(760,initial,now)
+    field_dropout=deepcopy(control)
+    pose=robot(600,720,-math.pi/2)
+    plan=field_dropout.update(pose,(other,),{'valid':False},.4,.4,.4)
+    assert plan['command']=='stop' and field_dropout.midfield_push_goal is not None,plan
+    plan=field_dropout.update(pose,(other,),FIELD,.5,.5,.5)
+    assert plan['command']=='forward' and plan['target_ids']==['a'],plan
+
+    jumped=deepcopy(control)
+    for now in (.4,.5):
+        plan=jumped.update(robot(600,650,-math.pi/2),(other,),FIELD,now,now,now)
+        assert plan['command']=='stop' and jumped.finished,plan
+
+    for frame,y in enumerate(range(720,299,-40),start=1):
+        blocks=(other,Block('new-object',600,690)) if y==600 else (other,)
+        plan=observe(y,blocks,.3+frame*.1)
+        assert plan['target_ids']==['a'],plan
+    observe(300,(other,),1.5)
+    assert control.state=='RELEASE',control.last_plan
+    observe(340,(other,),1.6)
+    observe(385,(other,),1.7)
+    rear_y=float(control.release_goal[1])
+    observe(rear_y,(other,),1.75)
+    x,y=control.release_point
+
+    # A detection carrying the old ID is outside the expected release position.
+    for now in (1.8,2.35):
+        plan=observe(rear_y,(Block('a',x+100,y),other),now)
+        assert control.completed==0 and not control.finished,plan
+
+    # The search and verification timers both require fresh observations.
+    observe(rear_y,(other,),2.5,frame_age=.4)
+    plan=observe(rear_y,(other,),2.75)
+    assert control.completed==0 and not control.finished,plan
+    revealed=(Block('new-a',x,y),other)
+    observe(rear_y,revealed,2.8)
+    observe(rear_y,revealed,3.1,frame_age=.4)
+    plan=observe(rear_y,revealed,3.4)
+    assert control.completed==0,plan
+    for now in (3.65,3.95):
+        plan=observe(rear_y,revealed,now)
+    assert control.completed==1 and control.state=='SELECT',plan
+
+
 if __name__=='__main__':
     check_recovery()
     check_deliveries()
@@ -328,4 +418,6 @@ if __name__=='__main__':
     check_contact_occlusion()
     check_contact_association()
     check_target_commitment()
+    check_reveal_after_replan()
+    check_midfield_verification()
     print('PASS: two deliveries; hidden contact transport/reveal/verify; drift/stall/obstacle stops; measured-only association hints')

@@ -23,6 +23,10 @@ from vision.photo_vision import (select_corners, rectify, detect_midline, segmen
 from vision.latest_camera import LatestCamera
 from vision.robot_vision import detect_robot, draw_robot, exclude_robot_regions, retain_contact_target
 
+DRIVE_LEASE_MS = 350
+DRIVE_RENEW_S = .12
+LIVE_EDGE_MARGIN_MM = 60
+
 
 class DirectionLink(WifiLink):
     def connect(self):
@@ -47,6 +51,9 @@ class GentleLink(DirectionLink):
     def connect(self):
         super().connect()
         status=self.request('/status')
+        self.reverse_step=status.get('reverse_step') is True
+        self.gentle_straight_speed=status.get('gentle_straight_speed')
+        self.drive_hold_ms=status.get('drive_hold_ms',0)
         self.medium_turn_ms=status.get('medium_turn_ms',0)
         self.fine_turn_ms=status.get('fine_turn_ms',0)
         if self.medium_turn_ms!=60 or self.fine_turn_ms!=35:
@@ -67,6 +74,13 @@ class GentleLink(DirectionLink):
         result=self.request('/step',payload)
         if result.get('result')!='step_queued':
             raise ValueError('ESP32未接受低速动作：'+str(result))
+        return result
+
+    def drive(self, left, right, hold_ms):
+        result=self.request('/drive',{'id':uuid.uuid4().hex,'left':left,'right':right,
+                                      'hold_ms':hold_ms})
+        if result.get('result')!='drive_queued':
+            raise ValueError('ESP32 rejected continuous drive: '+str(result))
         return result
 
 
@@ -180,12 +194,13 @@ def calibration(index):
         cv2.destroyAllWindows()
 
 
-def show_stopped_error(name, error, allow_reconnect=False, image=None):
+def show_stopped_error(name, error, allow_reconnect=False, image=None, *, allow_start=True):
     panel=cv2.resize(image,(900,900)).copy() if image is not None else np.zeros((300,900,3),np.uint8)
     cv2.rectangle(panel,(0,0),(900,280),(25,25,25),-1)
     lines=('STOPPED - '+type(error).__name__,
            str(error).encode('ascii',errors='replace').decode('ascii')[:100],
-           ('R: reconnect only | SPACE: reconnect and request start' if allow_reconnect else
+           (('R: reconnect only | SPACE: reconnect and request start' if allow_start else
+             'R: reconnect | After reconnect, press SPACE to start') if allow_reconnect else
             'Motion is locked. Fix the problem, then restart the test.'),
            ('Start requires valid fresh vision. X cancels. Esc exits.' if allow_reconnect else
             'Esc / close window: exit. No automatic restart.'))
@@ -198,7 +213,7 @@ def show_stopped_error(name, error, allow_reconnect=False, image=None):
         key=cv2.waitKey(100)&255
         if allow_reconnect and key in (ord('r'),ord('R')):
             return True
-        if allow_reconnect and key==32:
+        if allow_reconnect and allow_start and key==32:
             return 'start'
         if key==27 or cv2.getWindowProperty(name,cv2.WND_PROP_VISIBLE)<1:
             return
@@ -213,13 +228,14 @@ def main():
     parser.add_argument('--invert-turns',action='store_true',help='仅当实测左右转反向时交换发送的转向命令')
     parser.add_argument('--single-push',action='store_true',help='单块直线推送：识别稳定倒计时3秒后自动开始，按视觉位移停车')
     parser.add_argument('--multi-push',action='store_true',help='逐个将方块送入黄色区，退开核验后再选下一个；空格启动')
-    parser.add_argument('--straight-push',action='store_true',help='Single manually aligned push into yellow; Space starts')
+    parser.add_argument('--straight-push',action='store_true',help='Manually aligned push into yellow and return; Space starts')
+    parser.add_argument('--midfield',action='store_true',help='Drive each push to the middle of the yellow half before reversing')
     parser.add_argument('--one-delivery',action='store_true',help='Stop after one verified delivery in automatic push mode')
     parser.add_argument('--push-distance',type=float,default=100,help='单块模式目标位移，20～150mm，默认100mm')
     args=parser.parse_args()
     stepped_push=args.multi_push or args.straight_push
-    if args.one_delivery and not args.multi_push:
-        parser.error('--one-delivery requires --multi-push')
+    if (args.one_delivery or args.midfield) and not args.multi_push:
+        parser.error('--one-delivery and --midfield require --multi-push')
     if (args.multi_push and args.straight_push) or (stepped_push and (args.single_push or args.bluetooth_port)):
         parser.error('Push modes are mutually exclusive; stepped push requires Wi-Fi')
     if args.camera<0:
@@ -229,7 +245,7 @@ def main():
         controller=StraightPush(config)
         tracker_type=FrameBlocks
     elif stepped_push:
-        controller=MultiPushControl(config,one_delivery=args.one_delivery,field_guided=True)
+        controller=MultiPushControl(config,one_delivery=args.one_delivery,field_guided=True,midfield=args.midfield)
         tracker_type=MovingBlocks
     else:
         controller=SinglePushControl(config,args.push_distance) if args.single_push else ApproachControl(config)
@@ -241,7 +257,7 @@ def main():
     capture=None
     folder=OUTPUT/(('straight-push-' if args.straight_push else 'auto-one-delivery-' if args.one_delivery else 'multi-push-' if stepped_push else 'single-push-' if args.single_push else 'approach-')+datetime.now().strftime('%Y%m%d-%H%M%S-%f'))
     folder.mkdir(parents=True)
-    name=('STRAIGHT PUSH | SPACE start | X stop | S save | Esc exit' if args.straight_push else ('AUTO ONE DELIVERY' if args.one_delivery else 'MULTI BLOCK')+' | SPACE start | X stop | R rearm | S save | Esc exit' if stepped_push else 'AUTO ONE BLOCK | 3s countdown | X stop | R rearm | S save | Esc exit' if args.single_push else
+    name=('PUSH AND RETURN | SPACE start | X stop | R rearm | Esc exit' if args.straight_push else ('AUTO ONE DELIVERY' if args.one_delivery else 'MULTI BLOCK')+' | SPACE start | X stop | R rearm | S save | Esc exit' if stepped_push else 'AUTO ONE BLOCK | 3s countdown | X stop | R rearm | S save | Esc exit' if args.single_push else
           'Approach | click block colour | SPACE start | X stop | R rearm | S save | Esc exit')
     sample=None
     pending=None
@@ -249,6 +265,12 @@ def main():
     image=None
     last_receipt=last_send=-math.inf
     observe_after=-math.inf
+    drive_until=-math.inf
+    drive_replan_at=-math.inf
+    drive_segment=None
+    drive_observation=None
+    drive_sent_frame=-math.inf
+    drive_renew_at=-math.inf
     last_command='stop'
     turn_feedback=TurnFeedback(args.invert_turns)
     start_requested=False
@@ -264,22 +286,31 @@ def main():
             stream.write(json.dumps({'event':event,'time':datetime.now().isoformat(),
                 'dry_run':args.dry_run,**data},ensure_ascii=False)+'\n')
 
-    def send(command):
+    def drive_enabled():
+        return (args.multi_push and not (args.one_delivery or args.midfield) and
+                (args.dry_run or getattr(link,'drive_hold_ms',0)==2000))
+
+    def send(command, wheels=None, *, renew=False):
         nonlocal last_receipt,last_send,last_command,observe_after,request_ms
+        nonlocal drive_until,drive_replan_at,drive_segment,drive_observation,drive_sent_frame,drive_renew_at
+        plan=controller.last_plan
         wire={'left':'right','right':'left'}.get(command,command) if turn_feedback.inverted else command
         standard_step=(args.multi_push and
                        (controller.last_plan.get('normal_turn_step',False) if command in ('left','right') else
                         controller.last_plan.get('standard_step',False)))
+        if (args.midfield or drive_enabled()) and wire in ('forward','backward'):
+            standard_step=False
         profiles=(getattr(link,'medium_turn_ms',0)==60 and getattr(link,'fine_turn_ms',0)==35)
-        if args.multi_push and wire in ('left','right'):
+        if args.multi_push and not wheels and wire in ('left','right'):
             standard_step=standard_step or turn_feedback.use_normal_step(
                 command,controller.last_plan,profiles=profiles)
             controller.last_plan['normal_turn_step']=bool(standard_step)
             controller.last_plan['turn_stalled_observations']=turn_feedback.stalled_count
-        startup_pulse=args.multi_push and wire=='forward' and controller.last_plan.get('startup_pulse',False)
+        startup_pulse=(args.multi_push and not args.midfield and wire=='forward' and
+                       controller.last_plan.get('startup_pulse',False))
         step_duration=.25 if startup_pulse else .12 if standard_step else .08
         turn_profile=None
-        if (args.multi_push and not standard_step and wire in ('left','right') and
+        if (args.multi_push and not wheels and not standard_step and wire in ('left','right') and
                 profiles):
             turn_profile=('fine' if abs(controller.last_plan.get('heading_error_deg',180))<15 else 'medium')
             step_duration=.035 if turn_profile=='fine' else .06
@@ -287,6 +318,9 @@ def main():
         if link:
             if wire=='stop':
                 response=link.stop()
+            elif wheels:
+                response=link.drive(*(wheels[::-1] if turn_feedback.inverted else wheels),
+                                    DRIVE_LEASE_MS)
             elif startup_pulse:
                 response=link.pulse()
             elif turn_profile:
@@ -299,19 +333,36 @@ def main():
             response={'dry_run':True}
         last_receipt=last_send=time.monotonic()
         request_ms=(last_receipt-request_started)*1000
-        if startup_pulse:
+        drive_until=request_started+DRIVE_LEASE_MS/1000 if wheels else -math.inf
+        drive_renew_at=request_started+DRIVE_RENEW_S if wheels else -math.inf
+        drive_sent_frame=acquired if wheels else -math.inf
+        if wheels and not renew:
+            drive_replan_at=request_started+plan['drive_replan_s']
+            # Inverted wiring still follows the same visual arc.
+            origin=np.asarray(robot['center_px'],float)*config.field_mm/1199
+            origin[1]=config.field_mm-origin[1]
+            endpoint=np.asarray(plan['drive_end_mm'])
+            drive_segment=(origin,endpoint,np.float32(plan['drive_sweep']),plan['drive_ignored_id'])
+            drive_observation=(acquired,origin)
+        elif not wheels:
+            drive_segment=None
+            drive_observation=None
+        if startup_pulse and not wheels:
             controller.startup_pulse_used=True
-        if args.multi_push:
+        if stepped_push:
             # Judge the step from a frame acquired after its firmware time limit.
-            observe_after=(-math.inf if wire=='stop' else
-                           last_receipt+step_duration+.02)
-            if wire in ('left','right') and robot.get('heading_valid'):
+            observe_after=(request_started if wheels else last_receipt+.02 if wire=='stop'
+                           else last_receipt+step_duration+.02)
+            if not wheels and wire in ('left','right') and robot.get('heading_valid'):
                 turn_feedback.sent(command,robot['heading_rad'],observe_after)
             else:
                 turn_feedback.reset()
         last_command=command
-        record('command',command=command,wire_command=wire,response=response,
-               request_ms=round(request_ms,1),turn_profile=turn_profile,plan=controller.last_plan)
+        record('command',command=command,wire_command=wire,drive_wheels=wheels,
+               drive_renewal=renew,drive_lease_ms=DRIVE_LEASE_MS if wheels else None,response=response,
+               request_ms=round(request_ms,1),turn_profile=turn_profile,
+               step_ms=round(step_duration*1000) if wire!='stop' and not wheels else None,
+               plan=controller.last_plan)
 
     def mouse(event,x,y,flags,param):
         nonlocal pending
@@ -324,6 +375,10 @@ def main():
             try:
                 if link:
                     link.connect()
+                    if args.midfield and link.gentle_straight_speed != .05:
+                        raise ValueError('菜单8需要固定0.05直行档，请重新上传手机热点联动固件。')
+                    if (args.straight_push or args.midfield) and not link.reverse_step:
+                        raise ValueError('车端固件未提供倒退短步，无法执行往返。')
                 if retrying:
                     completed=controller.completed
                     controller.rearm()
@@ -342,9 +397,11 @@ def main():
                     print('Enter四角标定，再点击唯一方块取色。车头须对准方块，场景稳定3秒后自动前进，不需空格。')
                     print(f'方块视觉位移达到{args.push_distance:g}mm后停止，只执行一次。X停止，R重新倒计时，S保存，Esc退出。')
                 elif args.straight_push:
-                    print('STRAIGHT PUSH: align the car with one block facing yellow. Calibrate, sample colour, then wait for READY and press Space.')
+                    print('只放一块，靠近分界，摆正车头并清空前后通道。标定取色后等 READY，按一次空格执行直推、倒退、停车。')
                 elif args.one_delivery:
-                    print('单块入区：四角标定、点击方块取色，按空格启动。自动对准，核验一块后结束。')
+                    print('单块自动推送：四角标定，点击方块取色，按空格启动。自动接近、对准，推到对面半区中部，再退开核验。')
+                elif args.midfield:
+                    print('多块完整推送：四角标定，点击同色方块取色，按一次空格。每块推到黄区中部后退开核验，再自动选下一块。X停车。')
                 elif stepped_push:
                     print('多块实车测试：Enter标定，点击方块取色，场景稳定后按空格开始。逐个推入黄区、退开核验，再选下一块。X停车。')
                 else:
@@ -359,8 +416,11 @@ def main():
                 cv2.setMouseCallback(name,mouse)
                 last_reason=None
                 while True:
+                    poll_interval=.22 if args.multi_push and controller.active else .15
                     if (stepped_push and link and not controller.finished and
-                            time.monotonic()-last_receipt>.15 and time.monotonic()>=status_retry_at):
+                            time.monotonic()>=drive_until and
+                            time.monotonic()-last_receipt>poll_interval and
+                            time.monotonic()>=status_retry_at):
                         try:
                             status_started=time.monotonic()
                             link.request('/status')
@@ -417,9 +477,9 @@ def main():
                             print('连续两次观察到反向转动，已自动交换左右转向。')
                     # Floor geometry is stationary after calibration. A lower
                     # resolution refresh avoids stalling marker/block control.
-                    if (not args.multi_push or field_cache is None or
+                    if (not stepped_push or field_cache is None or
                             not field_cache.get('valid') or acquired-field_checked_at>=2):
-                        field_cache=(detect_midline(image,max_dimension=450) if args.multi_push else
+                        field_cache=(detect_midline(image,max_dimension=450) if stepped_push else
                                      detect_midline(image))
                         field_checked_at=acquired
                     field=field_cache
@@ -498,20 +558,63 @@ def main():
                         link.request('/status')
                         last_receipt=time.monotonic()
                     now=time.monotonic()
+                    planning_started=time.perf_counter()
                     perception_ms=(now-processing_started)*1000
                     if args.dry_run:
                         last_receipt=now
-                    waiting_for_step_frame=(args.multi_push and controller.active and link_healthy and
-                                            acquired<observe_after)
-                    if stepped_push and not link_healthy:
+                    driving=now<drive_until
+                    drive_guard=(robot.get('detected') and robot.get('heading_valid') and
+                                 robot.get('geometry_valid') and field.get('valid') and
+                                 0<=now-acquired<=.2 and not track_error)
+                    edge_stop=False
+                    if args.multi_push and controller.active and drive_guard:
+                        body=np.asarray(robot['body_polygon_px'],float)*config.field_mm/1199
+                        edge_stop=(not np.isfinite(body).all() or np.any(body<LIVE_EDGE_MARGIN_MM) or
+                                   np.any(body>config.field_mm-LIVE_EDGE_MARGIN_MM))
+                    segment_blocked=False
+                    segment_done=False
+                    excessive_motion=False
+                    if driving and drive_guard:
+                        origin,endpoint,sweep,ignored=drive_segment
+                        center=np.asarray(robot['center_px'],float)*config.field_mm/1199
+                        center[1]=config.field_mm-center[1]
+                        travel=endpoint-origin
+                        segment_done=(acquired>drive_sent_frame and np.dot(center-endpoint,travel)>=0)
+                        previous_frame,previous_center=drive_observation
+                        if acquired>previous_frame:
+                            elapsed=acquired-previous_frame
+                            excessive_motion=math.dist(center,previous_center)>12+160*elapsed
+                            drive_observation=(acquired,center)
+                        margin=15+math.sqrt(2)*config.block_half_mm
+                        body=np.asarray(robot['body_polygon_px'],float)*config.field_mm/1199
+                        segment_blocked=(not np.isfinite(body).all() or np.any(body<10) or
+                            np.any(body>config.field_mm-10) or any(
+                            b.id!=ignored and cv2.pointPolygonTest(sweep,(float(b.x),float(b.y)),True)>=-margin
+                            for b in blocks))
+                    holding_drive=(driving and drive_guard and not segment_blocked and
+                                   not excessive_motion and not segment_done and now<drive_replan_at)
+                    waiting_for_step_frame=(stepped_push and controller.active and link_healthy and
+                                            drive_segment is None and acquired<observe_after)
+                    if edge_stop:
+                        plan=controller.stop('TOO CLOSE TO FIELD EDGE / LOCKED STOP')
+                        send('stop')
+                    elif stepped_push and not link_healthy:
                         reason='WAITING FOR CAR STATUS / AUTO RECHECK'
                         if args.multi_push and controller.active:
-                            plan=controller._reselect(reason)
+                            plan=controller._waiting(reason)
                         else:
                             plan=controller._invalid(reason)
-                    elif waiting_for_step_frame:
-                        plan={**controller.last_plan,'command':'stop',
-                              'reason':'WAIT FOR FRAME AFTER STEP','can_start':False}
+                    elif drive_segment is not None and (not driving or not drive_guard or
+                                                        segment_blocked or excessive_motion):
+                        reason=('DRIVE PATH BLOCKED' if segment_blocked else
+                                'CAR MOVED TOO FAST FOR ROLLING CONTROL' if excessive_motion else
+                                'DRIVE LEASE EXPIRED' if not driving else
+                                track_error or 'ROBOT MARKER / BODY OR FIELD LOST DURING DRIVE')
+                        plan=controller.stop(reason+' / LOCKED STOP')
+                    elif holding_drive or waiting_for_step_frame:
+                        plan={**controller.last_plan,'command':last_command if holding_drive else 'stop',
+                              'reason':('EXECUTING DRIVE SEGMENT' if holding_drive else
+                                        'WAIT FOR FRAME AFTER STEP'),'can_start':False}
                     elif track_error:
                         if args.multi_push and not args.one_delivery and not controller.finished:
                             plan=controller._missing_vision(track_error,now)
@@ -529,8 +632,11 @@ def main():
                         plan=controller.update(robot,blocks,field,acquired,now,last_receipt,
                                                target_block_id='selected')
                     elif args.multi_push:
+                        drive_options={'continuous_drive':True} if drive_enabled() else {}
+                        if drive_segment is not None:
+                            drive_options['after_drive_segment']=True
                         plan=controller.update(robot,blocks,field,acquired,now,last_receipt,
-                                               recent_obstacles=recent_obstacles)
+                                               recent_obstacles=recent_obstacles,**drive_options)
                     else:
                         plan=controller.update(robot,blocks,field,acquired,now,last_receipt)
                     if stepped_push and start_requested:
@@ -542,16 +648,28 @@ def main():
                             start_requested=False
                             record('start_accepted')
                             print('条件满足，开始推送。')
-                    planning_ms=(time.monotonic()-now)*1000
-                    # No motion while preparing. A stop/direction change interrupts the old step.
+                    planning_ms=(time.perf_counter()-planning_started)*1000
+                    link_age_ms=(now-last_receipt)*1000
                     command=plan['command'] if controller.active else 'stop'
-                    if waiting_for_step_frame:
-                        pass  # The ESP32 ends the current step on its own timer.
+                    wheels=plan.get('drive_wheels') if drive_enabled() and command!='stop' else None
+                    if holding_drive:
+                        if now>=drive_renew_at and acquired>drive_sent_frame:
+                            send(command,wheels,renew=True)
+                    elif waiting_for_step_frame:
+                        pass
+                    elif drive_segment is not None and not wheels:
+                        # End a rolling command explicitly before a short step or reversal.
+                        send('stop')
                     elif command=='stop':
                         if last_command!='stop':
-                            send('stop')
-                    elif now-last_send>=(.10 if args.multi_push else .22):
-                        send(command)
+                            if (args.multi_push and not (args.one_delivery or args.midfield) and not driving and
+                                    link_healthy and acquired>=observe_after):
+                                last_command='stop'
+                                turn_feedback.reset()
+                            else:
+                                send('stop')
+                    elif args.multi_push or now-last_send>=.22:
+                        send(command,wheels)
                     elif command!=last_command and last_command!='stop':
                         send('stop')
                     if args.multi_push and now-timing_logged_at>=1:
@@ -606,7 +724,7 @@ def main():
                                    field_point_px=field.get('point_px'),
                                    yellow_normal=field.get('yellow_normal'),
                                    frame_age_ms=round((now-acquired)*1000),
-                                   link_age_ms=round((now-last_receipt)*1000),
+                                   link_age_ms=round(link_age_ms),
                                    regions=[{key: region.get(key) for key in ('x_mm','y_mm','half')}
                                             for region in regions])
                         else:
@@ -627,7 +745,8 @@ def main():
                         start_requested=False
                         send('stop');controller.rearm();tracker=tracker_type()
                     if key==32:
-                        if args.straight_push and not controller.active and not plan.get('can_start'):
+                        if ((args.midfield and controller.finished) or
+                                (args.straight_push and not controller.active and not plan.get('can_start'))):
                             record('start_rejected',reason=plan['reason'])
                             print('Not ready. Press R to reset a finished run, or check the current status:',plan['reason'])
                         elif stepped_push:
@@ -667,7 +786,8 @@ def main():
                 print('错误已记录：',folder/'events.jsonl')
                 if stepped_push and isinstance(error,OSError):
                     print('窗口保持打开。网络恢复后按R重连，成功后还须按空格重新启动。Esc退出。')
-                    recovery=show_stopped_error(name,error,allow_reconnect=True,image=image)
+                    recovery=show_stopped_error(name,error,allow_reconnect=True,image=image,
+                                                allow_start=not args.midfield)
                     if recovery:
                         start_requested=recovery=='start'
                         record('reconnect_requested')

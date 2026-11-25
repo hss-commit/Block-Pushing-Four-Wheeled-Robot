@@ -1,4 +1,4 @@
-"""Single, manually aligned push into the yellow half."""
+"""One manually aligned push and return to the starting position."""
 from dataclasses import dataclass
 import math
 
@@ -10,7 +10,7 @@ class Target:
 
 
 class FrameBlocks:
-    """Each frame is independent. The controller follows only its chosen target."""
+    """Each frame is independent. The scene contains one block."""
     def update(self, regions):
         return tuple(Target(float(r['x_mm']), float(r['y_mm'])) for r in regions)
 
@@ -25,7 +25,7 @@ class StraightPush:
         self.state = 'PREPARE'
         self.completed = 0
         self.last_now = None
-        self.origin = self.target = self.forward = self.line = None
+        self.origin = self.forward = self.line = None
         self.started_at = self.verify_since = None
         self._waiting('CLICK BLOCK COLOUR')
 
@@ -61,72 +61,78 @@ class StraightPush:
             return self._invalid('STALE CAMERA / CAR REPLY')
         if not all(robot.get(k) for k in ('detected', 'heading_valid', 'geometry_valid')):
             return self._invalid('CAR MARKER / BODY LOST')
-        if not field.get('valid'):
-            return self._invalid('BLUE/YELLOW LINE NOT VISIBLE')
-        scale = 1200 / 1199
-        px, py = field['point_px']
-        nx, ny = field['yellow_normal']
-        line = (px*scale, 1200-py*scale, nx, -ny)
-        lx, ly, dx, dy = self.line if self.active else line
-
-        def depth(x, y):
-            return (x-lx)*dx + (y-ly)*dy
-
+        scale = self.config.field_mm / 1199
         robot_x, robot_y = robot['center_px']
-        x, y = robot_x*scale, 1200-robot_y*scale
+        x, y = robot_x*scale, self.config.field_mm-robot_y*scale
         angle = float(robot['heading_rad'])
         fx, fy = math.cos(angle), math.sin(angle)
-        hull = [(hx*scale, 1200-hy*scale) for hx, hy in robot['body_polygon_px']]
-        if any(not 20 <= coord <= 1180 for point in hull for coord in point):
+        hull = [(hx*scale, self.config.field_mm-hy*scale)
+                for hx, hy in robot['body_polygon_px']]
+        if any(not 60 <= coord <= self.config.field_mm-60 for point in hull for coord in point):
             return self._invalid('CAR TOO CLOSE TO EDGE')
-        half = self.config.block_half_mm
+        if len(blocks) > 1:
+            return self._invalid('KEEP ONLY ONE BLOCK ON THE FIELD')
+        target = blocks[0] if blocks else None
+
         if not self.active:
-            if fx*dx + fy*dy < .95:
+            if not field.get('valid'):
+                return self._waiting('BLUE/YELLOW LINE NOT VISIBLE')
+            px, py = field['point_px']
+            dx, ny = field['yellow_normal']
+            lx, ly, dy = px*scale, self.config.field_mm-py*scale, -ny
+        else:
+            lx, ly, dx, dy = self.line
+
+        def depth(px, py):
+            return (px-lx)*dx + (py-ly)*dy
+
+        half = self.config.block_half_mm
+        front_depth = max(depth(hx, hy) for hx, hy in hull)
+        target_depth = depth(target.x, target.y) if target else None
+        if not self.active:
+            facing = fx*dx + fy*dy
+            if facing < .95:
                 return self._waiting('POINT CAR TOWARD YELLOW')
             front = max((hx-x)*fx + (hy-y)*fy for hx, hy in hull)
-            candidates = [b for b in blocks if depth(b.x, b.y) < half and
-                          abs((b.x-x)*fy - (b.y-y)*fx) <= 15 and
-                          -10 <= (b.x-x)*fx + (b.y-y)*fy-front-half <= 55]
-            if len(candidates) != 1:
-                return self._waiting('PLACE ONE BLUE BLOCK DIRECTLY IN FRONT OF PUSHER')
-            self.origin, self.target, self.forward = (x, y), candidates[0], (fx, fy)
-            self.line = line
-            return self._plan('READY / SPACE: STRAIGHT PUSH', ready=True)
+            if (target is None or target_depth > -half or
+                    abs((target.x-x)*fy - (target.y-y)*fx) > 15 or
+                    not -10 <= (target.x-x)*fx + (target.y-y)*fy-front-half <= 55):
+                return self._waiting('PLACE ONE BLOCK DIRECTLY IN FRONT OF THE PUSHER')
+            if (10-front_depth)/facing > 200:
+                return self._waiting('MOVE CAR AND BLOCK CLOSER TO THE LINE')
+            self.origin, self.forward = (x, y), (fx, fy)
+            self.line = lx, ly, dx, dy
+            return self._plan('READY / SPACE: PUSH AND RETURN', ready=True)
 
         if now-self.started_at > 20:
             return self.stop('20s TEST LIMIT')
-        if abs(depth(line[0], line[1])) > 20 or line[2]*dx+line[3]*dy < .97:
-            return self.stop('FIELD LINE CHANGED')
         start_x, start_y = self.origin
         ax, ay = self.forward
         if abs((x-start_x)*ay - (y-start_y)*ax) > 20 or fx*ax + fy*ay < .99:
             return self.stop('CAR DRIFTED FROM PUSH LINE')
-        if (x-start_x)*ax + (y-start_y)*ay > 220:
-            return self.stop('220mm TRAVEL LIMIT')
-        candidates = [b for b in blocks if math.hypot(b.x-self.target.x, b.y-self.target.y) <= 35]
-        if len(candidates) != 1:
-            return self.stop('TARGET LOST / AMBIGUOUS')
-        target = candidates[0]
-        self.target = target
-        if abs((target.x-start_x)*ay - (target.y-start_y)*ax) > 25:
-            return self.stop('BLOCK DRIFTED FROM PUSH LINE')
-        if depth(target.x, target.y) >= half+10:
+        travel = (x-start_x)*ax + (y-start_y)*ay
+        if travel > 220 or travel < -20:
+            return self.stop('TRAVEL LIMIT')
+        if self.state == 'PUSH':
+            if target and abs((target.x-start_x)*ay - (target.y-start_y)*ax) > 25:
+                return self.stop('BLOCK DRIFTED FROM PUSH LINE')
+            # The pusher can hide the block. Its pose can trigger the return,
+            # but delivery is counted only from the block seen after stopping.
+            if (target is not None and target_depth >= half+5) or front_depth >= 10:
+                self.state = 'RETURN'
+                return self._plan('PUSH REACHED / STOP BEFORE RETURN')
+            return self._plan('PUSH TOWARD YELLOW', command='forward')
+        if self.state == 'RETURN':
+            if travel > 10:
+                return self._plan('RETURN TO START', command='backward')
             self.state = 'VERIFY'
-            if self.verify_since is None:
-                self.verify_since = now
-            if now-self.verify_since >= .4:
+            self.verify_since = now
+            return self._plan('RETURNED / STOP AND CHECK BLOCK')
+        if now-self.verify_since >= .3 and target is not None:
+            if target_depth >= half+5:
                 self.completed = 1
-                return self.stop('ONE BLOCK INSIDE YELLOW', done=True)
-            return self._plan('STOPPED / VERIFY YELLOW POSITION')
-        if self.verify_since is not None:
-            return self.stop('BLOCK LEFT YELLOW DURING VERIFY')
-        front = max((hx-x)*fx + (hy-y)*fy for hx, hy in hull)
-        width = max(abs((hx-x)*fy - (hy-y)*fx) for hx, hy in hull)
-        for b in blocks:
-            if b is target:
-                continue
-            ahead = (b.x-x)*fx + (b.y-y)*fy
-            side = abs((b.x-x)*fy - (b.y-y)*fx)
-            if front-half <= ahead <= front+90 and side <= width+half:
-                return self.stop('ANOTHER BLOCK IN PUSH LANE')
-        return self._plan('STRAIGHT PUSH', command='forward')
+                return self.stop('ROUND TRIP COMPLETE / BLOCK IN YELLOW', done=True)
+            return self.stop('RETURNED / BLOCK NOT FULLY IN YELLOW')
+        if now-self.verify_since >= 1.5:
+            return self.stop('RETURNED / BLOCK NOT VISIBLE')
+        return self._plan('RETURNED / CHECKING BLOCK')
